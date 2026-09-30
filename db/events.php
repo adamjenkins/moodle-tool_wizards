@@ -33,4 +33,13 @@ $observers = [
         'eventname' => '\core\event\user_deleted',
         'callback' => '\tool_wizards\observer::user_deleted',
     ],
+    // Teacher scaffold (tool_teacherscaffold) is optional. Core stores an observer's event name as
+    // a plain string and only looks it up when an event of that class is triggered, so this entry
+    // is inert, and silent, when that plugin is not installed. The contract is in
+    // dev-docs/new-moodle-user-help/RELATIONS.md; after the teacher's own transaction commits.
+    [
+        'eventname' => '\tool_teacherscaffold\event\tier_unlocked',
+        'callback' => '\tool_wizards\observer::tier_unlocked',
+        'internal' => false,
+    ],
 ];

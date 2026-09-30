@@ -1,0 +1,87 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace tool_wizards\output;
+
+use core\output\renderable;
+use core\output\renderer_base;
+use core\output\templatable;
+use tool_wizards\local\module_types;
+
+/**
+ * "You've unlocked Quiz, Choice and Feedback. Want to try a quiz now?"
+ *
+ * @package    tool_wizards
+ * @copyright  2026 Adam Jenkins <adam@wisecat.net>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class unlock_message implements renderable, templatable {
+    /** @var \stdClass the course being viewed */
+    protected \stdClass $course;
+
+    /** @var string[] the unlocked module names */
+    protected array $modules;
+
+    /** @var bool whether to offer a mini-wizard ("Try it now") */
+    protected bool $offertry;
+
+    /**
+     * Constructor.
+     *
+     * @param \stdClass $course the course being viewed
+     * @param string[] $modules the unlocked module names
+     * @param bool $offertry whether to offer a mini-wizard; false when the teacher turned suggestions off
+     */
+    public function __construct(\stdClass $course, array $modules, bool $offertry) {
+        $this->course = $course;
+        $this->modules = $modules;
+        $this->offertry = $offertry;
+    }
+
+    /**
+     * Export the data for the template.
+     *
+     * @param renderer_base $output the renderer
+     * @return array
+     */
+    public function export_for_template(renderer_base $output): array {
+        $names = array_map(fn($modname) => get_string('modulename', $modname), $this->modules);
+        $separator = get_string('unlock_separator', 'tool_wizards');
+
+        // Offer the first unlocked module that has a mini-wizard and can be added here.
+        $try = null;
+        if ($this->offertry) {
+            foreach ($this->modules as $modname) {
+                $type = module_types::type_for_module($modname);
+                if ($type && module_types::is_available($this->course, $type)) {
+                    $try = [
+                        'type' => $type,
+                        'formclass' => module_types::formclass($type),
+                        'modaltitle' => get_string('type_' . $type . '_title', 'tool_wizards'),
+                        'label' => get_string('unlock_try', 'tool_wizards', get_string('modulename', $modname)),
+                    ];
+                    break;
+                }
+            }
+        }
+
+        return [
+            'courseid' => (int) $this->course->id,
+            'message' => get_string('unlock_message', 'tool_wizards', implode($separator, $names)),
+            'try' => $try,
+        ];
+    }
+}

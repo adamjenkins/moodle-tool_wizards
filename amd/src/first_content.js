@@ -14,8 +14,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The first-content suggestions card: opens a mini-wizard for each option, and hides
- * the card for now, for this course, or for good.
+ * The first-content suggestions card, and the unlock message: opens a mini-wizard for each
+ * option, and hides the card for now, for this course, or for good.
  *
  * @module     tool_wizards/first_content
  * @copyright  2026 Adam Jenkins <adam@wisecat.net>
@@ -58,7 +58,8 @@ export const init = (selector) => {
         if (action === 'add') {
             openMiniWizard(card, button);
         } else if (action === 'done') {
-            hideCard(card, 'prompt_hidden_now');
+            // A one-time message just closes; the suggestions card says it is hidden for now.
+            hideCard(card, card.dataset.region === 'tool_wizards-unlock' ? null : 'prompt_hidden_now');
         } else if (action === 'dismisscourse') {
             dismissCourse(card);
         } else if (action === 'dismissall') {
@@ -94,10 +95,10 @@ const openMiniWizard = (card, button) => {
  * Remove the card, say so, and move focus somewhere sensible.
  *
  * @param {HTMLElement} card the card
- * @param {string} stringkey what to say
+ * @param {string|null} stringkey what to say, if anything
  */
 const hideCard = async(card, stringkey) => {
-    const message = await getString(stringkey, 'tool_wizards');
+    const message = stringkey ? await getString(stringkey, 'tool_wizards') : null;
     const main = document.getElementById('region-main') || document.body;
     card.remove();
     const heading = main.querySelector('h1, h2');
@@ -105,7 +106,9 @@ const hideCard = async(card, stringkey) => {
         heading.setAttribute('tabindex', '-1');
         heading.focus();
     }
-    addToast(message);
+    if (message) {
+        addToast(message);
+    }
 };
 
 /**
