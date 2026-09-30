@@ -1,0 +1,5 @@
+# Keep development files out of distribution ZIPs (git archive semantics)
+.github export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
+node_modules export-ignore

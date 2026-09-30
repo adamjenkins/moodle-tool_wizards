@@ -1,0 +1,22 @@
+{
+    "name": "adamjenkins/moodle-tool_wizards",
+    "description": "Moodle admin tool with friendly step-by-step wizards for creating a course and adding its first content",
+    "type": "moodle-tool",
+    "keywords": ["moodle", "admin tool", "wizard", "course creation", "new teachers"],
+    "homepage": "https://github.com/adamjenkins/moodle-tool_wizards",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Adam Jenkins",
+            "email": "adam@wisecat.net"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/adamjenkins/moodle-tool_wizards/issues",
+        "source": "https://github.com/adamjenkins/moodle-tool_wizards"
+    },
+    "require": {
+        "moodle/moodle": ">=5.2 <5.3",
+        "moodle/composer-installer": "^1.0"
+    }
+}
