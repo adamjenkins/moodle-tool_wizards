@@ -1,0 +1,214 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template tool_wizards/course_wizard
+
+    The course wizard: one form with one fieldset per question. The tool_wizards/stepper
+    module shows one step at a time; without JavaScript it is a single long form.
+
+    Context variables required for this template:
+    * actionurl - where the form posts
+    * sesskey - session key
+    * startstep - the step to open first
+    * fullname, shortname - answers so far
+    * askcategory - whether to ask for a category
+    * categories - [{id, name, selected, canvisibility}]
+    * categoryid - the selected category
+    * formats - [{id, name, label, description, checked, usessections, usesstartdate, maxsections}]
+    * numsections, maxsections, startdate - answers so far
+    * canvisibility, visiblenow, visiblelater, showstartedtask - the visibility question
+    * fullnameerror, shortnameerror, categoryerror, formaterror, numsectionserror, startdateerror - field errors
+    * othererrors, hasothererrors - errors on settings the wizard does not ask about
+
+    Example context (json):
+    {
+        "actionurl": "https://example.com/admin/tool/wizards/course.php",
+        "sesskey": "abc123",
+        "startstep": "name",
+        "fullname": "",
+        "shortname": "",
+        "askcategory": true,
+        "categories": [{"id": 1, "name": "Miscellaneous", "selected": true, "canvisibility": true}],
+        "categoryid": 1,
+        "formats": [{"id": "tool_wizards_format_topics", "name": "topics", "label": "Custom sections",
+            "description": "Sections you name yourself.", "checked": true, "usessections": true,
+            "usesstartdate": false, "maxsections": 52}],
+        "numsections": 4,
+        "maxsections": 52,
+        "startdate": "2026-10-01",
+        "canvisibility": true,
+        "visiblenow": true,
+        "visiblelater": false,
+        "showstartedtask": false,
+        "fullnameerror": "",
+        "shortnameerror": "",
+        "categoryerror": "",
+        "formaterror": "",
+        "numsectionserror": "",
+        "startdateerror": "",
+        "othererrors": [],
+        "hasothererrors": false
+    }
+}}
+<div class="tool_wizards-coursewizard" data-region="tool_wizards-stepper" data-startstep="{{startstep}}">
+    <div class="visually-hidden" aria-live="polite" aria-atomic="true" data-region="announce"></div>
+
+    <div class="tool_wizards-progress mb-3 d-none" data-region="progress">
+        <p class="mb-1 fw-bold" data-region="progresstext"></p>
+        <div class="progress" aria-hidden="true">
+            <div class="progress-bar" data-region="progressbar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <form method="post" action="{{actionurl}}" novalidate data-region="form">
+        <input type="hidden" name="sesskey" value="{{sesskey}}">
+        {{! Pressing Enter without JavaScript creates the course, not "Show all settings". }}
+        <button type="submit" name="action" value="create" class="visually-hidden" tabindex="-1">{{#str}}createcourse, tool_wizards{{/str}}</button>
+        {{^askcategory}}
+            <input type="hidden" name="categoryid" value="{{categoryid}}" data-region="categoryhidden" data-canvisibility="{{#canvisibility}}1{{/canvisibility}}{{^canvisibility}}0{{/canvisibility}}">
+        {{/askcategory}}
+
+        <fieldset class="tool_wizards-step mb-4" data-step="name">
+            <legend class="h3" tabindex="-1" data-region="steptitle">{{#str}}step_name_title, tool_wizards{{/str}}</legend>
+            <div class="mb-3">
+                <label class="form-label" for="tool_wizards_fullname">{{#str}}fullname, tool_wizards{{/str}}</label>
+                <input type="text" class="form-control{{#fullnameerror}} is-invalid{{/fullnameerror}}" id="tool_wizards_fullname" name="fullname"
+                    value="{{fullname}}" maxlength="254" required data-region="fullname"
+                    aria-describedby="tool_wizards_fullname_help{{#fullnameerror}} tool_wizards_fullname_error{{/fullnameerror}}"
+                    {{#fullnameerror}}aria-invalid="true"{{/fullnameerror}}>
+                <div class="form-text" id="tool_wizards_fullname_help">{{#str}}fullname_help, tool_wizards{{/str}}</div>
+                <div class="invalid-feedback{{#fullnameerror}} d-block{{/fullnameerror}}" id="tool_wizards_fullname_error" data-region="error">{{fullnameerror}}</div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="tool_wizards_shortname">{{#str}}shortname, tool_wizards{{/str}}</label>
+                <input type="text" class="form-control{{#shortnameerror}} is-invalid{{/shortnameerror}}" id="tool_wizards_shortname" name="shortname"
+                    value="{{shortname}}" maxlength="255" data-region="shortname"
+                    aria-describedby="tool_wizards_shortname_help{{#shortnameerror}} tool_wizards_shortname_error{{/shortnameerror}}"
+                    {{#shortnameerror}}aria-invalid="true"{{/shortnameerror}}>
+                <div class="form-text" id="tool_wizards_shortname_help">{{#str}}shortname_help, tool_wizards{{/str}}</div>
+                <div class="invalid-feedback{{#shortnameerror}} d-block{{/shortnameerror}}" id="tool_wizards_shortname_error" data-region="error">{{shortnameerror}}</div>
+            </div>
+            {{> tool_wizards/course_wizard_stepnav }}
+        </fieldset>
+
+        {{#askcategory}}
+        <fieldset class="tool_wizards-step mb-4" data-step="category">
+            <legend class="h3" tabindex="-1" data-region="steptitle">{{#str}}step_category_title, tool_wizards{{/str}}</legend>
+            <div class="mb-3">
+                <label class="form-label" for="tool_wizards_category">{{#str}}category, tool_wizards{{/str}}</label>
+                <select class="form-select{{#categoryerror}} is-invalid{{/categoryerror}}" id="tool_wizards_category" name="categoryid" data-region="category"
+                    aria-describedby="tool_wizards_category_help{{#categoryerror}} tool_wizards_category_error{{/categoryerror}}">
+                    {{#categories}}
+                    <option value="{{id}}" data-canvisibility="{{#canvisibility}}1{{/canvisibility}}{{^canvisibility}}0{{/canvisibility}}"{{#selected}} selected{{/selected}}>{{name}}</option>
+                    {{/categories}}
+                </select>
+                <div class="form-text" id="tool_wizards_category_help">{{#str}}category_help, tool_wizards{{/str}}</div>
+                <div class="invalid-feedback{{#categoryerror}} d-block{{/categoryerror}}" id="tool_wizards_category_error" data-region="error">{{categoryerror}}</div>
+            </div>
+            {{> tool_wizards/course_wizard_stepnav }}
+        </fieldset>
+        {{/askcategory}}
+
+        <fieldset class="tool_wizards-step mb-4" data-step="layout" aria-describedby="tool_wizards_layout_help">
+            <legend class="h3" tabindex="-1" data-region="steptitle">{{#str}}step_layout_title, tool_wizards{{/str}}</legend>
+            <p id="tool_wizards_layout_help">{{#str}}step_layout_help, tool_wizards{{/str}}</p>
+            <div class="tool_wizards-choices mb-3">
+                {{#formats}}
+                <div class="form-check tool_wizards-choice mb-2">
+                    <input class="form-check-input ms-0 me-2" type="radio" name="format" id="{{id}}" value="{{name}}"{{#checked}} checked{{/checked}}
+                        data-region="format" data-label="{{label}}" data-usessections="{{#usessections}}1{{/usessections}}{{^usessections}}0{{/usessections}}"
+                        data-usesstartdate="{{#usesstartdate}}1{{/usesstartdate}}{{^usesstartdate}}0{{/usesstartdate}}" data-maxsections="{{maxsections}}"
+                        aria-describedby="{{id}}_desc">
+                    <label class="form-check-label fw-bold" for="{{id}}">{{label}}</label>
+                    <div class="text-body-secondary" id="{{id}}_desc">{{description}}</div>
+                </div>
+                {{/formats}}
+            </div>
+            <div class="invalid-feedback{{#formaterror}} d-block{{/formaterror}}" data-region="error">{{formaterror}}</div>
+            {{> tool_wizards/course_wizard_stepnav }}
+        </fieldset>
+
+        <fieldset class="tool_wizards-step mb-4" data-step="sections" data-when="usessections">
+            <legend class="h3" tabindex="-1" data-region="steptitle">{{#str}}step_sections_title, tool_wizards{{/str}}</legend>
+            <div class="mb-3">
+                <label class="form-label" for="tool_wizards_numsections">{{#str}}numsections, tool_wizards{{/str}}</label>
+                <input type="number" class="form-control tool_wizards-number{{#numsectionserror}} is-invalid{{/numsectionserror}}" id="tool_wizards_numsections"
+                    name="numsections" value="{{numsections}}" min="0" max="{{maxsections}}" step="1" inputmode="numeric" data-region="numsections"
+                    aria-describedby="tool_wizards_numsections_help{{#numsectionserror}} tool_wizards_numsections_error{{/numsectionserror}}">
+                <div class="form-text" id="tool_wizards_numsections_help">{{#str}}numsections_help, tool_wizards{{/str}}</div>
+                <div class="invalid-feedback{{#numsectionserror}} d-block{{/numsectionserror}}" id="tool_wizards_numsections_error" data-region="error">{{numsectionserror}}</div>
+            </div>
+            {{> tool_wizards/course_wizard_stepnav }}
+        </fieldset>
+
+        <fieldset class="tool_wizards-step mb-4" data-step="startdate" data-when="usesstartdate">
+            <legend class="h3" tabindex="-1" data-region="steptitle">{{#str}}step_startdate_title, tool_wizards{{/str}}</legend>
+            <div class="mb-3">
+                <label class="form-label" for="tool_wizards_startdate">{{#str}}startdate, tool_wizards{{/str}}</label>
+                <input type="date" class="form-control tool_wizards-date{{#startdateerror}} is-invalid{{/startdateerror}}" id="tool_wizards_startdate"
+                    name="startdate" value="{{startdate}}" data-region="startdate"
+                    aria-describedby="tool_wizards_startdate_help{{#startdateerror}} tool_wizards_startdate_error{{/startdateerror}}">
+                <div class="form-text" id="tool_wizards_startdate_help">{{#str}}startdate_help, tool_wizards{{/str}}</div>
+                <div class="invalid-feedback{{#startdateerror}} d-block{{/startdateerror}}" id="tool_wizards_startdate_error" data-region="error">{{startdateerror}}</div>
+            </div>
+            {{> tool_wizards/course_wizard_stepnav }}
+        </fieldset>
+
+        <fieldset class="tool_wizards-step mb-4" data-step="visibility" data-when="canvisibility">
+            <legend class="h3" tabindex="-1" data-region="steptitle">{{#str}}step_visibility_title, tool_wizards{{/str}}</legend>
+            <div class="tool_wizards-choices mb-3">
+                <div class="form-check tool_wizards-choice mb-2">
+                    <input class="form-check-input ms-0 me-2" type="radio" name="visible" id="tool_wizards_visible_now" value="1"{{#visiblenow}} checked{{/visiblenow}} data-region="visible">
+                    <label class="form-check-label fw-bold" for="tool_wizards_visible_now">{{#str}}visible_now, tool_wizards{{/str}}</label>
+                </div>
+                <div class="form-check tool_wizards-choice mb-2">
+                    <input class="form-check-input ms-0 me-2" type="radio" name="visible" id="tool_wizards_visible_later" value="0"{{#visiblelater}} checked{{/visiblelater}}
+                        data-region="visible" aria-describedby="tool_wizards_visible_later_desc">
+                    <label class="form-check-label fw-bold" for="tool_wizards_visible_later">{{#str}}visible_later, tool_wizards{{/str}}</label>
+                    <div class="text-body-secondary" id="tool_wizards_visible_later_desc">
+                        {{#showstartedtask}}{{#str}}visible_later_help_task, tool_wizards{{/str}}{{/showstartedtask}}
+                        {{^showstartedtask}}{{#str}}visible_later_help, tool_wizards{{/str}}{{/showstartedtask}}
+                    </div>
+                </div>
+            </div>
+            {{> tool_wizards/course_wizard_stepnav }}
+        </fieldset>
+
+        <fieldset class="tool_wizards-step mb-4" data-step="review">
+            <legend class="h3" tabindex="-1" data-region="steptitle">{{#str}}step_review_title, tool_wizards{{/str}}</legend>
+            <p>{{#str}}step_review_help, tool_wizards{{/str}}</p>
+            {{#hasothererrors}}
+            <div class="alert alert-danger" role="alert">
+                <ul class="mb-0">
+                    {{#othererrors}}<li>{{message}}</li>{{/othererrors}}
+                </ul>
+            </div>
+            {{/hasothererrors}}
+            <dl class="tool_wizards-summary row d-none" data-region="summary"></dl>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <button type="button" class="btn btn-secondary d-none" data-action="back">{{#str}}back, tool_wizards{{/str}}</button>
+                <button type="submit" class="btn btn-primary" name="action" value="create" data-action="create">{{#str}}createcourse, tool_wizards{{/str}}</button>
+                <button type="submit" class="btn btn-link" name="action" value="full" formnovalidate>{{#str}}showallsettings, tool_wizards{{/str}}</button>
+            </div>
+        </fieldset>
+    </form>
+</div>
+{{#js}}
+require(['tool_wizards/stepper'], function(stepper) {
+    stepper.init('[data-region="tool_wizards-stepper"]');
+});
+{{/js}}

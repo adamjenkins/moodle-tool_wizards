@@ -1,0 +1,37 @@
+/* The course wizard: roomy, one-column choices that are easy to tap on a phone. */
+.tool_wizards-coursewizard {
+    max-width: 48rem;
+}
+
+.tool_wizards-choice {
+    padding: 1rem;
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+}
+
+.tool_wizards-choice:has(.form-check-input:checked) {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+.tool_wizards-coursewizard .tool_wizards-number,
+.tool_wizards-coursewizard .tool_wizards-date {
+    max-width: 12rem;
+}
+
+.tool_wizards-coursewizard .btn {
+    min-height: 2.75rem;
+}
+
+.tool_wizards-coursewizard .tool_wizards-change {
+    min-height: 0;
+}
+
+.tool_wizards-coursewizard legend:focus {
+    outline: none;
+}
+
+.tool_wizards-coursewizard legend:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}

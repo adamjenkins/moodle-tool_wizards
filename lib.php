@@ -23,6 +23,57 @@
  */
 
 /**
+ * Offer the course wizard in a course category's "More" menu.
+ *
+ * @param navigation_node $categorynode the category settings node
+ * @param context_coursecat $catcontext the category context
+ */
+function tool_wizards_extend_navigation_category_settings(navigation_node $categorynode, context_coursecat $catcontext): void {
+    if (!get_config('tool_wizards', 'enabled') || !has_capability('moodle/course:create', $catcontext)) {
+        return;
+    }
+    $categorynode->add(
+        get_string('createcoursewithwizard', 'tool_wizards'),
+        new moodle_url('/admin/tool/wizards/course.php', ['category' => $catcontext->instanceid]),
+        navigation_node::TYPE_SETTING,
+        null,
+        'tool_wizards_course',
+        new pix_icon('t/add', '')
+    );
+}
+
+/**
+ * Offer the course wizard in the site home's "More" menu, to people who can create
+ * courses in the category core's own front-page button uses.
+ *
+ * @param navigation_node $frontpage the site home settings node
+ * @param stdClass $course the site course
+ * @param context_course $coursecontext the site course context
+ */
+function tool_wizards_extend_navigation_frontpage(
+    navigation_node $frontpage,
+    stdClass $course,
+    context_course $coursecontext
+): void {
+    global $CFG;
+    if (!get_config('tool_wizards', 'enabled') || !isloggedin() || isguestuser()) {
+        return;
+    }
+    $categoryid = \tool_wizards\local\course_creator::get_start_category((int) ($CFG->defaultrequestcategory ?? 0));
+    if (!$categoryid) {
+        return;
+    }
+    $frontpage->add(
+        get_string('createcoursewithwizard', 'tool_wizards'),
+        new moodle_url('/admin/tool/wizards/course.php', ['category' => $categoryid]),
+        navigation_node::TYPE_SETTING,
+        null,
+        'tool_wizards_course',
+        new pix_icon('t/add', '')
+    );
+}
+
+/**
  * Declare the user preferences this plugin lets the current user set, so that the
  * core_user/repository JS API (and the core_user_set_user_preferences web service)
  * accept them.

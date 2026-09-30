@@ -1,0 +1,30 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template tool_wizards/course_wizard_stepnav
+
+    Back and Next buttons plus the "Show all settings" escape hatch, at the foot of a wizard step.
+    Back and Next start hidden: they only work with JavaScript, which reveals them.
+
+    Example context (json):
+    {}
+}}
+<div class="d-flex flex-wrap gap-2 align-items-center">
+    <button type="button" class="btn btn-secondary d-none" data-action="back">{{#str}}back, tool_wizards{{/str}}</button>
+    <button type="button" class="btn btn-primary d-none" data-action="next">{{#str}}next, tool_wizards{{/str}}</button>
+    <button type="submit" class="btn btn-link" name="action" value="full" formnovalidate>{{#str}}showallsettings, tool_wizards{{/str}}</button>
+</div>

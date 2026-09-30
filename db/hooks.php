@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for tool_wizards.
+ * Hook callbacks for tool_wizards.
  *
  * @package    tool_wizards
  * @copyright  2026 Adam Jenkins <adam@wisecat.net>
@@ -24,9 +24,21 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'tool_wizards';
-$plugin->version   = 2026093001;
-$plugin->requires  = 2026041000; // Moodle 5.2.
-$plugin->supported = [502, 502];
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.1.0';
+$callbacks = [
+    [
+        'hook' => \core_course\hook\after_form_definition::class,
+        'callback' => [\tool_wizards\local\prefill::class, 'apply'],
+    ],
+    [
+        'hook' => \core_course\hook\after_form_definition_after_data::class,
+        'callback' => [\tool_wizards\local\prefill::class, 'apply_format_options'],
+    ],
+    [
+        'hook' => \core\hook\output\before_footer_html_generation::class,
+        'callback' => [\tool_wizards\hook_callbacks::class, 'before_footer'],
+    ],
+    [
+        'hook' => \core\hook\output\after_http_headers::class,
+        'callback' => [\tool_wizards\hook_callbacks::class, 'after_http_headers'],
+    ],
+];

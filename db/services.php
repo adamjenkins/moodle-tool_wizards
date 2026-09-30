@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for tool_wizards.
+ * Web service functions for tool_wizards (used by its own JavaScript only).
  *
  * @package    tool_wizards
  * @copyright  2026 Adam Jenkins <adam@wisecat.net>
@@ -24,9 +24,23 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'tool_wizards';
-$plugin->version   = 2026093001;
-$plugin->requires  = 2026041000; // Moodle 5.2.
-$plugin->supported = [502, 502];
-$plugin->maturity  = MATURITY_ALPHA;
-$plugin->release   = '0.1.0';
+$functions = [
+    'tool_wizards_suggest_shortname' => [
+        'classname' => \tool_wizards\external\suggest_shortname::class,
+        'description' => 'Suggest a free course short name from a full name.',
+        'type' => 'read',
+        'ajax' => true,
+    ],
+    'tool_wizards_check_shortname' => [
+        'classname' => \tool_wizards\external\check_shortname::class,
+        'description' => 'Check whether a course short name is free.',
+        'type' => 'read',
+        'ajax' => true,
+    ],
+    'tool_wizards_dismiss_course' => [
+        'classname' => \tool_wizards\external\dismiss_course::class,
+        'description' => 'Hide the first-content suggestions on one course for the current user.',
+        'type' => 'write',
+        'ajax' => true,
+    ],
+];
