@@ -1,0 +1,78 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template tool_wizards/first_content
+
+    The first-content suggestions at the top of a course page. Each option opens a
+    mini-wizard in a modal (tool_wizards/first_content). The card never blocks the page.
+
+    Context variables required for this template:
+    * courseid - the course
+    * heading, question - what the card says
+    * added - {name, url} of what was just added, or null
+    * focus - whether to move focus to the card when the page loads
+    * options - [{type, formclass, label, description, modaltitle, iconurl, modname}]
+    * preferencesurl - where the user can switch suggestions back on
+
+    Example context (json):
+    {
+        "courseid": 2,
+        "heading": "Your course is ready.",
+        "question": "What would you like to add first?",
+        "added": null,
+        "focus": true,
+        "options": [{"type": "forum", "formclass": "\\tool_wizards\\form\\add_forum", "label": "A forum",
+            "description": "A place for discussions.", "modaltitle": "Add a forum",
+            "iconurl": "https://example.com/theme/image.php/boost/forum/1/monologo", "modname": "forum"}],
+        "preferencesurl": "https://example.com/admin/tool/wizards/preferences.php"
+    }
+}}
+<section class="tool_wizards-firstcontent card mb-4" data-region="tool_wizards-firstcontent" data-courseid="{{courseid}}"
+    aria-labelledby="tool_wizards-firstcontent-heading"{{#focus}} data-focus="1"{{/focus}}>
+    <div class="card-body">
+        <div class="d-flex align-items-start gap-2">
+            <div class="flex-grow-1">
+                <h2 class="h4 card-title" id="tool_wizards-firstcontent-heading" tabindex="-1">{{heading}}</h2>
+                {{#added}}{{#url}}
+                <p class="mb-1"><a href="{{url}}">{{#str}}prompt_open, tool_wizards, {{name}}{{/str}}</a></p>
+                {{/url}}{{/added}}
+                <p class="mb-3">{{question}}</p>
+            </div>
+            <button type="button" class="btn-close" data-action="done" aria-label="{{#str}}prompt_done, tool_wizards{{/str}}"></button>
+        </div>
+        <ul class="tool_wizards-options list-unstyled row g-2 mb-3">
+            {{#options}}
+            <li class="col-12 col-sm-6 col-lg-4">
+                <button type="button" class="tool_wizards-option btn btn-outline-secondary w-100 h-100 text-start d-flex gap-3 align-items-start p-3"
+                    data-action="add" data-type="{{type}}" data-formclass="{{formclass}}" data-modaltitle="{{modaltitle}}"
+                    aria-describedby="tool_wizards-option-{{type}}-desc">
+                    <img src="{{iconurl}}" alt="" class="tool_wizards-optionicon activityicon" aria-hidden="true">
+                    <span>
+                        <span class="d-block fw-bold">{{label}}</span>
+                        <span class="d-block small text-body-secondary" id="tool_wizards-option-{{type}}-desc">{{description}}</span>
+                    </span>
+                </button>
+            </li>
+            {{/options}}
+        </ul>
+        <div class="d-flex flex-wrap gap-3 align-items-center small">
+            <button type="button" class="btn btn-link btn-sm p-0" data-action="done">{{#str}}prompt_done, tool_wizards{{/str}}</button>
+            <button type="button" class="btn btn-link btn-sm p-0" data-action="dismisscourse">{{#str}}prompt_hidecourse, tool_wizards{{/str}}</button>
+            <button type="button" class="btn btn-link btn-sm p-0" data-action="dismissall">{{#str}}prompt_hideall, tool_wizards{{/str}}</button>
+        </div>
+    </div>
+</section>

@@ -16,14 +16,28 @@
 
 namespace tool_wizards\local;
 
+use stdClass;
+
 /**
- * The first-content suggestions shown at the top of a course page.
+ * The first-content suggestions ("What would you like to add first?") shown at the
+ * top of a course page, and the messages that share their place.
+ *
+ * The suggestions appear only to people who can add content to the course, only on
+ * a course with little or no content (or straight after they created it or added
+ * something through a mini-wizard), and never once they hid them for the course or
+ * for good. They are a card in the page, never a pop-up.
  *
  * @package    tool_wizards
  * @copyright  2026 Adam Jenkins <adam@wisecat.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class prompt {
+    /** @var string The preference that hides every suggestion for a user. */
+    const PREF_HIDE = 'tool_wizards_hidesuggestions';
+
+    /** @var int How many next suggestions to show after something is added. */
+    const NEXT_SUGGESTIONS = 3;
+
     /**
      * Remember that the current user has just created this course with the wizard,
      * so its course page opens with "Your course is ready".
@@ -33,6 +47,17 @@ class prompt {
     public static function mark_just_created(int $courseid): void {
         global $SESSION;
         $SESSION->tool_wizards_justcreated = $courseid;
+    }
+
+    /**
+     * Remember what a mini-wizard just added, for the confirmation on the next course page view.
+     *
+     * @param int $courseid the course
+     * @param int $cmid the new course module
+     */
+    public static function mark_just_added(int $courseid, int $cmid): void {
+        global $SESSION;
+        $SESSION->tool_wizards_justadded = (object) ['courseid' => $courseid, 'cmid' => $cmid];
     }
 
     /**
@@ -52,6 +77,66 @@ class prompt {
     }
 
     /**
+     * Whether the user has hidden the suggestions on this course.
+     *
+     * @param int $courseid the course
+     * @param int $userid the user
+     * @return bool
+     */
+    public static function is_dismissed(int $courseid, int $userid): bool {
+        global $DB;
+        return $DB->record_exists('tool_wizards_dismissed', ['userid' => $userid, 'courseid' => $courseid]);
+    }
+
+    /**
+     * Whether the user has turned all suggestions off.
+     *
+     * @param int|null $userid the user, default the current one
+     * @return bool
+     */
+    public static function suggestions_hidden(?int $userid = null): bool {
+        return (bool) get_user_preferences(self::PREF_HIDE, 0, $userid);
+    }
+
+    /**
+     * How much content a course has, not counting the Announcements forum every new course
+     * gets, or anything being deleted.
+     *
+     * @param stdClass $course the course
+     * @return int number of activities and resources
+     */
+    public static function count_content(stdClass $course): int {
+        global $DB;
+        $cms = array_filter(get_fast_modinfo($course)->get_cms(), fn(\cm_info $cm) => !$cm->deletioninprogress);
+        $forums = array_filter($cms, fn(\cm_info $cm) => $cm->modname === 'forum');
+        if ($forums) {
+            // Found with a query: forum_get_course_forum() would create the forum if missing.
+            $news = $DB->get_fieldset_select('forum', 'id', "course = ? AND type = 'news'", [$course->id]);
+            $cms = array_filter($cms, fn(\cm_info $cm) => !($cm->modname === 'forum' && in_array($cm->instance, $news)));
+        }
+        return count($cms);
+    }
+
+    /**
+     * Whether the suggestions may be shown to this user on this course at all
+     * (ignoring how much content it has).
+     *
+     * @param stdClass $course the course
+     * @return bool
+     */
+    public static function may_suggest(stdClass $course): bool {
+        global $USER;
+        if (!isloggedin() || isguestuser() || $course->id == SITEID || is_role_switched($course->id)) {
+            return false;
+        }
+        $context = \core\context\course::instance($course->id);
+        if ($context->locked || !has_capability('moodle/course:manageactivities', $context)) {
+            return false;
+        }
+        return !self::suggestions_hidden() && !self::is_dismissed($course->id, $USER->id);
+    }
+
+    /**
      * The HTML to add at the top of a course page, if any.
      *
      * @param \moodle_page $page the course page
@@ -59,6 +144,36 @@ class prompt {
      * @return string
      */
     public static function render_for_page(\moodle_page $page, \renderer_base $renderer): string {
-        return '';
+        global $SESSION;
+        $course = $page->course;
+        if (empty($course->id) || $course->id == SITEID) {
+            return '';
+        }
+
+        $justcreated = !empty($SESSION->tool_wizards_justcreated) && $SESSION->tool_wizards_justcreated == $course->id;
+        unset($SESSION->tool_wizards_justcreated);
+        $justadded = null;
+        if (!empty($SESSION->tool_wizards_justadded) && $SESSION->tool_wizards_justadded->courseid == $course->id) {
+            $justadded = $SESSION->tool_wizards_justadded->cmid;
+        }
+        unset($SESSION->tool_wizards_justadded);
+
+        $html = messages::render_for_page($course, $renderer);
+
+        if (!self::may_suggest($course)) {
+            return $html;
+        }
+        $types = module_types::available($course);
+        if (!$types) {
+            return $html;
+        }
+        $threshold = max(0, (int) get_config('tool_wizards', 'emptythreshold'));
+        if (!$justcreated && !$justadded && self::count_content($course) > $threshold) {
+            return $html;
+        }
+
+        $card = new \tool_wizards\output\first_content($course, $types, $justcreated, $justadded);
+        $page->requires->js_call_amd('tool_wizards/first_content', 'init', ['[data-region="tool_wizards-firstcontent"]']);
+        return $html . $renderer->render($card);
     }
 }

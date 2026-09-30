@@ -35,3 +35,14 @@
     outline: 2px solid var(--bs-primary);
     outline-offset: 2px;
 }
+
+/* The first-content suggestions card. */
+.tool_wizards-firstcontent .tool_wizards-optionicon {
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+}
+
+.tool_wizards-firstcontent .tool_wizards-option {
+    min-height: 2.75rem;
+}

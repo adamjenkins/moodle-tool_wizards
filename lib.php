@@ -74,6 +74,46 @@ function tool_wizards_extend_navigation_frontpage(
 }
 
 /**
+ * Add "Wizards" to the user's own Preferences page, where suggestions can be switched back on.
+ *
+ * @param navigation_node $navigation the user settings node
+ * @param stdClass $user the user whose settings are shown
+ * @param context_user $usercontext the user's context
+ * @param stdClass $course the current course
+ * @param context_course $coursecontext the current course context
+ */
+function tool_wizards_extend_navigation_user_settings(
+    navigation_node $navigation,
+    stdClass $user,
+    context_user $usercontext,
+    stdClass $course,
+    context_course $coursecontext
+): void {
+    global $USER, $PAGE;
+    // Only on the Preferences page itself, and only for one's own preferences (as tool_monitor does).
+    if (!$PAGE->has_set_url() || !$PAGE->url->compare(new moodle_url('/user/preferences.php'), URL_MATCH_BASE)) {
+        return;
+    }
+    if ($USER->id != $user->id || isguestuser() || !get_config('tool_wizards', 'enabled')) {
+        return;
+    }
+    $parent = $navigation->add(
+        get_string('pluginname', 'tool_wizards'),
+        null,
+        navigation_node::TYPE_CONTAINER,
+        null,
+        'tool_wizards'
+    );
+    $parent->add(
+        get_string('preferences_title', 'tool_wizards'),
+        new moodle_url('/admin/tool/wizards/preferences.php'),
+        navigation_node::TYPE_SETTING,
+        null,
+        'tool_wizards_preferences'
+    );
+}
+
+/**
  * Declare the user preferences this plugin lets the current user set, so that the
  * core_user/repository JS API (and the core_user_set_user_preferences web service)
  * accept them.
