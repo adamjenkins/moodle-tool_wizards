@@ -24,6 +24,7 @@
     * courseid - the course
     * heading, question - what the card says
     * added - {name, url} of what was just added, or null
+    * questionfailed - whether a quiz was added without the first question asked for
     * focus - whether to move focus to the card when the page loads
     * options - [{type, formclass, label, description, modaltitle, iconurl, modname}]
     * preferencesurl - where the user can switch suggestions back on
@@ -34,6 +35,7 @@
         "heading": "Your course is ready.",
         "question": "What would you like to add first?",
         "added": null,
+        "questionfailed": false,
         "focus": true,
         "options": [{"type": "forum", "formclass": "\\tool_wizards\\form\\add_forum", "label": "A forum",
             "description": "A place for discussions.", "modaltitle": "Add a forum",
@@ -50,6 +52,9 @@
                 {{#added}}{{#url}}
                 <p class="mb-1"><a href="{{url}}">{{#str}}prompt_open, tool_wizards, {{name}}{{/str}}</a></p>
                 {{/url}}{{/added}}
+                {{#questionfailed}}
+                <p class="mb-1">{{#str}}prompt_questionfailed, tool_wizards{{/str}}</p>
+                {{/questionfailed}}
                 <p class="mb-3">{{question}}</p>
             </div>
             <button type="button" class="btn-close" data-action="done" aria-label="{{#str}}prompt_done, tool_wizards{{/str}}"></button>

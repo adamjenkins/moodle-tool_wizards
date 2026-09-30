@@ -42,6 +42,9 @@ class first_content implements renderable, templatable {
     /** @var int|null the course module a mini-wizard has just added */
     protected ?int $justadded;
 
+    /** @var bool whether a quiz was added without the first question that was asked for */
+    protected bool $questionfailed;
+
     /**
      * Constructor.
      *
@@ -49,8 +52,16 @@ class first_content implements renderable, templatable {
      * @param string[] $types the types the user may add, in order
      * @param bool $justcreated whether the user has just created the course with the wizard
      * @param int|null $justadded the course module a mini-wizard has just added
+     * @param bool $questionfailed whether a quiz was added without the first question asked for
      */
-    public function __construct(\stdClass $course, array $types, bool $justcreated, ?int $justadded) {
+    public function __construct(
+        \stdClass $course,
+        array $types,
+        bool $justcreated,
+        ?int $justadded,
+        bool $questionfailed = false
+    ) {
+        $this->questionfailed = $questionfailed;
         $this->course = $course;
         $this->types = $types;
         $this->justcreated = $justcreated;
@@ -110,6 +121,7 @@ class first_content implements renderable, templatable {
             'heading' => $heading,
             'question' => $question,
             'added' => $added,
+            'questionfailed' => $this->questionfailed,
             'focus' => $this->justcreated || $added !== null,
             'options' => $options,
             'preferencesurl' => (new \moodle_url('/admin/tool/wizards/preferences.php'))->out(false),

@@ -192,6 +192,90 @@ final class module_creator_test extends advanced_testcase {
     }
 
     /**
+     * A glossary with the site's own glossary defaults.
+     */
+    public function test_glossary(): void {
+        global $DB;
+        $cm = module_creator::create($this->course, 'glossary', [
+            'name' => 'Key terms',
+            'introeditor' => ['text' => '<p>Words for this unit</p>', 'format' => FORMAT_HTML],
+        ]);
+        $glossary = $DB->get_record('glossary', ['id' => $cm->instance], '*', MUST_EXIST);
+        $this->assertSame('Key terms', $glossary->name);
+        $this->assertSame('dictionary', $glossary->displayformat);
+        $this->assertEquals(0, $glossary->mainglossary);
+        $this->assertDebuggingNotCalled();
+    }
+
+    /**
+     * A picture on the course page: a text and media area holding the image, with its alt text.
+     */
+    public function test_picture(): void {
+        global $DB, $CFG;
+        $draft = $this->draft_with_file('class.png', file_get_contents($CFG->dirroot . '/lib/tests/fixtures/gd-logo.png'));
+        $form = new \ReflectionMethod(\tool_wizards\form\add_picture::class, 'answers_to_fields');
+        $fields = $form->invoke(
+            (new \ReflectionClass(\tool_wizards\form\add_picture::class))->newInstanceWithoutConstructor(),
+            (object) ['picture' => $draft, 'alt' => 'Our class <on> the trip', 'caption' => 'Museum visit']
+        );
+
+        $cm = module_creator::create($this->course, 'picture', $fields);
+        $label = $DB->get_record('label', ['id' => $cm->instance], '*', MUST_EXIST);
+        $this->assertSame('Museum visit', $label->name);
+        $this->assertStringContainsString('src="@@PLUGINFILE@@/class.png"', $label->intro);
+        $this->assertStringContainsString('alt="Our class &lt;on&gt; the trip"', $label->intro, 'Escaped at the sink.');
+        $this->assertStringContainsString('<figcaption>Museum visit</figcaption>', $label->intro);
+        $files = get_file_storage()->get_area_files($cm->context->id, 'mod_label', 'intro', 0, 'id', false);
+        $this->assertSame(['class.png'], array_values(array_map(fn($f) => $f->get_filename(), $files)));
+        $this->assertDebuggingNotCalled();
+    }
+
+    /**
+     * A quiz with its module defaults, then a first multiple-choice question added to it.
+     */
+    public function test_quiz_with_multichoice_question(): void {
+        global $DB;
+        $cm = module_creator::create($this->course, 'quiz', ['name' => 'Check your understanding']);
+        $quiz = $DB->get_record('quiz', ['id' => $cm->instance], '*', MUST_EXIST);
+        $this->assertSame('Check your understanding', $quiz->name);
+        $this->assertSame(get_config('quiz', 'preferredbehaviour'), $quiz->preferredbehaviour);
+
+        $fields = \tool_wizards\form\add_quiz::question_fields('multichoice', (object) [
+            'questiontext' => 'Which planet is largest?',
+            'choice1' => 'Mars', 'choice2' => 'Jupiter', 'choice3' => '', 'choice4' => 'Venus',
+            'correctchoice' => 2,
+        ]);
+        $question = question_creator::add_to_quiz($cm, 'multichoice', $fields);
+
+        $this->assertSame('multichoice', $question->qtype);
+        $answers = $DB->get_records('question_answers', ['question' => $question->id], 'id');
+        $this->assertSame(
+            ['Mars' => '0.0000000', 'Jupiter' => '1.0000000', 'Venus' => '0.0000000'],
+            array_column(array_values($answers), 'fraction', 'answer')
+        );
+        $quizobj = \mod_quiz\quiz_settings::create($quiz->id);
+        $this->assertCount(1, $quizobj->get_structure()->get_slots());
+        $this->assertEquals(1, $DB->get_field('quiz', 'sumgrades', ['id' => $quiz->id]), 'Total marks recomputed.');
+        $this->assertDebuggingNotCalled();
+    }
+
+    /**
+     * A true or false first question.
+     */
+    public function test_quiz_with_truefalse_question(): void {
+        global $DB;
+        $cm = module_creator::create($this->course, 'quiz', ['name' => 'Quick check']);
+        $question = question_creator::add_to_quiz($cm, 'truefalse', \tool_wizards\form\add_quiz::question_fields(
+            'truefalse',
+            (object) ['questiontext' => 'The sun is a star.', 'truefalse' => 1]
+        ));
+        $options = $DB->get_record('question_truefalse', ['question' => $question->id], '*', MUST_EXIST);
+        $this->assertSame('1.0000000', $DB->get_field('question_answers', 'fraction', ['id' => $options->trueanswer]));
+        $this->assertSame('0.0000000', $DB->get_field('question_answers', 'fraction', ['id' => $options->falseanswer]));
+        $this->assertCount(1, \mod_quiz\quiz_settings::create($cm->instance)->get_structure()->get_slots());
+    }
+
+    /**
      * A student is offered nothing.
      */
     public function test_student_offered_nothing(): void {

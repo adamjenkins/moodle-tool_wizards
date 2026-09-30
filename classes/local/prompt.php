@@ -61,6 +61,14 @@ class prompt {
     }
 
     /**
+     * Remember that the quiz mini-wizard added the quiz but not its first question.
+     */
+    public static function mark_question_failed(): void {
+        global $SESSION;
+        $SESSION->tool_wizards_questionfailed = true;
+    }
+
+    /**
      * Hide the suggestions on a course for the current user.
      *
      * @param int $courseid the course
@@ -172,7 +180,9 @@ class prompt {
             return $html;
         }
 
-        $card = new \tool_wizards\output\first_content($course, $types, $justcreated, $justadded);
+        $questionfailed = !empty($SESSION->tool_wizards_questionfailed) && $justadded;
+        unset($SESSION->tool_wizards_questionfailed);
+        $card = new \tool_wizards\output\first_content($course, $types, $justcreated, $justadded, $questionfailed);
         $page->requires->js_call_amd('tool_wizards/first_content', 'init', ['[data-region="tool_wizards-firstcontent"]']);
         return $html . $renderer->render($card);
     }
