@@ -1,19 +1,100 @@
 # Wizards (tool_wizards)
 
-Friendly, step-by-step wizards for Moodle teachers:
+Friendly, step-by-step wizards that help teachers who are new to Moodle get a course
+started, without long settings pages.
 
-- **Course wizard**: create a course by answering a few simple questions, one at a time
-  (name, category, layout, number of sections, start date, visibility). Everything else uses
-  the site defaults, and "Show all settings" leads to the standard course form at any step.
-- **First content**: on a new or nearly empty course, teachers who can edit it are asked
-  "What would you like to add first?" and get a short mini-wizard for a file, slides, a picture,
-  a page, a forum, a glossary or a quiz.
+## What it does
 
-Work in progress. See `CHANGES.md` for the current release.
+### The course wizard
+
+"Create a course with the wizard" asks one question at a time:
+
+1. What do you want the course called? A short name is suggested, and you can change it.
+2. Where should the course go? This is asked only if you can create courses in more than one category.
+3. What layout do you want? Each layout comes with a plain description.
+4. How many sections do you want to start with? Asked for layouts that have sections.
+5. When does the course start? Asked only for weekly sections.
+6. Should students see the course now? Asked only if you will be allowed to change this.
+
+A review screen shows every answer, each with a "Change" button, before anything is created.
+Everything else uses your site's usual defaults: exactly the values the standard "Add a new
+course" form would use. "Show all settings", on every step, opens the standard form with your
+answers filled in.
+
+The course is created the same way the standard form creates it, and the person who created
+it is enrolled in the same way. Events and defaults behave as usual.
+
+The wizard is offered:
+
+- in each course category's menu, and in the site home menu,
+- in Site administration > Courses,
+- next to Moodle's own "Add a new course" and "Create course" buttons. Admins can switch
+  this off with the "Show wizard links next to "Add a new course"" setting.
+
+### First content
+
+On a new or nearly empty course, anyone who can add content there sees a card: "What would
+you like to add first?" Each option opens a short mini-wizard in a pop-up:
+
+| Option | What it asks | What it adds |
+|---|---|---|
+| A file | the file (drag and drop), a name (optional) | File |
+| Slides | the presentation file, a name (optional) | File |
+| A picture | the picture, what it shows, a caption (optional) | Text and media area, showing the picture |
+| A page | a title and the content | Page |
+| A forum | a name and what it is for | Forum |
+| A glossary | a name and what it is for | Glossary |
+| A quiz | a name, what it is about, and optionally a first multiple choice or true/false question | Quiz (and question) |
+
+Every other setting is the activity's own default, as if you had used the standard form and
+changed only these fields. Completion, the gradebook and events work as usual.
+
+Only the kinds of content you are allowed to add in that course are offered. Afterwards the
+card confirms what was added ("Nice, Week 1 discussion was added.") and suggests something
+different to add next.
+
+The card never blocks the page. You can:
+
+- close it for now ("I'm done for now"),
+- hide it for one course ("Hide for this course"),
+- switch it off everywhere ("Don't show me wizard suggestions"). You can switch it back on in
+  Preferences > Wizard suggestions.
+
+### Teacher scaffold (optional)
+
+If [Teacher scaffold](https://github.com/adamjenkins/moodle-tool_teacherscaffold)
+(tool_teacherscaffold) is installed, a teacher who unlocks new activities sees a message on
+their next course page, for example "Nice work! You've unlocked new activities: Quiz, Choice,
+Feedback." The message has a button that opens the matching mini-wizard. Wizards does not
+need Teacher scaffold, and works the same without it.
+
+## Settings
+
+Site administration > Courses > Wizards:
+
+- **Enable the wizards**: switches everything on or off for the whole site.
+- **Suggest first content up to this many activities**: the card appears on courses with this
+  many activities or fewer (default 1). The Announcements forum is not counted.
+- **Show wizard links next to "Add a new course"**.
+
+The plugin adds no capabilities. Each wizard needs the permission its action needs anyway:
+`moodle/course:create` in the category for the course wizard, and
+`moodle/course:manageactivities` plus the activity's own `mod/…:addinstance` for the first
+content.
 
 ## Requirements
 
 Moodle 5.2.
+
+## Privacy
+
+The plugin stores these for each user:
+
+- whether they switched wizard suggestions off (a user preference),
+- the courses where they hid the suggestions,
+- messages waiting to be shown to them.
+
+All three are covered by its privacy provider.
 
 ## Licence
 

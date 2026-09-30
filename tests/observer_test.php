@@ -133,15 +133,38 @@ final class observer_test extends advanced_testcase {
         $first = messages::render_for_page($course, $renderer);
         $quiz = get_string('modulename', 'quiz');
         $choice = get_string('modulename', 'choice');
-        $this->assertStringContainsString(s(get_string('unlock_message', 'tool_wizards', "$quiz, $choice")), $first);
+        $list = get_string('unlock_list', 'tool_wizards', (object) ['first' => $quiz, 'last' => $choice]);
+        $this->assertStringContainsString(s(get_string('unlock_message', 'tool_wizards', $list)), $first);
         $this->assertStringContainsString('data-type="quiz"', $first, 'Offers the quiz mini-wizard.');
 
         set_user_preference(local\prompt::PREF_HIDE, 1);
         $second = messages::render_for_page($course, $renderer);
-        $this->assertStringContainsString(get_string('modulename', 'glossary'), $second, 'The next one, next time.');
+        $this->assertStringContainsString(
+            s(get_string('unlock_message_one', 'tool_wizards', get_string('modulename', 'glossary'))),
+            $second,
+            'The next one, next time, worded for one activity.'
+        );
         $this->assertStringNotContainsString('data-action="add"', $second, 'No mini-wizard with suggestions off.');
 
         $this->assertSame('', messages::render_for_page($course, $renderer), 'Each is shown once.');
+    }
+
+    /**
+     * No "try it" button on a course where the teacher hid the suggestions: the confirmation after
+     * adding would not be shown there.
+     */
+    public function test_no_try_on_dismissed_course(): void {
+        global $PAGE;
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
+        $this->setUser($teacher);
+        local\prompt::dismiss_course($course->id);
+        observer::tier_unlocked($this->unlock_event($teacher->id, ['tier' => 3, 'unlockedmodules' => ['quiz']]));
+        $PAGE->set_url(new \moodle_url('/course/view.php', ['id' => $course->id]));
+        $html = messages::render_for_page($course, $PAGE->get_renderer('core'));
+        $this->assertStringContainsString(get_string('modulename', 'quiz'), $html);
+        $this->assertStringNotContainsString('data-action="add"', $html);
     }
 
     /**

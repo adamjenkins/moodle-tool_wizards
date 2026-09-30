@@ -55,8 +55,14 @@ class add_quiz extends add_module_base {
         $kinds = [
             $mform->createElement('radio', 'firstquestion', '', get_string('quiz_firstquestion_none', 'tool_wizards'), ''),
         ];
+        // Offered only to people who may add questions to the new quiz (the capabilities
+        // question_creator checks, inherited from the course into the quiz's context).
+        $canaddquestion = has_all_capabilities(
+            ['mod/quiz:manage', 'moodle/question:add'],
+            $this->get_context_for_dynamic_submission()
+        );
         foreach (question_creator::QTYPES as $qtype) {
-            if (\question_bank::qtype_enabled($qtype)) {
+            if ($canaddquestion && \question_bank::qtype_enabled($qtype)) {
                 $kinds[] = $mform->createElement(
                     'radio',
                     'firstquestion',
@@ -69,6 +75,13 @@ class add_quiz extends add_module_base {
         $label = get_string('quiz_firstquestion_kind', 'tool_wizards');
         $mform->addGroup($kinds, 'firstquestiongroup', $label, \html_writer::empty_tag('br'), false);
         $mform->setDefault('firstquestion', '');
+        if (!$canaddquestion) {
+            $mform->removeElement('firstquestionhdr');
+            $mform->removeElement('firstquestiongroup');
+            $mform->addElement('hidden', 'firstquestion', '');
+            $mform->setType('firstquestion', PARAM_ALPHA);
+            return;
+        }
 
         $label = get_string('quiz_questiontext', 'tool_wizards');
         $mform->addElement('textarea', 'questiontext', $label, ['rows' => 3, 'cols' => 50]);

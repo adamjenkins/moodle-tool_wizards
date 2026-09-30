@@ -82,7 +82,8 @@ class first_content implements renderable, templatable {
             $cm = $modinfo->cms[$this->justadded] ?? null;
             if ($cm) {
                 $added = [
-                    'name' => $cm->get_formatted_name(),
+                    // Not escaped here: the template and get_string() placeholders escape it once.
+                    'name' => format_string($cm->name, true, ['context' => $cm->context, 'escape' => false]),
                     'url' => $cm->url ? $cm->url->out(false) : '',
                 ];
                 // Suggest something different next.

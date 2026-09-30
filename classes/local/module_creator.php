@@ -107,6 +107,8 @@ class module_creator {
             throw new \moodle_exception('error_moduleform', 'tool_wizards', '', null, json_encode($errors));
         }
 
+        // As course/modedit.php does: a large regrade is queued rather than run in this request.
+        $fromform->frontend = true;
         $result = add_moduleinfo($fromform, $course, $mform);
         return get_fast_modinfo($course->id)->get_cm($result->coursemodule);
     }

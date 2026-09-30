@@ -77,7 +77,8 @@ class course_wizard implements renderable, templatable {
         foreach (course_creator::get_categories() as $id => $name) {
             $categories[] = [
                 'id' => $id,
-                'name' => $name,
+                // Already run through format_string() by make_categories_list(); the template escapes.
+                'name' => html_entity_decode($name, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
                 'selected' => $id == $selectedcategory,
                 'canvisibility' => course_creator::can_choose_visibility($id),
             ];
@@ -123,17 +124,7 @@ class course_wizard implements renderable, templatable {
             'canvisibility' => $canvisibility,
             'visiblenow' => $visible,
             'visiblelater' => !$visible,
-            'showstartedtask' => self::show_started_courses_enabled(),
+            'showstartedtask' => course_creator::show_started_courses_enabled(),
         ];
-    }
-
-    /**
-     * Whether core's "show courses on their start date" task is switched on.
-     *
-     * @return bool
-     */
-    protected static function show_started_courses_enabled(): bool {
-        $task = \core\task\manager::get_scheduled_task(\core\task\show_started_courses_task::class);
-        return $task && !$task->get_disabled();
     }
 }

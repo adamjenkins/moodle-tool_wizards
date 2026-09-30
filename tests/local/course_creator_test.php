@@ -189,6 +189,8 @@ final class course_creator_test extends advanced_testcase {
                 ['numsections' => 6, 'startdate' => [2026, 10, 5], 'visible' => 0]],
             'custom sections, admin, not enrolled by default' => ['topics', 'admin', ['numsections' => 3]],
             'custom sections, admin enrolling' => ['topics', 'adminenrol', ['numsections' => 2, 'visible' => 0]],
+            // Social has no number of sections in the standard form; an answer must not add any.
+            'social, course creator, sections answered anyway' => ['social', 'creator', ['numsections' => 5]],
         ];
     }
 
@@ -201,7 +203,6 @@ final class course_creator_test extends advanced_testcase {
      */
     #[\PHPUnit\Framework\Attributes\DataProvider('parity_provider')]
     public function test_matches_core_form(string $format, string $who, array $answers): void {
-        global $CFG;
         $this->resetAfterTest();
         $category = $this->getDataGenerator()->create_category();
         if ($who === 'creator') {
@@ -213,6 +214,7 @@ final class course_creator_test extends advanced_testcase {
         // The standard form's own layout choice reloads the page with that layout's options, which
         // cannot be clicked here; making the layout the site default gives the page it reloads to.
         set_config('format', $format, 'moodlecourse');
+        \core\plugininfo\format::enable_plugin($format, 1);
 
         $startdate = isset($answers['startdate']) ? make_timestamp(...$answers['startdate']) : null;
         $core = $this->create_with_core_form($category, array_filter([
@@ -315,6 +317,45 @@ final class course_creator_test extends advanced_testcase {
         $this->assertSame(3, $topics->numsections);
         $this->assertObjectNotHasProperty('startdate', $topics, 'Only weekly sections ask for a start date.');
         $this->assertObjectNotHasProperty('visible', $topics, 'Unanswered visibility falls back to the site default.');
+    }
+
+    /**
+     * With core's "show courses on their start date" task on, "later" asks for the start date for
+     * every layout, since that is when students will see the course.
+     */
+    public function test_startdate_asked_when_later_means_start_date(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $category = $this->getDataGenerator()->create_category();
+        $raw = ['fullname' => 'T', 'shortname' => 'T', 'category' => $category->id, 'format' => 'topics',
+            'startdate' => 12345, 'visible' => '0'];
+        $this->assertObjectNotHasProperty('startdate', course_creator::normalise_answers($raw), 'Task off: not asked.');
+
+        $task = \core\task\manager::get_scheduled_task(\core\task\show_started_courses_task::class);
+        $task->set_disabled(false);
+        \core\task\manager::configure_scheduled_task($task);
+        $this->assertSame(12345, course_creator::normalise_answers($raw)->startdate);
+        $raw['visible'] = '1';
+        $this->assertObjectNotHasProperty('startdate', course_creator::normalise_answers($raw), 'Visible now: not asked.');
+    }
+
+    /**
+     * A required course custom field, which the standard form enforces, stops the wizard too.
+     */
+    public function test_required_custom_field_enforced(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_customfield');
+        $cfcategory = $generator->create_category();
+        $generator->create_field(['categoryid' => $cfcategory->get('id'), 'type' => 'text', 'shortname' => 'dept',
+            'name' => 'Department', 'configdata' => ['required' => 1, 'defaultvalue' => '']]);
+        $category = $this->getDataGenerator()->create_category();
+
+        $errors = course_creator::validate(course_creator::normalise_answers(['fullname' => 'Needs dept',
+            'shortname' => 'NEEDSDEPT', 'category' => $category->id, 'format' => 'topics']));
+        $this->assertArrayHasKey('customfield_dept', $errors);
+        $this->assertSame(get_string('error_requiredsetting', 'tool_wizards', 'Department'), $errors['customfield_dept']);
+        $this->assertSame('review', course_wizard::step_for_error('customfield_dept'));
     }
 
     /**

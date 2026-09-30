@@ -99,9 +99,11 @@ const openMiniWizard = (card, button) => {
  */
 const hideCard = async(card, stringkey) => {
     const message = stringkey ? await getString(stringkey, 'tool_wizards') : null;
-    const main = document.getElementById('region-main') || document.body;
     card.remove();
-    const heading = main.querySelector('h1, h2');
+    // Somewhere visible: the page heading, or else the first visible heading of the course.
+    const candidates = document.querySelectorAll('#page-header h1, #region-main h2, #region-main h3');
+    const heading = Array.from(candidates).find(el => el.offsetParent !== null
+        && !el.closest('.accesshide, .visually-hidden'));
     if (heading) {
         heading.setAttribute('tabindex', '-1');
         heading.focus();

@@ -25,7 +25,7 @@ namespace tool_wizards\local;
  */
 class course_wizard {
     /** @var string[] The wizard's steps, in order. Some are skipped depending on the answers. */
-    const STEPS = ['name', 'category', 'layout', 'sections', 'startdate', 'visibility', 'review'];
+    const STEPS = ['name', 'category', 'layout', 'sections', 'visibility', 'startdate', 'review'];
 
     /** @var array Which step asks for which answer, for returning to the step with an error. */
     const FIELD_STEPS = [

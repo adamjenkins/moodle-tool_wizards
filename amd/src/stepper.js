@@ -28,6 +28,7 @@
 
 import {getStrings} from 'core/str';
 import Ajax from 'core/ajax';
+import Notification from 'core/notification';
 import Pending from 'core/pending';
 
 /** @var {number} How long to wait after typing before suggesting a short name, in ms. */
@@ -45,10 +46,16 @@ export const init = async(selector) => {
     }
     root.dataset.initialised = '1';
     const pending = new Pending('tool_wizards/stepper:init');
-    const strings = await loadStrings();
-    const wizard = new Stepper(root, strings);
-    wizard.start(root.dataset.startstep || 'name');
-    pending.resolve();
+    try {
+        const strings = await loadStrings();
+        const wizard = new Stepper(root, strings);
+        wizard.start(root.dataset.startstep || 'name');
+    } catch (error) {
+        // Without the stepper the page is still one working form.
+        Notification.exception(error);
+    } finally {
+        pending.resolve();
+    }
 };
 
 /**
@@ -101,6 +108,7 @@ class Stepper {
         this.shortnameedited = this.shortname.value !== '';
         this.current = null;
         this.suggesttimer = null;
+        this.shortnamecheck = null;
     }
 
     /**
@@ -110,6 +118,8 @@ class Stepper {
      */
     start(startstep) {
         this.progress.classList.remove('d-none');
+        // Enter is handled below, so the no-JavaScript default submit button is not needed.
+        this.root.querySelector('[data-region="defaultsubmit"]')?.remove();
         this.root.querySelectorAll('[data-action="back"], [data-action="next"]').forEach(button => {
             button.classList.remove('d-none');
         });
@@ -146,12 +156,23 @@ class Stepper {
         this.shortname.addEventListener('input', () => {
             this.shortnameedited = this.shortname.value.trim() !== '';
         });
-        this.shortname.addEventListener('change', () => this.checkShortname());
+        this.shortname.addEventListener('change', () => {
+            this.shortnamecheck = this.checkShortname();
+        });
 
         // Show the first step without moving focus: the page has only just loaded,
         // unless we came back with an error, when focus must go to it.
-        const hasError = this.root.querySelector('.is-invalid, .alert-danger') !== null;
-        this.show(this.activeSteps().includes(startstep) ? startstep : 'name', hasError);
+        const hasError = this.root.querySelector('.is-invalid, [data-region="othererrors"]') !== null;
+        const first = this.activeSteps().includes(startstep) ? startstep : 'name';
+        this.show(first, hasError);
+        if (hasError) {
+            const step = this.stepElement(first);
+            const target = step.querySelector('.is-invalid, [data-region="othererrors"]');
+            if (target) {
+                // The field's aria-describedby reads out the error with it.
+                target.focus();
+            }
+        }
     }
 
     /**
@@ -161,10 +182,15 @@ class Stepper {
      */
     activeSteps() {
         const format = this.form.querySelector('[data-region="format"]:checked');
+        const canvisibility = this.canChooseVisibility();
+        const later = this.form.querySelector('[data-region="visible"][value="0"]');
+        // With core's "show courses on their start date" task on, "later" means "on the start date",
+        // so the date is asked for every layout, not only for weekly sections.
+        const showlater = this.root.dataset.showstartedtask === '1' && canvisibility && later && later.checked;
         const conditions = {
             usessections: format ? format.dataset.usessections === '1' : false,
-            usesstartdate: format ? format.dataset.usesstartdate === '1' : false,
-            canvisibility: this.canChooseVisibility(),
+            startdate: (format ? format.dataset.usesstartdate === '1' : false) || showlater,
+            canvisibility: canvisibility,
         };
         return this.steps
             .filter(step => !step.dataset.when || conditions[step.dataset.when])
@@ -212,6 +238,14 @@ class Stepper {
         if (name === 'review') {
             this.buildSummary(active);
         }
+        if (name === 'startdate') {
+            const format = this.form.querySelector('[data-region="format"]:checked');
+            const weeks = format && format.dataset.usesstartdate === '1';
+            const weekshelp = this.root.querySelector('[data-region="startdatehelp-weeks"]');
+            if (weekshelp) {
+                weekshelp.hidden = !weeks;
+            }
+        }
         if (focus) {
             this.announcer.textContent = fill(this.strings.stepannounce, values);
             title.focus();
@@ -231,9 +265,18 @@ class Stepper {
     /**
      * Go to the next step, if the current one is complete.
      */
-    next() {
+    async next() {
         if (!this.validate(this.current)) {
             return;
+        }
+        if (this.current === 'name') {
+            // Wait for the short name check, which leaving the field has just started.
+            const available = await (this.shortnamecheck || this.checkShortname());
+            this.shortnamecheck = null;
+            if (available === false) {
+                this.shortname.focus();
+                return;
+            }
         }
         const active = this.activeSteps();
         const index = active.indexOf(this.current);
@@ -404,13 +447,16 @@ class Stepper {
 
     /**
      * Warn straight away when a typed short name is already taken.
+     *
+     * @returns {Promise<boolean|null>} whether it is free; null when unknown
      */
     async checkShortname() {
         const shortname = this.shortname.value.trim();
         const error = document.getElementById('tool_wizards_shortname_error');
         if (shortname === '') {
-            return;
+            return null;
         }
+        let available = null;
         const pending = new Pending('tool_wizards/stepper:check');
         try {
             const result = await Ajax.call([{
@@ -419,8 +465,9 @@ class Stepper {
             }])[0];
             if (this.shortname.value.trim() !== shortname) {
                 pending.resolve();
-                return;
+                return null;
             }
+            available = result.available;
             if (result.available) {
                 error.textContent = '';
                 error.classList.remove('d-block');
@@ -437,8 +484,10 @@ class Stepper {
                 }
             }
         } catch (e) {
+            // The server checks again when the course is created.
             window.console.warn(e);
         }
         pending.resolve();
+        return available;
     }
 }

@@ -61,6 +61,46 @@ class course_defaults_form extends \course_edit_form {
     }
 
     /**
+     * Whether the form has an element (after its format options were added).
+     *
+     * @param string $name the element name
+     * @return bool
+     */
+    public function has_element(string $name): bool {
+        return $this->_form->elementExists($name) || $this->is_group_member($name);
+    }
+
+    /**
+     * The form's "required" rules that the data does not meet.
+     *
+     * course/edit.php enforces these through the form's own rules, which validation() does
+     * not run. The wizard only asks a few questions, so a field it does not ask about is
+     * reported with its label and a pointer to the standard form.
+     *
+     * @param array $data the data about to be used
+     * @return array field => error message
+     */
+    public function required_errors(array $data): array {
+        $errors = [];
+        foreach ($this->_form->_rules as $field => $rules) {
+            foreach ($rules as $rule) {
+                if (($rule['type'] ?? '') !== 'required') {
+                    continue;
+                }
+                $value = $data[$field] ?? null;
+                if (is_array($value) && array_key_exists('text', $value)) {
+                    $value = $value['text'];
+                }
+                if ($value === null || $value === '' || $value === []) {
+                    $label = $this->_form->elementExists($field) ? $this->_form->getElement($field)->getLabel() : $field;
+                    $errors[$field] = get_string('error_requiredsetting', 'tool_wizards', strip_tags((string) $label));
+                }
+            }
+        }
+        return $errors;
+    }
+
+    /**
      * Whether a default belongs to an element inside a group (for example enrolment options).
      *
      * @param string $name the element name

@@ -99,7 +99,11 @@ class course_creator {
                 'name' => $name,
                 'label' => get_string('pluginname', 'format_' . $name),
                 'description' => $description,
-                'usessections' => $format->uses_sections(),
+                // Only formats whose new-course form asks for a number of sections: core's topics
+                // and weeks add a numsections element (course/format/{topics,weeks}/lib.php
+                // create_edit_form_elements()); social does not, although it uses_sections().
+                'usessections' => in_array($name, ['topics', 'weeks'], true)
+                    || array_key_exists('numsections', $format->course_format_options()),
                 'usesstartdate' => $format instanceof \format_weeks,
                 'maxsections' => self::get_max_sections($name),
             ];
@@ -215,16 +219,39 @@ class course_creator {
         if ($formatinfo && $formatinfo['usessections'] && isset($answers['numsections']) && $answers['numsections'] !== '') {
             $out->numsections = max(0, min((int) $answers['numsections'], $formatinfo['maxsections']));
         }
-        if ($formatinfo && $formatinfo['usesstartdate'] && !empty($answers['startdate'])) {
-            $out->startdate = (int) $answers['startdate'];
-        }
         if (
             $out->category && isset($answers['visible']) && $answers['visible'] !== ''
                 && self::can_choose_visibility($out->category)
         ) {
             $out->visible = empty($answers['visible']) ? 0 : 1;
         }
+        // The start date is asked for weekly sections, and whenever "show it later" means
+        // "on its start date" (core's show_started_courses_task is on).
+        if ($formatinfo && !empty($answers['startdate']) && self::asks_startdate($formatinfo, $out->visible ?? null)) {
+            $out->startdate = (int) $answers['startdate'];
+        }
         return $out;
+    }
+
+    /**
+     * Whether the wizard asks for a start date.
+     *
+     * @param array $formatinfo the chosen format (see get_formats())
+     * @param int|null $visible the visibility answer, or null when not asked
+     * @return bool
+     */
+    public static function asks_startdate(array $formatinfo, ?int $visible): bool {
+        return $formatinfo['usesstartdate'] || ($visible === 0 && self::show_started_courses_enabled());
+    }
+
+    /**
+     * Whether core's "show courses on their start date" task is switched on.
+     *
+     * @return bool
+     */
+    public static function show_started_courses_enabled(): bool {
+        $task = \core\task\manager::get_scheduled_task(\core\task\show_started_courses_task::class);
+        return $task && !$task->get_disabled();
     }
 
     /**
@@ -255,10 +282,11 @@ class course_creator {
             return $errors;
         }
 
-        // Everything else is checked by core's own form validation, exactly as for the standard form.
+        // Everything else is checked by core's own form: its required fields (such as a required
+        // course custom field, which the wizard cannot ask about) and its validation.
         [$form, $data] = self::build_core_data($answers);
         $coreerrors = $form->validation($data, []);
-        return is_array($coreerrors) ? $coreerrors : [];
+        return array_merge($form->required_errors($data), is_array($coreerrors) ? $coreerrors : []);
     }
 
     /**
@@ -363,7 +391,8 @@ class course_creator {
         // Values the form would not carry as element defaults.
         $data['category'] = $category->id;
         foreach (['fullname', 'shortname', 'format', 'numsections', 'startdate', 'visible'] as $field) {
-            if (isset($answers->$field)) {
+            // Only fields the form has: a format without a number of sections gets none.
+            if (isset($answers->$field) && $form->has_element($field)) {
                 $data[$field] = $answers->$field;
             }
         }

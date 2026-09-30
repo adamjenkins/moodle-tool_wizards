@@ -180,6 +180,12 @@ class form_submission {
                     if ($el['tag'] === 'select' && $el['multiple']) {
                         $wanted = explode('|', $value);
                         $selected = $el['values'];
+                        if ($condition === 'in') {
+                            // As in form.js _dependencyIn(): nothing selected counts as '', and the selection must be a subset.
+                            $selected = $selected ?: [''];
+                            $lock = !array_diff($selected, $wanted);
+                            break;
+                        }
                         $same = count($selected) === count($wanted) && !array_diff($selected, $wanted);
                         if ($wanted === ['']) {
                             $same = !$selected;

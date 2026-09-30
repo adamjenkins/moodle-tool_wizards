@@ -100,7 +100,10 @@ class messages {
         if (!$modules) {
             return '';
         }
-        $message = new \tool_wizards\output\unlock_message($course, $modules, !prompt::suggestions_hidden());
+        // No mini-wizard where the teacher turned suggestions off, everywhere or on this course (D4):
+        // the confirmation after adding would not be shown there.
+        $offertry = !prompt::suggestions_hidden() && !prompt::is_dismissed((int) $course->id, (int) $USER->id);
+        $message = new \tool_wizards\output\unlock_message($course, $modules, $offertry);
         $PAGE->requires->js_call_amd('tool_wizards/first_content', 'init', ['[data-region="tool_wizards-unlock"]']);
         return $renderer->render($message);
     }

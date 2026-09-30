@@ -52,6 +52,20 @@ class unlock_message implements renderable, templatable {
     }
 
     /**
+     * Join names into a list, "A, B and C", with separators translators can change.
+     *
+     * @param string[] $names two or more names
+     * @return string
+     */
+    protected static function join_names(array $names): string {
+        $last = array_pop($names);
+        return get_string('unlock_list', 'tool_wizards', (object) [
+            'first' => implode(get_string('unlock_separator', 'tool_wizards'), $names),
+            'last' => $last,
+        ]);
+    }
+
+    /**
      * Export the data for the template.
      *
      * @param renderer_base $output the renderer
@@ -59,7 +73,6 @@ class unlock_message implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): array {
         $names = array_map(fn($modname) => get_string('modulename', $modname), $this->modules);
-        $separator = get_string('unlock_separator', 'tool_wizards');
 
         // Offer the first unlocked module that has a mini-wizard and can be added here.
         $try = null;
@@ -80,7 +93,9 @@ class unlock_message implements renderable, templatable {
 
         return [
             'courseid' => (int) $this->course->id,
-            'message' => get_string('unlock_message', 'tool_wizards', implode($separator, $names)),
+            'message' => count($names) === 1
+                ? get_string('unlock_message_one', 'tool_wizards', $names[0])
+                : get_string('unlock_message', 'tool_wizards', self::join_names($names)),
             'try' => $try,
         ];
     }

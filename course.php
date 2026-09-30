@@ -94,7 +94,20 @@ if ($action === 'create' || $action === 'full') {
         }
         redirect($courseurl);
     }
-    $startstep = tool_wizards\local\course_wizard::step_for_error(array_key_first($errors));
+    // Show the answers and errors again after a redirect, so the page with the errors never
+    // carries the requirements that building core's course form queued, and a refresh does
+    // not submit again.
+    $SESSION->tool_wizards_retry = (object) [
+        'answers' => $answers,
+        'errors' => $errors,
+        'startstep' => tool_wizards\local\course_wizard::step_for_error(array_key_first($errors)),
+    ];
+    redirect($url);
+} else if (!empty($SESSION->tool_wizards_retry)) {
+    $answers = $SESSION->tool_wizards_retry->answers;
+    $errors = $SESSION->tool_wizards_retry->errors;
+    $startstep = $SESSION->tool_wizards_retry->startstep;
+    unset($SESSION->tool_wizards_retry);
 }
 
 $wizard = new tool_wizards\output\course_wizard($categoryid, $answers, $errors, $startstep);

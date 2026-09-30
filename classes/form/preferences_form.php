@@ -46,7 +46,8 @@ class preferences_form extends \moodleform {
                 'advcheckbox',
                 'resetcourses',
                 get_string('pref_resetcourses', 'tool_wizards'),
-                get_string('pref_resetcourses_label', 'tool_wizards', $dismissed)
+                $dismissed == 1 ? get_string('pref_resetcourses_label_one', 'tool_wizards')
+                    : get_string('pref_resetcourses_label', 'tool_wizards', $dismissed)
             );
         }
         $this->add_action_buttons();

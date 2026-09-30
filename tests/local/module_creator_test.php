@@ -133,7 +133,7 @@ final class module_creator_test extends advanced_testcase {
      * A page keeps its content, and an image in it is saved with the page.
      */
     public function test_page_with_image(): void {
-        global $DB, $USER;
+        global $DB;
         $draft = $this->draft_with_file('photo.png', 'not really a png');
         $text = '<p>Welcome!</p><p><img src="' . \core\url::make_draftfile_url($draft, '/', 'photo.png')->out(false)
             . '" alt="Our classroom"></p>';
