@@ -11,6 +11,10 @@ All notable changes to this plugin are documented here. The format follows
   and a "Show all settings" route to the standard course form that keeps the answers.
 - First-content suggestions with mini-wizards for a file, slides, a picture, a page, a
   forum, a glossary and a quiz (with an optional first multiple choice or true/false question).
-- Per-course and site-wide dismissal of the suggestions, reversible from Preferences.
+- Stepped mini-wizards: essentials first, then one theme per screen, with purpose cards whose
+  presets pre-fill the later screens, and "Enough questions, let's go" to stop early. Shared
+  screens for visibility, groups and completion.
+- Per-course and site-wide dismissal of the suggestions, reversible from Preferences, and
+  per course from "Bring the wizards back" in the footer's help menu.
 - Messages about activities unlocked in Teacher scaffold, when that plugin is installed.
 - Privacy provider for the preference, the dismissed courses and the queued messages.

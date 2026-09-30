@@ -116,7 +116,7 @@ class question_creator {
             $form->set_data(clone $toform);
             return $form;
         };
-        $values = array_replace_recursive(form_submission::browser_values($factory()), $answers);
+        $values = form_submission::browser_values($factory(), $answers);
         [, $fromform, $errors] = form_submission::submit($factory, $values);
         if (!$fromform) {
             throw new \moodle_exception('error_questionform', 'tool_wizards', '', null, json_encode($errors));

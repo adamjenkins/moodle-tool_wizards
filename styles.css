@@ -46,3 +46,93 @@
 .tool_wizards-firstcontent .tool_wizards-option {
     min-height: 2.75rem;
 }
+
+/* The mini-wizards: one small screen at a time, choices as cards. */
+.tool_wizards-miniwizard .tool_wizards-step {
+    min-width: 0;
+}
+
+.tool_wizards-miniwizard .tool_wizards-step legend:focus {
+    outline: none;
+}
+
+.tool_wizards-miniwizard .tool_wizards-step legend:focus-visible {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+/* Card choices use the whole width: the screen's question already names them. */
+.tool_wizards-miniwizard .fitem[data-groupname]:has(.tool_wizards-cardinput) > .col-md-3 {
+    display: none;
+}
+
+.tool_wizards-miniwizard .fitem[data-groupname]:has(.tool_wizards-cardinput) > .col-md-9 {
+    flex: 0 0 100%;
+    max-width: 100%;
+}
+
+.tool_wizards-miniwizard label.tool_wizards-cardinput {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    width: 100%;
+    margin: 0 0 0.5rem;
+    padding: 0.75rem;
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+    white-space: normal;
+    cursor: pointer;
+}
+
+.tool_wizards-miniwizard label.tool_wizards-cardinput:has(input:checked) {
+    border-color: var(--bs-primary);
+    background-color: var(--bs-primary-bg-subtle);
+}
+
+.tool_wizards-miniwizard label.tool_wizards-cardinput > input {
+    flex-shrink: 0;
+    margin: 0.25rem 0 0;
+}
+
+.tool_wizards-miniwizard .tool_wizards-cardtext {
+    min-width: 0;
+}
+
+.tool_wizards-miniwizard .tool_wizards-card {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.tool_wizards-miniwizard .tool_wizards-cardpicture {
+    flex-shrink: 0;
+    width: 4rem;
+    color: var(--bs-primary);
+}
+
+.tool_wizards-miniwizard .tool_wizards-cardpicture svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.tool_wizards-progress li {
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--bs-border-radius-pill);
+    color: var(--bs-secondary-color);
+    background-color: var(--bs-tertiary-bg);
+}
+
+.tool_wizards-progress li.done {
+    color: var(--bs-body-color);
+}
+
+.tool_wizards-progress li.active {
+    color: var(--bs-primary-text-emphasis);
+    background-color: var(--bs-primary-bg-subtle);
+    font-weight: bold;
+}
+
+.tool_wizards-stepnav .btn {
+    min-height: 2.75rem;
+}

@@ -70,6 +70,7 @@ final class mini_wizards_test extends advanced_testcase {
             'courseid' => $this->course->id,
             'name' => 'Week 1 discussion',
             'description' => 'Say hello',
+            'purpose' => 'general',
             'sesskey' => sesskey(),
             '_qf__tool_wizards_form_add_forum' => 1,
         ]);
@@ -88,6 +89,7 @@ final class mini_wizards_test extends advanced_testcase {
         $formdata = http_build_query([
             'courseid' => $this->course->id,
             'name' => 'Quick check',
+            'purpose' => 'practice',
             'firstquestion' => 'truefalse',
             'questiontext' => 'Water boils at 100 degrees Celsius at sea level.',
             'truefalse' => 1,
@@ -109,6 +111,7 @@ final class mini_wizards_test extends advanced_testcase {
         $formdata = http_build_query([
             'courseid' => $this->course->id,
             'name' => 'Nope',
+            'purpose' => 'practice',
             'firstquestion' => 'multichoice',
             'questiontext' => '',
             'choice1' => 'A',

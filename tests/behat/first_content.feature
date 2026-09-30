@@ -25,9 +25,11 @@ Feature: Add first content with a mini-wizard
     When I click on "A forum" "button" in the "[data-region='tool_wizards-firstcontent']" "css_element"
     And I wait until the page is ready
     And I set the following fields to these values:
-      | Forum name                         | Week 1 discussion |
-      | What is this forum for? (optional) | Say hello!        |
-    And I click on "Add" "button" in the ".modal-dialog" "css_element"
+      | Forum name                          | Week 1 discussion |
+      | Description for students (optional) | Say hello!        |
+    And I click on "input[name='purpose'][value='general']" "css_element"
+    And I click on "Next" "button" in the ".modal-dialog" "css_element"
+    And I click on "[data-wizard='go']" "css_element"
     And I wait until the page is ready
     Then I should see "Nice, Week 1 discussion was added."
     And I should see "What would you like to add next?"

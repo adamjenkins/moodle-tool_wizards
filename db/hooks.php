@@ -38,6 +38,10 @@ $callbacks = [
         'callback' => [\tool_wizards\hook_callbacks::class, 'before_footer'],
     ],
     [
+        'hook' => \core\hook\output\before_standard_footer_html_generation::class,
+        'callback' => [\tool_wizards\hook_callbacks::class, 'before_standard_footer'],
+    ],
+    [
         'hook' => \core\hook\output\after_http_headers::class,
         'callback' => [\tool_wizards\hook_callbacks::class, 'after_http_headers'],
     ],

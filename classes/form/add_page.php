@@ -72,15 +72,26 @@ class add_page extends add_module_base {
      * The page must have some content.
      *
      * @param array $data submitted data
-     * @param array $files uploaded files
      * @return array errors
      */
-    public function validation($data, $files) {
-        $errors = parent::validation($data, $files);
+    protected function own_validation(array $data): array {
         if (trim(strip_tags($data['page']['text'] ?? '', '<img><video><audio><iframe><object>')) === '') {
-            $errors['page'] = get_string('error_pagecontent', 'tool_wizards');
+            return ['page' => get_string('error_pagecontent', 'tool_wizards')];
         }
-        return $errors;
+        return [];
+    }
+
+    /**
+     * Completion when the student opens the page.
+     *
+     * @return array
+     */
+    protected function completion_choices(): array {
+        return ['view' => [
+            'label' => get_string('completion_view', 'tool_wizards'),
+            'desc' => get_string('page_completion_view_desc', 'tool_wizards'),
+            'fields' => ['completionview' => 1],
+        ]];
     }
 
     /**

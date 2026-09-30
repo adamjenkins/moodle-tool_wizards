@@ -85,6 +85,16 @@ class prompt {
     }
 
     /**
+     * Show the suggestions on a course again for the current user, after they hid them there.
+     *
+     * @param int $courseid the course
+     */
+    public static function undismiss_course(int $courseid): void {
+        global $DB, $USER;
+        $DB->delete_records('tool_wizards_dismissed', ['userid' => $USER->id, 'courseid' => $courseid]);
+    }
+
+    /**
      * Whether the user has hidden the suggestions on this course.
      *
      * @param int $courseid the course
@@ -134,14 +144,38 @@ class prompt {
      */
     public static function may_suggest(stdClass $course): bool {
         global $USER;
+        return self::may_add_content($course) && !self::suggestions_hidden() && !self::is_dismissed($course->id, $USER->id);
+    }
+
+    /**
+     * Whether to offer "Bring the wizards back" on this course: the user hid the suggestions
+     * here, and bringing them back would show the card (not switched off everywhere, and the
+     * course still nearly empty).
+     *
+     * @param stdClass $course the course
+     * @return bool
+     */
+    public static function may_bring_back(stdClass $course): bool {
+        global $USER;
+        if (!self::may_add_content($course) || self::suggestions_hidden() || !self::is_dismissed($course->id, $USER->id)) {
+            return false;
+        }
+        $threshold = max(0, (int) get_config('tool_wizards', 'emptythreshold'));
+        return module_types::available($course) && self::count_content($course) <= $threshold;
+    }
+
+    /**
+     * Whether the user may add content to this course, the condition for any suggestion.
+     *
+     * @param stdClass $course the course
+     * @return bool
+     */
+    protected static function may_add_content(stdClass $course): bool {
         if (!isloggedin() || isguestuser() || $course->id == SITEID || is_role_switched($course->id)) {
             return false;
         }
         $context = \core\context\course::instance($course->id);
-        if ($context->locked || !has_capability('moodle/course:manageactivities', $context)) {
-            return false;
-        }
-        return !self::suggestions_hidden() && !self::is_dismissed($course->id, $USER->id);
+        return !$context->locked && has_capability('moodle/course:manageactivities', $context);
     }
 
     /**

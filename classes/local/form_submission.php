@@ -32,12 +32,18 @@ namespace tool_wizards\local;
  */
 class form_submission {
     /**
-     * What a browser would submit for a form nobody touched.
+     * What a browser would submit for a form, untouched or after someone gave these answers.
+     *
+     * The answers are applied to the controls first and the form's disabledIf() and hideIf()
+     * rules are judged afterwards, as the browser judges them after each change. So switching
+     * something on sends the fields it enables (with their defaults), and a field the answers
+     * disable or hide is not sent, even when it was answered.
      *
      * @param \moodleform $form the form
+     * @param array $answers name => value, nested like $_POST
      * @return array name => value, nested like $_POST
      */
-    public static function browser_values(\moodleform $form): array {
+    public static function browser_values(\moodleform $form, array $answers = []): array {
         $html = $form->render();
         $dom = new \DOMDocument();
         $previous = libxml_use_internal_errors(true);
@@ -78,6 +84,7 @@ class form_submission {
             }
             $controls[] = $control;
         }
+        $extra = self::apply_answers($controls, self::flatten($answers));
 
         // The controls the form's own JavaScript would disable, which a browser does not submit.
         $mform = self::quickform($form);
@@ -117,9 +124,97 @@ class form_submission {
                 $pairs[] = [$control['name'], $value];
             }
         }
+        // Answers for names the form does not render go as they are, unless a rule locks them.
+        foreach ($extra as [$name, $value]) {
+            if (!isset($locked[$name]) && !self::group_locked($name, $locked)) {
+                $pairs[] = [$name, $value];
+            }
+        }
         $query = implode('&', array_map(fn($p) => rawurlencode($p[0]) . '=' . rawurlencode($p[1]), $pairs));
         parse_str($query, $values);
         return $values;
+    }
+
+    /**
+     * Answers as the flat name => value pairs a browser posts ("intro[text]", "tags[]").
+     *
+     * @param array $answers name => value, nested like $_POST
+     * @param string $prefix the enclosing name, if any
+     * @return array of [name, value]
+     */
+    protected static function flatten(array $answers, string $prefix = ''): array {
+        $pairs = [];
+        foreach ($answers as $key => $value) {
+            $name = $prefix === '' ? (string) $key : $prefix . '[' . $key . ']';
+            if (is_array($value)) {
+                $pairs = array_merge($pairs, self::flatten($value, $name));
+            } else {
+                $pairs[] = [$name, (string) (is_bool($value) ? (int) $value : $value)];
+            }
+        }
+        return $pairs;
+    }
+
+    /**
+     * Set the controls to the answers, as someone filling the form in would.
+     *
+     * @param array $controls every control, changed in place
+     * @param array $pairs answers as [name, value] pairs
+     * @return array the pairs no control took
+     */
+    protected static function apply_answers(array &$controls, array $pairs): array {
+        // Group the answers by the control name that takes them: "tags[0]", "tags[1]" go to "tags[]"
+        // when the form renders a multiple select of that name.
+        $names = array_column($controls, 'name');
+        $byname = [];
+        foreach ($pairs as [$name, $value]) {
+            $target = $name;
+            $indexed = !in_array($name, $names, true) && preg_match('/^(.*)\[\d+\]$/', $name, $m);
+            if ($indexed && in_array($m[1] . '[]', $names, true)) {
+                $target = $m[1] . '[]';
+            }
+            $byname[$target][] = $value;
+        }
+
+        $taken = [];
+        foreach ($controls as $i => $control) {
+            $name = $control['name'];
+            if (!array_key_exists($name, $byname)) {
+                continue;
+            }
+            $values = $byname[$name];
+            $taken[$name] = true;
+            switch ($control['type']) {
+                case 'checkbox':
+                    $on = $values[0];
+                    $controls[$i]['checked'] = $on === $control['values'][0]
+                        || ($control['values'][0] === 'on' && !empty($on));
+                    break;
+                case 'radio':
+                    $controls[$i]['checked'] = in_array($control['values'][0], $values, true);
+                    break;
+                case 'hidden':
+                    // The hidden half of an advcheckbox always posts its "off" value; the checkbox decides.
+                    if (!self::has_checkbox_twin($name, $controls)) {
+                        $controls[$i]['values'] = [$values[0]];
+                    }
+                    break;
+                default:
+                    $controls[$i]['values'] = $control['tag'] === 'select' && $control['multiple'] ? $values : [$values[0]];
+            }
+        }
+
+        $extra = [];
+        foreach ($pairs as [$name, $value]) {
+            $target = $name;
+            if (preg_match('/^(.*)\[\d+\]$/', $name, $m) && isset($taken[$m[1] . '[]'])) {
+                $target = $m[1] . '[]';
+            }
+            if (!isset($taken[$target])) {
+                $extra[] = [$name, $value];
+            }
+        }
+        return $extra;
     }
 
     /**

@@ -74,14 +74,19 @@ class add_picture extends add_module_base {
     }
 
     /**
+     * A picture is one quick screen: no later screens.
+     */
+    protected function define_shared_steps(): void {
+    }
+
+    /**
      * A picture and a description of it are required.
      *
      * @param array $data submitted data
-     * @param array $files uploaded files
      * @return array errors
      */
-    public function validation($data, $files) {
-        $errors = parent::validation($data, $files);
+    protected function own_validation(array $data): array {
+        $errors = [];
         if (!self::picture_file((int) ($data['picture'] ?? 0))) {
             $errors['picture'] = get_string('error_nopicture', 'tool_wizards');
         }

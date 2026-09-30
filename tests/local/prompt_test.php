@@ -128,6 +128,83 @@ final class prompt_test extends advanced_testcase {
     }
 
     /**
+     * The footer's help popover offers "Bring the wizards back" on a course page only where the
+     * user hid the suggestions and they would show again.
+     */
+    public function test_bring_back_link(): void {
+        $label = get_string('bringback', 'tool_wizards');
+        $this->assertStringNotContainsString($label, $this->footer_html(), 'Nothing to bring back yet.');
+
+        prompt::dismiss_course($this->course->id);
+        $html = $this->footer_html();
+        $this->assertStringContainsString($label, $html);
+        $this->assertStringContainsString('/admin/tool/wizards/showagain.php?courseid=' . $this->course->id, $html);
+        $this->assertStringContainsString('sesskey=' . sesskey(), $html);
+
+        $other = $this->getDataGenerator()->create_course();
+        $this->getDataGenerator()->enrol_user($this->teacher->id, $other->id, 'editingteacher');
+        $this->assertStringNotContainsString($label, $this->footer_html($other), 'Only on the course where it was hidden.');
+
+        $this->assertStringNotContainsString($label, $this->footer_html(null, '/course/edit.php'), 'Only on the course page.');
+
+        set_user_preference(prompt::PREF_HIDE, 1);
+        $this->assertStringNotContainsString($label, $this->footer_html(), 'Not while suggestions are off everywhere.');
+        set_user_preference(prompt::PREF_HIDE, 0);
+
+        set_config('emptythreshold', 0, 'tool_wizards');
+        $this->getDataGenerator()->create_module('page', ['course' => $this->course->id]);
+        $this->assertStringNotContainsString($label, $this->footer_html(), 'Not when the card would not show anyway.');
+        set_config('emptythreshold', 1, 'tool_wizards');
+        $this->assertStringContainsString($label, $this->footer_html());
+
+        set_config('enabled', 0, 'tool_wizards');
+        $this->assertStringNotContainsString($label, $this->footer_html(), 'Not when the site switch is off.');
+        set_config('enabled', 1, 'tool_wizards');
+
+        $this->setUser($this->getDataGenerator()->create_and_enrol($this->course, 'student'));
+        prompt::dismiss_course($this->course->id);
+        $this->assertStringNotContainsString($label, $this->footer_html(), 'Not for someone who cannot add content.');
+    }
+
+    /**
+     * Bringing the suggestions back undoes one course's dismissal for the current user only.
+     */
+    public function test_undismiss_course(): void {
+        $other = $this->getDataGenerator()->create_course();
+        prompt::dismiss_course($this->course->id);
+        prompt::dismiss_course($other->id);
+        $colleague = $this->getDataGenerator()->create_and_enrol($this->course, 'editingteacher');
+        $this->setUser($colleague);
+        prompt::dismiss_course($this->course->id);
+        $this->setUser($this->teacher);
+
+        prompt::undismiss_course($this->course->id);
+        $this->assertFalse(prompt::is_dismissed($this->course->id, $this->teacher->id));
+        $this->assertNotSame('', $this->render_prompt(), 'The card is back.');
+        $this->assertTrue(prompt::is_dismissed($other->id, $this->teacher->id), 'Other courses stay hidden.');
+        $this->assertTrue(prompt::is_dismissed($this->course->id, $colleague->id), 'Other users keep theirs.');
+    }
+
+    /**
+     * The footer HTML the standard footer hook collects on a page of a course.
+     *
+     * @param \stdClass|null $course the course, or null for the test course
+     * @param string $path the page's script
+     * @return string
+     */
+    protected function footer_html(?\stdClass $course = null, string $path = '/course/view.php'): string {
+        global $PAGE;
+        $course = $course ?? $this->course;
+        $PAGE = new \moodle_page();
+        $PAGE->set_url(new \moodle_url($path, ['id' => $course->id]));
+        $PAGE->set_course($course);
+        $PAGE->set_context(\context_course::instance($course->id));
+        $hook = new \core\hook\output\before_standard_footer_html_generation($PAGE->get_renderer('core'));
+        \tool_wizards\hook_callbacks::before_standard_footer($hook);
+        return $hook->get_output();
+    }
+
+    /**
      * Only the kinds of content the teacher may add are offered.
      */
     public function test_only_allowed_types_offered(): void {

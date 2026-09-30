@@ -18,11 +18,12 @@ namespace tool_wizards;
 
 use core\hook\output\after_http_headers;
 use core\hook\output\before_footer_html_generation;
+use core\hook\output\before_standard_footer_html_generation;
 use tool_wizards\local\course_creator;
 
 /**
- * Output hook callbacks: the wizard links next to "Add a new course", and the
- * first-content suggestions on course pages.
+ * Output hook callbacks: the wizard links next to "Add a new course", the
+ * first-content suggestions on course pages, and the footer link that brings them back.
  *
  * Both run on every page, so each bails out early and cheaply.
  *
@@ -74,6 +75,27 @@ class hook_callbacks {
         if ($html !== '') {
             $hook->add_html($html);
         }
+    }
+
+    /**
+     * Add "Bring the wizards back" to the footer's help popover, beside core's
+     * "Reset user tour on this page", on a course page where the user hid the suggestions.
+     *
+     * @param before_standard_footer_html_generation $hook the hook
+     */
+    public static function before_standard_footer(before_standard_footer_html_generation $hook): void {
+        $page = $hook->renderer->get_page();
+        if (!self::wizards_enabled() || during_initial_install() || !self::is_page($page, ['/course/view.php'])) {
+            return;
+        }
+        if (!local\prompt::may_bring_back($page->course)) {
+            return;
+        }
+        $url = new \moodle_url('/admin/tool/wizards/showagain.php', ['courseid' => $page->course->id, 'sesskey' => sesskey()]);
+        $hook->add_html(\html_writer::div(
+            \html_writer::link($url, get_string('bringback', 'tool_wizards')),
+            'tool_wizards-bringback'
+        ));
     }
 
     /**

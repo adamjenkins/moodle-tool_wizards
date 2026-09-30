@@ -51,6 +51,77 @@ class add_file extends add_module_base {
         return 'add_file_intro';
     }
 
+    /** @var array The display (resourcelib) each purpose uses: embed, force download, open. */
+    const DISPLAY = ['read' => 1, 'download' => 4, 'print' => 5, 'view' => 1];
+
+    /**
+     * What students will do with the file, among the ways the site lets files open.
+     *
+     * @return string[]
+     */
+    protected function purposes(): array {
+        return self::offered(['read', 'download', 'print']);
+    }
+
+    /**
+     * The purposes whose display the site enables; none unless at least two are.
+     *
+     * @param string[] $purposes the candidates
+     * @return string[]
+     */
+    protected static function offered(array $purposes): array {
+        $enabled = array_map('intval', explode(',', (string) get_config('resource', 'displayoptions')));
+        $offered = array_values(array_filter($purposes, fn($p) => in_array(self::DISPLAY[$p], $enabled, true)));
+        return count($offered) > 1 ? $offered : [];
+    }
+
+    /**
+     * The details students see next to the link, for each purpose.
+     *
+     * @return array
+     */
+    public static function presets(): array {
+        return [
+            'read' => ['showsize' => 0, 'showtype' => 1, 'showdate' => 0, 'completionchoice' => 'view'],
+            'download' => ['showsize' => 1, 'showtype' => 1, 'showdate' => 0, 'completionchoice' => 'view'],
+            'print' => ['showsize' => 1, 'showtype' => 1, 'showdate' => 1, 'completionchoice' => 'view'],
+            'view' => ['showsize' => 0, 'showtype' => 0, 'showdate' => 0, 'completionchoice' => 'view'],
+        ];
+    }
+
+    /**
+     * The file's own screen: the details shown next to its link.
+     *
+     * @return string[]
+     */
+    protected function type_steps(): array {
+        return ['details'];
+    }
+
+    /**
+     * Details: size, type and date next to the link.
+     */
+    protected function define_step_details(): void {
+        $mform = $this->_form;
+        foreach (['showsize', 'showtype', 'showdate'] as $name) {
+            $mform->addElement('advcheckbox', $name, '', get_string('file_' . $name, 'tool_wizards'));
+            $mform->setDefault($name, (int) get_config('resource', $name));
+        }
+    }
+
+    /**
+     * Completion when the student opens the file.
+     *
+     * @return array
+     */
+    protected function completion_choices(): array {
+        return ['view' => [
+            'label' => get_string('completion_view', 'tool_wizards'),
+            'desc' => get_string('file_completion_view_desc', 'tool_wizards'),
+            'fields' => ['completionview' => 1],
+        ]];
+    }
+
     /**
      * Questions: the file and, optionally, a name.
      */
@@ -82,15 +153,13 @@ class add_file extends add_module_base {
      * A file is required.
      *
      * @param array $data submitted data
-     * @param array $files uploaded files
      * @return array errors
      */
-    public function validation($data, $files) {
-        $errors = parent::validation($data, $files);
+    protected function own_validation(array $data): array {
         if (!self::first_draft_file((int) ($data['files'] ?? 0))) {
-            $errors['files'] = get_string('error_nofile', 'tool_wizards');
+            return ['files' => get_string('error_nofile', 'tool_wizards')];
         }
-        return $errors;
+        return [];
     }
 
     /**
@@ -114,7 +183,18 @@ class add_file extends add_module_base {
             $file = self::first_draft_file((int) $data->files);
             $name = $file ? pathinfo($file->get_filename(), PATHINFO_FILENAME) : get_string('file_defaultname', 'tool_wizards');
         }
-        return ['name' => $name, 'files' => (int) $data->files];
+        $fields = ['name' => $name, 'files' => (int) $data->files];
+        // The display only where the site offers a choice: with one option the form holds it fixed.
+        $purpose = $data->purpose ?? '';
+        if ($purpose !== '' && in_array($purpose, $this->purposes(), true)) {
+            $fields['display'] = self::DISPLAY[$purpose];
+        }
+        foreach (['showsize', 'showtype', 'showdate'] as $name) {
+            if (isset($data->$name)) {
+                $fields[$name] = (int) $data->$name;
+            }
+        }
+        return $fields;
     }
 
     /**

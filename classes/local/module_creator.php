@@ -63,6 +63,40 @@ class module_creator {
      * @throws \moodle_exception when the user may not add it, or the module's form refuses the answers
      */
     public static function create(stdClass $course, string $type, array $answers, ?int $sectionnum = null): \cm_info {
+        [$mform, $fromform, $errors] = self::submit($course, $type, $answers, $sectionnum);
+        if (!$fromform) {
+            throw new \moodle_exception('error_moduleform', 'tool_wizards', '', null, json_encode($errors));
+        }
+
+        // As course/modedit.php does: a large regrade is queued rather than run in this request.
+        $fromform->frontend = true;
+        $result = add_moduleinfo($fromform, $course, $mform);
+        return get_fast_modinfo($course->id)->get_cm($result->coursemodule);
+    }
+
+    /**
+     * What the module's own form says about the answers, without creating anything.
+     *
+     * @param stdClass $course the course
+     * @param string $type the mini-wizard type (see module_types)
+     * @param array $answers field => value for the module's own form, as for {@see create()}
+     * @return array field => error message; empty when the form accepts them
+     */
+    public static function check(stdClass $course, string $type, array $answers): array {
+        [, , $errors] = self::submit($course, $type, $answers);
+        return $errors;
+    }
+
+    /**
+     * Submit the answers to the module's own form, built as course/modedit.php builds it.
+     *
+     * @param stdClass $course the course
+     * @param string $type the mini-wizard type
+     * @param array $answers field => value for the module's own form
+     * @param int|null $sectionnum the section, default {@see default_section()}
+     * @return array [\moodleform $mform, \stdClass|null $fromform, array $errors]
+     */
+    protected static function submit(stdClass $course, string $type, array $answers, ?int $sectionnum = null): array {
         global $CFG, $PAGE;
         require_once($CFG->dirroot . '/course/modlib.php');
         require_once($CFG->libdir . '/formslib.php');
@@ -101,15 +135,7 @@ class module_creator {
             return $form;
         };
 
-        $values = array_replace_recursive(form_submission::browser_values($factory()), $answers);
-        [$mform, $fromform, $errors] = form_submission::submit($factory, $values);
-        if (!$fromform) {
-            throw new \moodle_exception('error_moduleform', 'tool_wizards', '', null, json_encode($errors));
-        }
-
-        // As course/modedit.php does: a large regrade is queued rather than run in this request.
-        $fromform->frontend = true;
-        $result = add_moduleinfo($fromform, $course, $mform);
-        return get_fast_modinfo($course->id)->get_cm($result->coursemodule);
+        $values = form_submission::browser_values($factory(), $answers);
+        return form_submission::submit($factory, $values);
     }
 }

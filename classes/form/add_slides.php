@@ -43,6 +43,33 @@ class add_slides extends add_file {
     }
 
     /**
+     * View online (PDF, embedded in the course) or download the original.
+     *
+     * @return string[]
+     */
+    protected function purposes(): array {
+        return self::offered(['view', 'download']);
+    }
+
+    /**
+     * Viewing online needs a PDF: browsers cannot show presentation files.
+     *
+     * @param array $data submitted data
+     * @return array errors
+     */
+    protected function own_validation(array $data): array {
+        $errors = parent::own_validation($data);
+        if ($errors || ($data['purpose'] ?? '') !== 'view') {
+            return $errors;
+        }
+        $file = self::first_draft_file((int) ($data['files'] ?? 0));
+        if ($file && strtolower(pathinfo($file->get_filename(), PATHINFO_EXTENSION)) !== 'pdf') {
+            return ['files' => get_string('error_slidesnotpdf', 'tool_wizards')];
+        }
+        return [];
+    }
+
+    /**
      * The intro string key.
      *
      * @return string

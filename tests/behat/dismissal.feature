@@ -52,3 +52,22 @@ Feature: Hide the first-content suggestions
     Then I should not see "What would you like to add first?"
     When I reload the page
     Then I should see "What would you like to add first?"
+
+  @javascript
+  Scenario: Bring the suggestions back on one course from the footer
+    Given I log in as "teacher1"
+    And I am on "Course 2" course homepage
+    And I click on "Show footer" "button"
+    And I should not see "Bring the wizards back" in the "[data-region='footer-content-popover']" "css_element"
+    And I am on "Course 1" course homepage
+    And I click on "Hide for this course" "button"
+    And I am on "Course 2" course homepage
+    And I click on "Hide for this course" "button"
+    And I am on "Course 1" course homepage
+    When I click on "Show footer" "button"
+    And I click on "Bring the wizards back" "link" in the "[data-region='footer-content-popover']" "css_element"
+    Then I should see "What would you like to add first?"
+    And I click on "Show footer" "button"
+    And I should not see "Bring the wizards back" in the "[data-region='footer-content-popover']" "css_element"
+    And I am on "Course 2" course homepage
+    And I should not see "What would you like to add first?"
