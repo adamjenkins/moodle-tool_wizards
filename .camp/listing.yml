@@ -1,0 +1,24 @@
+# camp listing manifest — descriptive content for your plugin's page.
+# Edit freely and commit; camp ingests this file at each tagged release.
+# Schema: https://camp-registry.org/schema/listing.schema.json
+name: tool_wizards
+summary: 'Step-by-step wizards that help teachers new to Moodle create a course and add its first content without long settings pages.'
+description: |
+  A course wizard asks one question at a time (name, category, layout,
+  sections, start date, visibility), shows a review screen, then creates the
+  course exactly as the standard form would, using the site's defaults.
+  On new or nearly empty courses, a "What would you like to add first?" card
+  opens pop-up mini-wizards for a file, slides, a picture, a page, a forum, a
+  glossary or a quiz, with settings pre-filled from what the item is for.
+  Works on its own; optionally reacts to stage unlocks from Teacher scaffold.
+labels:
+  # Required disclosure labels — pick all that apply (RFC §4.7):
+  #   fully-free | freemium | paid-service | external-account
+  #   donation-supported | commercial-support-available
+  - fully-free
+# screenshots:
+#   - path: .camp/screenshots/overview.png
+#     caption: Main view
+links:
+  docs: https://github.com/adamjenkins/moodle-tool_wizards#readme
+  issues: https://github.com/adamjenkins/moodle-tool_wizards/issues
