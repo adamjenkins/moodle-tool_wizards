@@ -3,10 +3,12 @@
 All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/).
 
-## [0.1.0] - Unreleased
+## [0.1.1] - 2026-10-04
 
 ### Added
 
+- Support for Moodle 5.2 and 5.3.
+- composer.json, so the plugin can be installed with Composer.
 - Course wizard: create a course by answering one question at a time, with a review screen
   and a "Show all settings" route to the standard course form that keeps the answers.
 - First-content suggestions with mini-wizards for a file, slides, a picture, a page, a

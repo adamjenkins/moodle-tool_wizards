@@ -16,7 +16,7 @@
         "source": "https://github.com/adamjenkins/moodle-tool_wizards"
     },
     "require": {
-        "moodle/moodle": ">=5.2 <5.3",
+        "moodle/moodle": ">=5.2 <5.4",
         "moodle/composer-installer": "^1.0"
     }
 }

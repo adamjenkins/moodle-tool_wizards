@@ -1,6 +1,7 @@
-# Wizards 0.1.0
+# Wizards 0.1.1
 
-First release.
+First release. Supports Moodle 5.2 and 5.3, and can be installed with Composer
+(`adamjenkins/moodle-tool_wizards`).
 
 - A step-by-step course wizard that asks one question at a time: name, category, layout,
   sections, start date and visibility. A review screen comes before anything is created, and

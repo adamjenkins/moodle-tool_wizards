@@ -101,7 +101,7 @@ content.
 
 ## Requirements
 
-Moodle 5.2.
+Moodle 5.2 or 5.3.
 
 ## Privacy
 
