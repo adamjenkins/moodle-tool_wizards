@@ -12,8 +12,9 @@ jobs:
     services:
       postgres:
         # MOODLE_502_STABLE's minimum (5.2 requires >= 16). A newer image would mask
-        # minimum-version breakage.
-        image: ${{ matrix.database == 'pgsql' && 'postgres:16' || '' }}
+        # minimum-version breakage. The MOODLE_503_STABLE rows need >= 17 (environment.xml
+        # 5.3 block) and set it with matrix.pgsql-image.
+        image: ${{ matrix.database == 'pgsql' && (matrix.pgsql-image || 'postgres:16') || '' }}
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -22,8 +23,9 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
 
       mariadb:
-        # MOODLE_502_STABLE's minimum (5.2 requires >= 10.11).
-        image: ${{ matrix.database == 'mariadb' && 'mariadb:10.11' || '' }}
+        # MOODLE_502_STABLE's minimum (5.2 requires >= 10.11). The MOODLE_503_STABLE rows
+        # need >= 11.4.0 (environment.xml 5.3 block) and set it with matrix.mariadb-image.
+        image: ${{ matrix.database == 'mariadb' && (matrix.mariadb-image || 'mariadb:10.11') || '' }}
         env:
           MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: '1'
           MYSQL_CHARACTER_SET_SERVER: "utf8mb4"
@@ -34,13 +36,15 @@ jobs:
 
     strategy:
       fail-fast: false
-      # Moodle 5.2, the only supported branch ($plugin->supported = [502, 502]), at its
-      # PHP floor and ceiling (8.3 and 8.4, from the branch's environment.xml and core's
-      # push.yml), with the two database engines alternating so both are exercised.
+      # Moodle 5.2 and 5.3 ($plugin->supported = [502, 503]), each at its PHP floor and
+      # ceiling (8.3 and 8.4, from each branch's environment.xml and core's push.yml), with
+      # the two database engines alternating so both are exercised.
       matrix:
         include:
           - {moodle-branch: MOODLE_502_STABLE, php: '8.3', database: mariadb}
           - {moodle-branch: MOODLE_502_STABLE, php: '8.4', database: pgsql}
+          - {moodle-branch: MOODLE_503_STABLE, php: '8.3', database: mariadb, mariadb-image: 'mariadb:11.4'}
+          - {moodle-branch: MOODLE_503_STABLE, php: '8.4', database: pgsql, pgsql-image: 'postgres:17'}
 
     steps:
       - name: Check out repository code
