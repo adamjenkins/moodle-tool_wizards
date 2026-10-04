@@ -3,6 +3,15 @@
 All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.1.2] - 2026-10-04
+
+### Changed
+
+- Maturity is now `MATURITY_BETA` (was `MATURITY_ALPHA`).
+- `composer.json`: `moodle/moodle` constraint is now `^5.2` (was `>=5.2 <5.4`),
+  so later 5.x releases are not excluded.
+- CI now also tests MOODLE_503_STABLE (PHP 8.3-8.4, PostgreSQL 17, MariaDB 11.4).
+
 ## [0.1.1] - 2026-10-04
 
 ### Added
