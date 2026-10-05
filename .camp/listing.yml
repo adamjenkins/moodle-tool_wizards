@@ -16,9 +16,23 @@ labels:
   #   fully-free | freemium | paid-service | external-account
   #   donation-supported | commercial-support-available
   - fully-free
-# screenshots:
-#   - path: .camp/screenshots/overview.png
-#     caption: Main view
+screenshots:
+  - path: .camp/screenshots/01-course-wizard-name.png
+    caption: 'The course wizard asks one question at a time, starting with the course name. | Step 1 of 5 with progress bar: "Introduction to Marine Biology", short name MKT-WIZARDS, Next and "Show all settings". (The wizard had suggested "ITMB-2026"; it was overwritten for the demo naming rule.)'
+  - path: .camp/screenshots/02-course-wizard-layout.png
+    caption: 'Each layout comes with a plain description. | Step 2 of 5: Custom sections (selected) and Weekly sections cards with descriptions.'
+  - path: .camp/screenshots/03-course-wizard-review.png
+    caption: 'Every answer can be changed before the course is created. | Step 5 of 5 "Ready to create your course": five answers each with a Change link, and Create course.'
+  - path: .camp/screenshots/04-first-content-card.png
+    caption: 'A new course asks: "What would you like to add first?" | The new course page with the "Your course is ready." card and seven options. The mouse pointer was over "A glossary", which is shown in its hover colour.'
+  - path: .camp/screenshots/05-forum-wizard-purpose.png
+    caption: 'The first screen asks what the forum is for, as picture cards. | "Add a forum" pop-up, Basics screen: name filled in, "Ask me questions" selected, screen tabs Basics … Completion along the top.'
+  - path: .camp/screenshots/06-forum-wizard-emails.png
+    caption: 'Later screens ask one thing each; "Enough questions, let''s go" creates it from there. | Emails screen with four subscription choices, Back / "Enough questions, let''s go" / Next.'
+  - path: .camp/screenshots/07-forum-added.png
+    caption: 'The card confirms what was added and suggests something different next. | "Nice, Ask me about marine life was added." with an Open link and three new suggestions; the forum is in the course index. Focus moves to the confirmation heading, which shows the focus outline.'
+  - path: .camp/screenshots/08-teacher-scaffold-unlock.png
+    caption: 'With Teacher scaffold, unlocking new activities brings an offer to try one. | "Nice work! You''ve unlocked new activities: URL, Folder, Assignment and Glossary." with a "Try Glossary now" button, above the card offering only the six kinds this stage-2 teacher may add (no quiz).'
 links:
   docs: https://github.com/adamjenkins/moodle-tool_wizards#readme
   issues: https://github.com/adamjenkins/moodle-tool_wizards/issues

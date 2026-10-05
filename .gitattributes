@@ -3,3 +3,4 @@
 .gitattributes export-ignore
 .gitignore export-ignore
 node_modules export-ignore
+.camp export-ignore
