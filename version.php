@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'tool_wizards';
-$plugin->version   = 2026100900;
+$plugin->version   = 2026100901;
 $plugin->requires  = 2026042000; // Moodle 5.2.0.
 $plugin->supported = [502, 503];
 $plugin->maturity  = MATURITY_BETA;
-$plugin->release   = '0.1.2';
+$plugin->release   = '0.2.0';
