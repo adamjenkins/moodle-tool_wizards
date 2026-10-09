@@ -2,15 +2,27 @@
 # Edit freely and commit; camp ingests this file at each tagged release.
 # Schema: https://camp-registry.org/schema/listing.schema.json
 name: tool_wizards
-summary: 'Step-by-step wizards that help teachers new to Moodle create a course and add its first content without long settings pages.'
+summary: 'Wizards that help teachers new to Moodle create a course and add activities by answering a few plain questions at a time, which site admins can customise, translate, build and share.'
 description: |
-  A course wizard asks one question at a time (name, category, layout,
-  sections, start date, visibility), shows a review screen, then creates the
-  course exactly as the standard form would, using the site's defaults.
-  On new or nearly empty courses, a "What would you like to add first?" card
-  opens pop-up mini-wizards for a file, slides, a picture, a page, a forum, a
-  glossary or a quiz, with settings pre-filled from what the item is for.
-  Works on its own; optionally reacts to stage unlocks from Teacher scaffold.
+  New teachers often get lost in Moodle's long settings pages. Wizards asks a
+  few plain-language questions at a time instead, one theme per screen, and
+  passes the answers to Moodle's own forms, so everything else keeps your
+  site's usual defaults.
+
+  The course wizard creates a course step by step and shows a review before
+  anything is created. On new or nearly empty courses, a "What would you like
+  to add first?" card opens wizards for a file, slides, a picture, a page, a
+  forum, a glossary or a quiz. Each starts by asking what it is for, as picture
+  cards, and fills in the later screens to suit. "Enough questions, let's go"
+  creates it at any point. In edit mode, "Add with a wizard" is in every
+  section's add menu.
+
+  Site administrators manage the wizards like User tours: switch them on or
+  off, reorder, reword them in every language, change pictures, try them
+  without creating anything, and export or import them in bulk. A wizard
+  builder makes new wizards from any activity's own settings. Wizards can be
+  improved with Moodle's AI subsystem, or with any AI assistant using the
+  included runbook. Optionally works with Teacher scaffold.
 labels:
   # Required disclosure labels — pick all that apply (RFC §4.7):
   #   fully-free | freemium | paid-service | external-account
@@ -18,21 +30,25 @@ labels:
   - fully-free
 screenshots:
   - path: .camp/screenshots/01-course-wizard-name.png
-    caption: 'The course wizard asks one question at a time, starting with the course name. | Step 1 of 5 with progress bar: "Introduction to Marine Biology", short name MKT-WIZARDS, Next and "Show all settings". (The wizard had suggested "ITMB-2026"; it was overwritten for the demo naming rule.)'
-  - path: .camp/screenshots/02-course-wizard-layout.png
-    caption: 'Each layout comes with a plain description. | Step 2 of 5: Custom sections (selected) and Weekly sections cards with descriptions.'
-  - path: .camp/screenshots/03-course-wizard-review.png
-    caption: 'Every answer can be changed before the course is created. | Step 5 of 5 "Ready to create your course": five answers each with a Change link, and Create course.'
-  - path: .camp/screenshots/04-first-content-card.png
-    caption: 'A new course asks: "What would you like to add first?" | The new course page with the "Your course is ready." card and seven options. The mouse pointer was over "A glossary", which is shown in its hover colour.'
-  - path: .camp/screenshots/05-forum-wizard-purpose.png
-    caption: 'The first screen asks what the forum is for, as picture cards. | "Add a forum" pop-up, Basics screen: name filled in, "Ask me questions" selected, screen tabs Basics … Completion along the top.'
-  - path: .camp/screenshots/06-forum-wizard-emails.png
-    caption: 'Later screens ask one thing each; "Enough questions, let''s go" creates it from there. | Emails screen with four subscription choices, Back / "Enough questions, let''s go" / Next.'
-  - path: .camp/screenshots/07-forum-added.png
-    caption: 'The card confirms what was added and suggests something different next. | "Nice, Ask me about marine life was added." with an Open link and three new suggestions; the forum is in the course index. Focus moves to the confirmation heading, which shows the focus outline.'
-  - path: .camp/screenshots/08-teacher-scaffold-unlock.png
-    caption: 'With Teacher scaffold, unlocking new activities brings an offer to try one. | "Nice work! You''ve unlocked new activities: URL, Folder, Assignment and Glossary." with a "Try Glossary now" button, above the card offering only the six kinds this stage-2 teacher may add (no quiz).'
+    caption: 'The course wizard asks one thing at a time and suggests a short name.'
+  - path: .camp/screenshots/02-course-wizard-review.png
+    caption: 'Every answer can be checked and changed before the course is created.'
+  - path: .camp/screenshots/03-first-content-card.png
+    caption: 'A new course asks: "What would you like to add first?"'
+  - path: .camp/screenshots/04-forum-wizard-purpose.png
+    caption: 'Each wizard starts with what the activity is for, as picture cards.'
+  - path: .camp/screenshots/05-quiz-wizard-afterwards.png
+    caption: 'Confusing settings become a few plain choices, pre-filled to suit the purpose.'
+  - path: .camp/screenshots/06-add-with-a-wizard-menu.png
+    caption: '"Add with a wizard" is in every section''s add menu.'
+  - path: .camp/screenshots/07-add-with-a-wizard-list.png
+    caption: 'Teachers pick a wizard from a visual list.'
+  - path: .camp/screenshots/08-manage-wizards.png
+    caption: 'Administrators switch, order, export and import wizards, like User tours.'
+  - path: .camp/screenshots/09-edit-wizard-ai.png
+    caption: 'Wizards can be reworded and translated, or improved with Moodle''s AI.'
+  - path: .camp/screenshots/10-wizard-builder.png
+    caption: 'The wizard builder makes new wizards from an activity''s own settings.'
 links:
   docs: https://github.com/adamjenkins/moodle-tool_wizards#readme
   issues: https://github.com/adamjenkins/moodle-tool_wizards/issues

@@ -49,7 +49,7 @@ final class shortname_test extends \advanced_testcase {
             suggest_shortname::execute_returns(),
             suggest_shortname::execute('Basic Chemistry')
         );
-        $this->assertSame('BC-' . userdate(time(), '%Y'), $result['shortname']);
+        $this->assertSame('BC', $result['shortname']);
 
         $taken = external_api::clean_returnvalue(check_shortname::execute_returns(), check_shortname::execute('BIO-1'));
         $this->assertFalse($taken['available']);

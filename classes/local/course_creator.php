@@ -146,10 +146,10 @@ class course_creator {
     /**
      * Suggest an unused short name for a course full name.
      *
-     * Latin words give their initials plus the year ("Introduction to Biology" becomes
-     * "ITB-2026"); a name with no Latin letters (for example Japanese) is truncated
-     * instead, because short names may be any text. A number is added until the
-     * suggestion is free.
+     * Latin words give their initials ("Introduction to Biology" becomes "ITB"); a name
+     * with no Latin letters (for example Japanese) is truncated instead, because short
+     * names may be any text. No year is added: courses are often reused year after year.
+     * A number is added until the suggestion is free.
      *
      * @param string $fullname the full name
      * @return string the suggestion, or '' for an empty name
@@ -166,7 +166,7 @@ class course_creator {
             }
         }
         if (preg_match('/[A-Za-z]/', $initials)) {
-            $base = $initials . '-' . userdate(time(), '%Y');
+            $base = $initials;
         } else {
             $base = \core_text::substr($fullname, 0, self::SHORTNAME_SUGGESTION_LENGTH);
         }

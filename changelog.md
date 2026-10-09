@@ -28,6 +28,8 @@ All notable changes to this plugin are documented here. The format follows
 
 ### Changed
 
+- The course wizard's suggested short name no longer ends with the year ("ITB", not "ITB-2026"),
+  as courses are often reused from year to year.
 - "Bring the wizards back" in the footer's help menu is now "Bring back the course wizards". It
   appears whenever the wizards were hidden on that course or switched off everywhere, also on a
   course with content, and shows the card again straight away.

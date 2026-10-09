@@ -510,7 +510,9 @@ class Stepper {
             if (index >= this.current || !this.applies(step)) {
                 return;
             }
-            step.querySelectorAll('.fitem').forEach(item => {
+            // Formslib also gives each radio's label the fitem class: take only the outer items.
+            const items = Array.from(step.querySelectorAll('.fitem')).filter(item => !item.parentElement.closest('.fitem'));
+            items.forEach(item => {
                 if (item.hidden || item.closest('[hidden]') !== step && item.closest('[hidden]')) {
                     return;
                 }

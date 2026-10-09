@@ -69,11 +69,13 @@ class introspector {
      * @return array list of ['field', 'label', 'type', 'choices' (value => label), 'header']
      */
     public static function settings(string $target): array {
-        global $PAGE, $COURSE;
+        global $PAGE, $COURSE, $OUTPUT;
         // Building an activity form sets the page's course and context, which a page already
-        // set up for output must not change: build it on a page of its own.
+        // set up for output must not change: build it on a page of its own. The renderer may
+        // attach itself to that page meanwhile, so it is put back too.
         $savedpage = $PAGE;
         $savedcourse = $COURSE;
+        $savedoutput = $OUTPUT;
         $PAGE = new \moodle_page();
         try {
             if ($target === 'course') {
@@ -88,6 +90,7 @@ class introspector {
         } finally {
             $PAGE = $savedpage;
             $COURSE = $savedcourse;
+            $OUTPUT = $savedoutput;
         }
         $mform = (new \ReflectionProperty(\moodleform::class, '_form'))->getValue($form);
         $out = [];

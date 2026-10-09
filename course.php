@@ -99,6 +99,7 @@ if (!$record) {
 
 $engine = new engine(repository::definition($record), (int) $record->id, null, $categoryid);
 $PAGE->set_title(text::get($engine->definition()['title']));
+$PAGE->set_heading(text::get($engine->definition()['title']));
 $form = new tool_wizards\form\course_wizard_form($url, ['engine' => $engine, 'preview' => $preview]);
 $builder = new form_builder($engine, $form->get_form_for_wizard());
 $form->set_data(['wizard' => $record->wizardkey, 'startcategory' => $categoryid, 'preview' => (int) $preview,
@@ -141,7 +142,6 @@ if ($data = $form->get_data()) {
 }
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(text::get($engine->definition()['title']));
 if ($lines !== null) {
     echo $OUTPUT->notification(get_string('preview_result', 'tool_wizards'), 'info', false);
     echo html_writer::alist(array_map('s', $lines ?: [get_string('preview_nothing', 'tool_wizards')]));

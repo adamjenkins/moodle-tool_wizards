@@ -396,23 +396,22 @@ final class course_creator_test extends advanced_testcase {
     }
 
     /**
-     * Short name suggestions: initials and year for Latin names, the name itself otherwise, and never a taken one.
+     * Short name suggestions: initials (no year) for Latin names, the name itself otherwise, and never a taken one.
      */
     public function test_suggest_shortname(): void {
         $this->resetAfterTest();
         $this->setAdminUser();
-        $year = userdate(time(), '%Y');
-        $this->assertSame('ITB-' . $year, course_creator::suggest_shortname('Introduction to Biology'));
+        $this->assertSame('ITB', course_creator::suggest_shortname('Introduction to Biology'));
         $this->assertSame('生物学入門', course_creator::suggest_shortname('生物学入門'));
         $this->assertSame('', course_creator::suggest_shortname('   '));
 
-        $this->getDataGenerator()->create_course(['shortname' => 'ITB-' . $year]);
-        $this->assertSame('ITB-' . $year . ' 2', course_creator::suggest_shortname('Introduction to Biology'));
+        $this->getDataGenerator()->create_course(['shortname' => 'ITB']);
+        $this->assertSame('ITB 2', course_creator::suggest_shortname('Introduction to Biology'));
 
         // A missing short name is suggested on the server too, for browsers without JavaScript.
         $answers = course_creator::normalise_answers(['fullname' => 'Introduction to Biology', 'shortname' => '',
             'category' => 1, 'format' => 'topics']);
-        $this->assertSame('ITB-' . $year . ' 2', $answers->shortname);
+        $this->assertSame('ITB 2', $answers->shortname);
     }
 
     /**
