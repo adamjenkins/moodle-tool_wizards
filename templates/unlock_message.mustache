@@ -23,13 +23,13 @@
     Context variables required for this template:
     * courseid - the course being viewed
     * message - the message
-    * try - {type, formclass, modaltitle, label} of the mini-wizard to offer, or null
+    * try - {type (the wizard key), modaltitle, label} of the wizard to offer, or null
 
     Example context (json):
     {
         "courseid": 2,
         "message": "You've unlocked new activities: Quiz, Choice, Feedback.",
-        "try": {"type": "quiz", "formclass": "\\tool_wizards\\form\\add_quiz", "modaltitle": "Add a quiz",
+        "try": {"type": "quiz", "modaltitle": "Add a quiz",
             "label": "Try Quiz now"}
     }
 }}
@@ -37,7 +37,7 @@
     data-region="tool_wizards-unlock" data-courseid="{{courseid}}" aria-label="{{#str}}unlock_heading, tool_wizards{{/str}}">
     <p class="mb-0 flex-grow-1">{{message}}</p>
     {{#try}}
-    <button type="button" class="btn btn-primary" data-action="add" data-type="{{type}}" data-formclass="{{formclass}}"
+    <button type="button" class="btn btn-primary" data-action="add" data-wizard="{{type}}"
         data-modaltitle="{{modaltitle}}">{{label}}</button>
     {{/try}}
     <button type="button" class="btn-close" data-action="done" aria-label="{{#str}}unlock_close, tool_wizards{{/str}}"></button>

@@ -1,0 +1,464 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "glossary",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "glossary"
+    },
+    "title": {
+        "string": "type_glossary"
+    },
+    "heading": {
+        "string": "type_glossary_title"
+    },
+    "description": {
+        "string": "type_glossary_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "add_glossary_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "glossary_name"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "description",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "glossary_description"
+                    },
+                    "sets": {
+                        "field": "introeditor",
+                        "as": "editor"
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "glossary_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "vocabulary",
+                            "title": {
+                                "string": "glossary_purpose_vocabulary"
+                            },
+                            "desc": {
+                                "string": "glossary_purpose_vocabulary_desc"
+                            },
+                            "picture": "pix:purpose/glossary_vocabulary",
+                            "preset": {
+                                "defaultapproval": 0,
+                                "editalways": 0,
+                                "displayformat": "dictionary",
+                                "allowcomments": 0,
+                                "allowduplicatedentries": 0,
+                                "usedynalink": 1,
+                                "gradingchoice": "none",
+                                "completion": "view"
+                            }
+                        },
+                        {
+                            "value": "shared",
+                            "title": {
+                                "string": "glossary_purpose_shared"
+                            },
+                            "desc": {
+                                "string": "glossary_purpose_shared_desc"
+                            },
+                            "picture": "pix:purpose/glossary_shared",
+                            "preset": {
+                                "defaultapproval": 1,
+                                "editalways": 1,
+                                "displayformat": "fullwithauthor",
+                                "allowcomments": 1,
+                                "allowduplicatedentries": 0,
+                                "usedynalink": 0,
+                                "gradingchoice": "none",
+                                "completion": "entries3"
+                            }
+                        },
+                        {
+                            "value": "faq",
+                            "title": {
+                                "string": "glossary_purpose_faq"
+                            },
+                            "desc": {
+                                "string": "glossary_purpose_faq_desc"
+                            },
+                            "picture": "pix:purpose/glossary_faq",
+                            "preset": {
+                                "defaultapproval": 0,
+                                "editalways": 0,
+                                "displayformat": "faq",
+                                "allowcomments": 1,
+                                "allowduplicatedentries": 0,
+                                "usedynalink": 0,
+                                "gradingchoice": "none",
+                                "completion": "default"
+                            }
+                        },
+                        {
+                            "value": "links",
+                            "title": {
+                                "string": "glossary_purpose_links"
+                            },
+                            "desc": {
+                                "string": "glossary_purpose_links_desc"
+                            },
+                            "picture": "pix:purpose/glossary_links",
+                            "preset": {
+                                "defaultapproval": 1,
+                                "editalways": 1,
+                                "displayformat": "encyclopedia",
+                                "allowcomments": 1,
+                                "allowduplicatedentries": 1,
+                                "usedynalink": 0,
+                                "gradingchoice": "none",
+                                "completion": "entries1"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "entries",
+            "title": {
+                "string": "glossary_step_entries"
+            },
+            "question": {
+                "string": "glossary_step_entries_q"
+            },
+            "items": [
+                {
+                    "key": "defaultapproval",
+                    "kind": "choice",
+                    "label": {
+                        "string": "glossary_approval"
+                    },
+                    "default": "config:core/glossary_defaultapproval",
+                    "sets": {
+                        "field": "defaultapproval",
+                        "as": "int"
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "glossary_approval_auto"
+                            },
+                            "desc": {
+                                "string": "glossary_approval_auto_desc"
+                            }
+                        },
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "glossary_approval_check"
+                            },
+                            "desc": {
+                                "string": "glossary_approval_check_desc"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "editalways",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "glossary_editalways"
+                    },
+                    "sets": {
+                        "field": "editalways",
+                        "as": "int"
+                    },
+                    "text": {
+                        "string": "glossary_editalways_label"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "look",
+            "title": {
+                "string": "glossary_step_look"
+            },
+            "question": {
+                "string": "glossary_step_look_q"
+            },
+            "items": [
+                {
+                    "key": "displayformat",
+                    "kind": "choice",
+                    "label": {
+                        "string": "glossary_step_look"
+                    },
+                    "default": "dictionary",
+                    "sets": {
+                        "field": "displayformat"
+                    },
+                    "choices": [
+                        {
+                            "value": "dictionary",
+                            "title": {
+                                "string": "glossary_format_dictionary"
+                            },
+                            "desc": {
+                                "string": "glossary_format_dictionary_desc"
+                            }
+                        },
+                        {
+                            "value": "fullwithauthor",
+                            "title": {
+                                "string": "glossary_format_fullwithauthor"
+                            },
+                            "desc": {
+                                "string": "glossary_format_fullwithauthor_desc"
+                            }
+                        },
+                        {
+                            "value": "encyclopedia",
+                            "title": {
+                                "string": "glossary_format_encyclopedia"
+                            },
+                            "desc": {
+                                "string": "glossary_format_encyclopedia_desc"
+                            }
+                        },
+                        {
+                            "value": "faq",
+                            "title": {
+                                "string": "glossary_format_faq"
+                            },
+                            "desc": {
+                                "string": "glossary_format_faq_desc"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "extras",
+            "title": {
+                "string": "glossary_step_extras"
+            },
+            "question": {
+                "string": "glossary_step_extras_q"
+            },
+            "items": [
+                {
+                    "key": "allowcomments",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "glossary_comments"
+                    },
+                    "sets": {
+                        "field": "allowcomments",
+                        "as": "int"
+                    },
+                    "text": {
+                        "string": "glossary_comments_label"
+                    },
+                    "default": "config:core/glossary_allowcomments",
+                    "when": {
+                        "site": "comments"
+                    }
+                },
+                {
+                    "key": "allowduplicatedentries",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "glossary_duplicates"
+                    },
+                    "sets": {
+                        "field": "allowduplicatedentries",
+                        "as": "int"
+                    },
+                    "text": {
+                        "string": "glossary_duplicates_label"
+                    },
+                    "default": "config:core/glossary_dupentries"
+                }
+            ]
+        },
+        {
+            "key": "linking",
+            "title": {
+                "string": "glossary_step_linking"
+            },
+            "question": {
+                "string": "glossary_step_linking_q"
+            },
+            "items": [
+                {
+                    "key": "usedynalink",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "glossary_linking"
+                    },
+                    "sets": {
+                        "field": "usedynalink",
+                        "as": "int"
+                    },
+                    "text": {
+                        "string": "glossary_linking_label"
+                    },
+                    "default": "config:core/glossary_linkbydefault"
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "glossary_linking_hint"
+                    }
+                }
+            ],
+            "when": {
+                "site": "filter",
+                "name": "glossary"
+            }
+        },
+        {
+            "key": "grading",
+            "title": {
+                "string": "glossary_step_grading"
+            },
+            "question": {
+                "string": "glossary_step_grading_q"
+            },
+            "items": [
+                {
+                    "key": "gradingchoice",
+                    "kind": "choice",
+                    "label": {
+                        "string": "glossary_step_grading"
+                    },
+                    "default": "none",
+                    "choices": [
+                        {
+                            "value": "none",
+                            "title": {
+                                "string": "glossary_grading_none"
+                            },
+                            "desc": {
+                                "string": "glossary_grading_none_desc"
+                            },
+                            "sets": {
+                                "assessed": 0
+                            }
+                        },
+                        {
+                            "value": "ratings",
+                            "title": {
+                                "string": "glossary_grading_ratings"
+                            },
+                            "desc": {
+                                "string": "glossary_grading_ratings_desc"
+                            },
+                            "sets": {
+                                "assessed": 1,
+                                "scale": {
+                                    "modgrade_type": "point",
+                                    "modgrade_point": "{answer:maxgrade}"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "maxgrade",
+                    "kind": "number",
+                    "label": {
+                        "string": "maxgrade"
+                    },
+                    "default": 10,
+                    "min": 1,
+                    "max": 100,
+                    "required": {
+                        "answer": "gradingchoice",
+                        "not": "none"
+                    },
+                    "when": {
+                        "answer": "gradingchoice",
+                        "not": "none"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "glossary_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1,
+                        "completionentriesenabled": 0
+                    }
+                },
+                {
+                    "value": "entries1",
+                    "title": {
+                        "string": "glossary_completion_entries1"
+                    },
+                    "desc": {
+                        "string": "glossary_completion_entries_desc"
+                    },
+                    "sets": {
+                        "completionentriesenabled": 1,
+                        "completionentries": 1
+                    }
+                },
+                {
+                    "value": "entries3",
+                    "title": {
+                        "string": "glossary_completion_entries3"
+                    },
+                    "desc": {
+                        "string": "glossary_completion_entries_desc"
+                    },
+                    "sets": {
+                        "completionentriesenabled": 1,
+                        "completionentries": 3
+                    }
+                }
+            ]
+        }
+    ]
+}

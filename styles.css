@@ -136,3 +136,47 @@
 .tool_wizards-stepnav .btn {
     min-height: 2.75rem;
 }
+
+/* The wizard list: a small picture beside each wizard. */
+.tool_wizards-manage .tool_wizards-listpicture {
+    display: inline-block;
+    width: 3rem;
+    flex-shrink: 0;
+    color: var(--bs-primary);
+}
+
+.tool_wizards-manage .tool_wizards-listpicture svg,
+.tool_wizards-manage .tool_wizards-listpicture img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* "Add with a wizard" under core's "Add an activity or resource". */
+.tool_wizards-sectionlink {
+    font-size: 0.875rem;
+}
+
+/* Choosing a course wizard: one card per wizard. */
+.tool_wizards-miniwizard.list-group .tool_wizards-cardpicture {
+    width: 4rem;
+}
+
+/* "Try it" and compare results. */
+.tool_wizards-preview,
+.tool_wizards-compare {
+    font-family: var(--bs-font-monospace);
+    word-break: break-word;
+}
+
+/* "Add with a wizard": the wand beside the label, as in Moodle's menus. */
+[data-region="tool_wizards-sectionlink"] .icon,
+.tool_wizards-modaltitle .icon {
+    margin-right: 0.5rem;
+    color: var(--bs-primary);
+}
+
+.tool_wizards-wizardlist .activityiconcontainer {
+    width: 3rem;
+    height: 3rem;
+}

@@ -1,0 +1,221 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "slides",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "resource"
+    },
+    "title": {
+        "string": "type_slides"
+    },
+    "heading": {
+        "string": "type_slides_title"
+    },
+    "description": {
+        "string": "type_slides_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "add_slides_intro"
+                    }
+                },
+                {
+                    "key": "files",
+                    "kind": "file",
+                    "label": {
+                        "string": "file_upload"
+                    },
+                    "help": {
+                        "string": "file_upload_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_nofile"
+                    },
+                    "accept": [
+                        ".pdf",
+                        ".pptx",
+                        ".ppt",
+                        ".odp",
+                        ".key"
+                    ],
+                    "sets": {
+                        "field": "files",
+                        "as": "int"
+                    },
+                    "extensions": {
+                        "in": [
+                            ".pdf"
+                        ],
+                        "when": {
+                            "answer": "purpose",
+                            "is": "view"
+                        },
+                        "message": {
+                            "string": "error_slidesnotpdf"
+                        }
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "file_name"
+                    },
+                    "help": {
+                        "string": "file_name_hint"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name",
+                        "emptyfrom": {
+                            "filename": "files"
+                        }
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "slides_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "view",
+                            "title": {
+                                "string": "slides_purpose_view"
+                            },
+                            "desc": {
+                                "string": "slides_purpose_view_desc"
+                            },
+                            "picture": "pix:purpose/slides_view",
+                            "when": {
+                                "offered": {
+                                    "field": "display",
+                                    "value": 1
+                                }
+                            },
+                            "sets": {
+                                "display": 1
+                            },
+                            "preset": {
+                                "showsize": 0,
+                                "showtype": 0,
+                                "showdate": 0,
+                                "completion": "view"
+                            }
+                        },
+                        {
+                            "value": "download",
+                            "title": {
+                                "string": "slides_purpose_download"
+                            },
+                            "desc": {
+                                "string": "slides_purpose_download_desc"
+                            },
+                            "picture": "pix:purpose/slides_download",
+                            "when": {
+                                "offered": {
+                                    "field": "display",
+                                    "value": 4
+                                }
+                            },
+                            "sets": {
+                                "display": 4
+                            },
+                            "preset": {
+                                "showsize": 1,
+                                "showtype": 1,
+                                "showdate": 0,
+                                "completion": "view"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "details",
+            "title": {
+                "string": "slides_step_details"
+            },
+            "question": {
+                "string": "slides_step_details_q"
+            },
+            "items": [
+                {
+                    "key": "showsize",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "file_showsize"
+                    },
+                    "sets": {
+                        "field": "showsize",
+                        "as": "int"
+                    },
+                    "default": "config:resource/showsize"
+                },
+                {
+                    "key": "showtype",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "file_showtype"
+                    },
+                    "sets": {
+                        "field": "showtype",
+                        "as": "int"
+                    },
+                    "default": "config:resource/showtype"
+                },
+                {
+                    "key": "showdate",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "file_showdate"
+                    },
+                    "sets": {
+                        "field": "showdate",
+                        "as": "int"
+                    },
+                    "default": "config:resource/showdate"
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "file_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

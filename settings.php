@@ -36,8 +36,17 @@ if (get_config('tool_wizards', 'enabled') !== '0') {
     ));
 }
 
+// Wizards: settings and the list of wizards, under Site administration > Courses.
+$ADMIN->add('courses', new admin_category('tool_wizards', new lang_string('pluginname', 'tool_wizards')));
+$ADMIN->add('tool_wizards', new admin_externalpage(
+    'tool_wizards_manage',
+    new lang_string('managewizards', 'tool_wizards'),
+    new moodle_url('/admin/tool/wizards/manage.php'),
+    'tool/wizards:managewizards'
+));
+
 if ($hassiteconfig) {
-    $settings = new admin_settingpage('tool_wizards_settings', new lang_string('pluginname', 'tool_wizards'));
+    $settings = new admin_settingpage('tool_wizards_settings', new lang_string('settings', 'tool_wizards'));
 
     if ($ADMIN->fulltree) {
         $settings->add(new admin_setting_configcheckbox(
@@ -64,5 +73,5 @@ if ($hassiteconfig) {
         ));
     }
 
-    $ADMIN->add('courses', $settings);
+    $ADMIN->add('tool_wizards', $settings);
 }

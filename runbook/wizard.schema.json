@@ -1,0 +1,593 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://moodle.org/plugins/tool_wizards/wizard.schema.json",
+  "title": "tool_wizards wizard definition (format tool_wizards/wizard@1)",
+  "description": "One wizard. The plugin's validator (cli/validate.php) also checks references between questions, language strings, capabilities, installed modules and registered actions.",
+  "type": "object",
+  "required": [
+    "format",
+    "key",
+    "target",
+    "title",
+    "screens"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "format": {
+      "const": "tool_wizards/wizard@1"
+    },
+    "key": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{1,59}$"
+    },
+    "defaultversion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "target": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "course"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "module"
+            },
+            "modname": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "type",
+            "modname"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "title": {
+      "$ref": "#/$defs/text"
+    },
+    "heading": {
+      "$ref": "#/$defs/text"
+    },
+    "description": {
+      "$ref": "#/$defs/text"
+    },
+    "intro": {
+      "$ref": "#/$defs/text"
+    },
+    "picture": {
+      "$ref": "#/$defs/picture"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "screens": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/screen"
+      }
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*/[a-z][a-z0-9_]*$"
+          },
+          "when": {
+            "$ref": "#/$defs/condition"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "text": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "string": {
+              "type": "string"
+            },
+            "component": {
+              "type": "string"
+            }
+          },
+          "patternProperties": {
+            "^[a-z]{2,3}(_[a-z0-9]+)*$": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "minProperties": 1
+        }
+      ]
+    },
+    "picture": {
+      "type": "string",
+      "pattern": "^(pix:[a-z0-9_/]+|file:[A-Za-z0-9._-]+\\.(png|jpe?g|webp|svg|gif))$"
+    },
+    "condition": {
+      "type": "object",
+      "minProperties": 1,
+      "oneOf": [
+        {
+          "required": [
+            "answer"
+          ],
+          "properties": {
+            "answer": {
+              "type": "string"
+            },
+            "is": {},
+            "not": {},
+            "in": {
+              "type": "array"
+            },
+            "has": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "required": [
+            "course"
+          ],
+          "properties": {
+            "course": {
+              "enum": [
+                "hasgroups",
+                "completion",
+                "groupmodeforce",
+                "forcedgroupmode"
+              ]
+            },
+            "is": {}
+          },
+          "additionalProperties": false
+        },
+        {
+          "required": [
+            "site"
+          ],
+          "properties": {
+            "site": {
+              "enum": [
+                "comments",
+                "filter",
+                "qtype",
+                "showstartedcourses",
+                "completion",
+                "categorychoice"
+              ]
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "required": [
+            "capability"
+          ],
+          "properties": {
+            "capability": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "required": [
+            "offered"
+          ],
+          "properties": {
+            "offered": {
+              "type": "object",
+              "required": [
+                "field",
+                "value"
+              ],
+              "properties": {
+                "field": {
+                  "type": "string"
+                },
+                "value": {}
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "required": [
+            "all"
+          ],
+          "properties": {
+            "all": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/condition"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "required": [
+            "any"
+          ],
+          "properties": {
+            "any": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/condition"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "required": [
+            "not"
+          ],
+          "properties": {
+            "not": {
+              "$ref": "#/$defs/condition"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "fieldvalues": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*(\\[[a-zA-Z0-9_]*\\])*$"
+      }
+    },
+    "mapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "type": "string",
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*(\\[[a-zA-Z0-9_]*\\])*$"
+        },
+        "as": {
+          "enum": [
+            "editor",
+            "string",
+            "int",
+            "float"
+          ]
+        },
+        "emptyfrom": {
+          "type": "object",
+          "required": [
+            "filename"
+          ],
+          "properties": {
+            "filename": {
+              "type": "string"
+            }
+          }
+        },
+        "percentof": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string",
+              "pattern": "^config:[a-z][a-z0-9_]*/[a-z0-9_]+$"
+            }
+          ]
+        },
+        "transform": {
+          "type": "string"
+        },
+        "from": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "when": {
+          "$ref": "#/$defs/condition"
+        }
+      }
+    },
+    "choice": {
+      "type": "object",
+      "required": [
+        "value",
+        "title"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "number",
+            "boolean"
+          ]
+        },
+        "title": {
+          "$ref": "#/$defs/text"
+        },
+        "desc": {
+          "$ref": "#/$defs/text"
+        },
+        "picture": {
+          "$ref": "#/$defs/picture"
+        },
+        "when": {
+          "$ref": "#/$defs/condition"
+        },
+        "sets": {
+          "$ref": "#/$defs/fieldvalues"
+        },
+        "preset": {
+          "type": "object"
+        }
+      }
+    },
+    "item": {
+      "type": "object",
+      "required": [
+        "kind"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,59}$"
+        },
+        "kind": {
+          "enum": [
+            "cards",
+            "choice",
+            "select",
+            "yesno",
+            "text",
+            "textarea",
+            "number",
+            "percent",
+            "date",
+            "duration",
+            "file",
+            "editor",
+            "category",
+            "shortname",
+            "hint",
+            "review"
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/text"
+        },
+        "help": {
+          "$ref": "#/$defs/text"
+        },
+        "text": {
+          "$ref": "#/$defs/text"
+        },
+        "requiredmessage": {
+          "$ref": "#/$defs/text"
+        },
+        "placeholder": {
+          "$ref": "#/$defs/text"
+        },
+        "required": {
+          "oneOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "$ref": "#/$defs/condition"
+            }
+          ]
+        },
+        "default": {
+          "type": [
+            "string",
+            "number",
+            "boolean"
+          ]
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "maxlength": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "choices": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/choice"
+          }
+        },
+        "choicesfrom": {
+          "enum": [
+            "course:formats"
+          ]
+        },
+        "sets": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/mapping"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/mapping"
+              }
+            }
+          ]
+        },
+        "when": {
+          "$ref": "#/$defs/condition"
+        },
+        "accept": {
+          "oneOf": [
+            {
+              "const": "*"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "extensions": {
+          "type": "object",
+          "required": [
+            "in"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "in": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            },
+            "when": {
+              "$ref": "#/$defs/condition"
+            },
+            "message": {
+              "$ref": "#/$defs/text"
+            }
+          }
+        },
+        "units": {
+          "type": "array",
+          "items": {
+            "enum": [
+              1,
+              60,
+              3600,
+              86400,
+              604800
+            ]
+          }
+        },
+        "optional": {
+          "type": "boolean"
+        },
+        "suggestfrom": {
+          "type": "string"
+        }
+      }
+    },
+    "screen": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "key",
+            "title",
+            "items"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "key": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]{0,59}$"
+            },
+            "title": {
+              "$ref": "#/$defs/text"
+            },
+            "question": {
+              "$ref": "#/$defs/text"
+            },
+            "when": {
+              "$ref": "#/$defs/condition"
+            },
+            "items": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/item"
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "use"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "use": {
+              "enum": [
+                "shared:visibility",
+                "shared:groups",
+                "shared:completion"
+              ]
+            },
+            "when": {
+              "$ref": "#/$defs/condition"
+            },
+            "choices": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/choice"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

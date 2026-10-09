@@ -52,18 +52,41 @@ class module_creator {
     }
 
     /**
+     * Whether a user may add a module to a course: the module is installed and visible,
+     * and the user can manage activities there and add this one.
+     *
+     * @param stdClass $course the course
+     * @param string $modname the module
+     * @param stdClass|null $user the user, default the current one
+     * @return bool
+     */
+    public static function is_available(stdClass $course, string $modname, ?stdClass $user = null): bool {
+        global $CFG;
+        require_once($CFG->dirroot . '/course/lib.php');
+        if (
+            !preg_match('/^[a-z][a-z0-9_]*$/', $modname) || !\core_component::get_component_directory('mod_' . $modname)
+                || !is_readable($CFG->dirroot . '/mod/' . $modname . '/mod_form.php')
+        ) {
+            return false;
+        }
+        $context = \core\context\course::instance($course->id);
+        return has_capability('moodle/course:manageactivities', $context, $user)
+            && course_allowed_module($course, $modname, $user);
+    }
+
+    /**
      * Create the module.
      *
      * @param stdClass $course the course
-     * @param string $type the mini-wizard type (see module_types)
+     * @param string $modname the module
      * @param array $answers submitted field => value for the module's own form, for example
      *                       'name' => 'Week 1', 'introeditor' => ['text' => '<p>Hi</p>', 'format' => 1]
      * @param int|null $sectionnum the section, default {@see default_section()}
      * @return \cm_info the new course module
      * @throws \moodle_exception when the user may not add it, or the module's form refuses the answers
      */
-    public static function create(stdClass $course, string $type, array $answers, ?int $sectionnum = null): \cm_info {
-        [$mform, $fromform, $errors] = self::submit($course, $type, $answers, $sectionnum);
+    public static function create(stdClass $course, string $modname, array $answers, ?int $sectionnum = null): \cm_info {
+        [$mform, $fromform, $errors] = self::submit($course, $modname, $answers, $sectionnum);
         if (!$fromform) {
             throw new \moodle_exception('error_moduleform', 'tool_wizards', '', null, json_encode($errors));
         }
@@ -78,33 +101,59 @@ class module_creator {
      * What the module's own form says about the answers, without creating anything.
      *
      * @param stdClass $course the course
-     * @param string $type the mini-wizard type (see module_types)
+     * @param string $modname the module
      * @param array $answers field => value for the module's own form, as for {@see create()}
+     * @param int|null $sectionnum the section, default {@see default_section()}
      * @return array field => error message; empty when the form accepts them
      */
-    public static function check(stdClass $course, string $type, array $answers): array {
-        [, , $errors] = self::submit($course, $type, $answers);
+    public static function check(stdClass $course, string $modname, array $answers, ?int $sectionnum = null): array {
+        [, , $errors] = self::submit($course, $modname, $answers, $sectionnum);
         return $errors;
     }
 
     /**
-     * Submit the answers to the module's own form, built as course/modedit.php builds it.
+     * The module's own form for a new activity, built as course/modedit.php builds it.
      *
      * @param stdClass $course the course
-     * @param string $type the mini-wizard type
+     * @param string $modname the module
+     * @param int|null $sectionnum the section, default {@see default_section()}
+     * @return \moodleform
+     */
+    public static function form(stdClass $course, string $modname, ?int $sectionnum = null): \moodleform {
+        return self::factory($course, $modname, $sectionnum)();
+    }
+
+    /**
+     * Submit the answers to the module's own form.
+     *
+     * @param stdClass $course the course
+     * @param string $modname the module
      * @param array $answers field => value for the module's own form
      * @param int|null $sectionnum the section, default {@see default_section()}
      * @return array [\moodleform $mform, \stdClass|null $fromform, array $errors]
      */
-    protected static function submit(stdClass $course, string $type, array $answers, ?int $sectionnum = null): array {
+    protected static function submit(stdClass $course, string $modname, array $answers, ?int $sectionnum = null): array {
+        $factory = self::factory($course, $modname, $sectionnum);
+        $values = form_submission::browser_values($factory(), $answers);
+        return form_submission::submit($factory, $values);
+    }
+
+    /**
+     * A function that builds the module's form as course/modedit.php does for "add".
+     *
+     * @param stdClass $course the course
+     * @param string $modname the module
+     * @param int|null $sectionnum the section, default {@see default_section()}
+     * @return callable
+     */
+    protected static function factory(stdClass $course, string $modname, ?int $sectionnum = null): callable {
         global $CFG, $PAGE;
         require_once($CFG->dirroot . '/course/modlib.php');
         require_once($CFG->libdir . '/formslib.php');
 
-        $modname = module_types::modname($type);
         // Ask core before anything else: can_add_moduleinfo() would create a missing section
         // before finding out the module is not allowed.
-        if (!module_types::is_available($course, $type)) {
+        if (!self::is_available($course, $modname)) {
             throw new \moodle_exception('error_notavailable', 'tool_wizards');
         }
         $sectionnum ??= self::default_section($course);
@@ -129,13 +178,10 @@ class module_creator {
         $data->add = $modname;
         require_once($CFG->dirroot . '/mod/' . $modname . '/mod_form.php');
         $classname = 'mod_' . $modname . '_mod_form';
-        $factory = function () use ($classname, $data, $cw, $cm, $course) {
+        return function () use ($classname, $data, $cw, $cm, $course) {
             $form = new $classname(clone $data, $cw->section, $cm, $course);
             $form->set_data(clone $data);
             return $form;
         };
-
-        $values = form_submission::browser_values($factory(), $answers);
-        return form_submission::submit($factory, $values);
     }
 }

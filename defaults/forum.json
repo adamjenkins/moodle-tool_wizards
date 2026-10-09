@@ -1,0 +1,550 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "forum",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "forum"
+    },
+    "title": {
+        "string": "type_forum"
+    },
+    "heading": {
+        "string": "type_forum_title"
+    },
+    "description": {
+        "string": "type_forum_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "add_forum_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "forum_name"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "description",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "forum_description"
+                    },
+                    "sets": {
+                        "field": "introeditor",
+                        "as": "editor"
+                    },
+                    "required": {
+                        "answer": "purpose",
+                        "is": "single"
+                    },
+                    "requiredmessage": {
+                        "string": "error_singledescription"
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "forum_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "general",
+                            "title": {
+                                "string": "forum_purpose_general"
+                            },
+                            "desc": {
+                                "string": "forum_purpose_general_desc"
+                            },
+                            "picture": "pix:purpose/forum_general",
+                            "sets": {
+                                "type": "general"
+                            },
+                            "preset": {
+                                "forcesubscribe": 2,
+                                "gradingchoice": "none",
+                                "lockafter": "off",
+                                "postlimit": 0,
+                                "completion": "posts"
+                            }
+                        },
+                        {
+                            "value": "questions",
+                            "title": {
+                                "string": "forum_purpose_questions"
+                            },
+                            "desc": {
+                                "string": "forum_purpose_questions_desc"
+                            },
+                            "picture": "pix:purpose/forum_questions",
+                            "sets": {
+                                "type": "general"
+                            },
+                            "preset": {
+                                "forcesubscribe": 0,
+                                "gradingchoice": "none",
+                                "lockafter": "off",
+                                "postlimit": 0,
+                                "completion": "default"
+                            }
+                        },
+                        {
+                            "value": "qanda",
+                            "title": {
+                                "string": "forum_purpose_qanda"
+                            },
+                            "desc": {
+                                "string": "forum_purpose_qanda_desc"
+                            },
+                            "picture": "pix:purpose/forum_qanda",
+                            "sets": {
+                                "type": "qanda"
+                            },
+                            "preset": {
+                                "forcesubscribe": 0,
+                                "gradingchoice": "none",
+                                "lockafter": "off",
+                                "postlimit": 0,
+                                "completion": "replies"
+                            }
+                        },
+                        {
+                            "value": "single",
+                            "title": {
+                                "string": "forum_purpose_single"
+                            },
+                            "desc": {
+                                "string": "forum_purpose_single_desc"
+                            },
+                            "picture": "pix:purpose/forum_single",
+                            "sets": {
+                                "type": "single"
+                            },
+                            "preset": {
+                                "forcesubscribe": 2,
+                                "gradingchoice": "none",
+                                "lockafter": "off",
+                                "postlimit": 0,
+                                "completion": "replies"
+                            },
+                            "when": {
+                                "not": {
+                                    "course": "forcedgroupmode",
+                                    "is": 1
+                                }
+                            }
+                        },
+                        {
+                            "value": "eachuser",
+                            "title": {
+                                "string": "forum_purpose_eachuser"
+                            },
+                            "desc": {
+                                "string": "forum_purpose_eachuser_desc"
+                            },
+                            "picture": "pix:purpose/forum_eachuser",
+                            "sets": {
+                                "type": "eachuser"
+                            },
+                            "preset": {
+                                "forcesubscribe": 0,
+                                "gradingchoice": "none",
+                                "lockafter": "off",
+                                "postlimit": 0,
+                                "completion": "discussions"
+                            }
+                        },
+                        {
+                            "value": "blog",
+                            "title": {
+                                "string": "forum_purpose_blog"
+                            },
+                            "desc": {
+                                "string": "forum_purpose_blog_desc"
+                            },
+                            "picture": "pix:purpose/forum_blog",
+                            "sets": {
+                                "type": "blog"
+                            },
+                            "preset": {
+                                "forcesubscribe": 0,
+                                "gradingchoice": "none",
+                                "lockafter": "off",
+                                "postlimit": 0,
+                                "completion": "discussions"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "emails",
+            "title": {
+                "string": "forum_step_emails"
+            },
+            "question": {
+                "string": "forum_step_emails_q"
+            },
+            "items": [
+                {
+                    "key": "forcesubscribe",
+                    "kind": "choice",
+                    "label": {
+                        "string": "forum_step_emails"
+                    },
+                    "default": "config:core/forum_subscription",
+                    "sets": {
+                        "field": "forcesubscribe",
+                        "as": "int"
+                    },
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "forum_subscribe_optional"
+                            },
+                            "desc": {
+                                "string": "forum_subscribe_optional_desc"
+                            }
+                        },
+                        {
+                            "value": 2,
+                            "title": {
+                                "string": "forum_subscribe_auto"
+                            },
+                            "desc": {
+                                "string": "forum_subscribe_auto_desc"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "forum_subscribe_forced"
+                            },
+                            "desc": {
+                                "string": "forum_subscribe_forced_desc"
+                            }
+                        },
+                        {
+                            "value": 3,
+                            "title": {
+                                "string": "forum_subscribe_none"
+                            },
+                            "desc": {
+                                "string": "forum_subscribe_none_desc"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "deadline",
+            "title": {
+                "string": "forum_step_deadline"
+            },
+            "question": {
+                "string": "forum_step_deadline_q"
+            },
+            "items": [
+                {
+                    "key": "duedate",
+                    "kind": "date",
+                    "label": {
+                        "string": "forum_duedate"
+                    },
+                    "help": {
+                        "string": "forum_duedate_hint"
+                    },
+                    "sets": {
+                        "field": "duedate"
+                    }
+                },
+                {
+                    "key": "cutoffdate",
+                    "kind": "date",
+                    "label": {
+                        "string": "forum_cutoffdate"
+                    },
+                    "help": {
+                        "string": "forum_cutoffdate_hint"
+                    },
+                    "sets": {
+                        "field": "cutoffdate"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "grading",
+            "title": {
+                "string": "forum_step_grading"
+            },
+            "question": {
+                "string": "forum_step_grading_q"
+            },
+            "items": [
+                {
+                    "key": "gradingchoice",
+                    "kind": "choice",
+                    "label": {
+                        "string": "forum_step_grading"
+                    },
+                    "default": "none",
+                    "choices": [
+                        {
+                            "value": "none",
+                            "title": {
+                                "string": "forum_grading_none"
+                            },
+                            "desc": {
+                                "string": "forum_grading_none_desc"
+                            },
+                            "sets": {
+                                "assessed": 0,
+                                "grade_forum": {
+                                    "modgrade_type": "none"
+                                }
+                            }
+                        },
+                        {
+                            "value": "whole",
+                            "title": {
+                                "string": "forum_grading_whole"
+                            },
+                            "desc": {
+                                "string": "forum_grading_whole_desc"
+                            },
+                            "sets": {
+                                "assessed": 0,
+                                "grade_forum": {
+                                    "modgrade_type": "point",
+                                    "modgrade_point": "{answer:maxgrade}"
+                                }
+                            }
+                        },
+                        {
+                            "value": "ratings",
+                            "title": {
+                                "string": "forum_grading_ratings"
+                            },
+                            "desc": {
+                                "string": "forum_grading_ratings_desc"
+                            },
+                            "sets": {
+                                "assessed": 1,
+                                "scale": {
+                                    "modgrade_type": "point",
+                                    "modgrade_point": "{answer:maxgrade}"
+                                },
+                                "grade_forum": {
+                                    "modgrade_type": "none"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "maxgrade",
+                    "kind": "number",
+                    "label": {
+                        "string": "maxgrade"
+                    },
+                    "default": 10,
+                    "min": 1,
+                    "max": 100,
+                    "required": {
+                        "answer": "gradingchoice",
+                        "not": "none"
+                    },
+                    "when": {
+                        "answer": "gradingchoice",
+                        "not": "none"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "tidy",
+            "title": {
+                "string": "forum_step_tidy"
+            },
+            "question": {
+                "string": "forum_step_tidy_q"
+            },
+            "items": [
+                {
+                    "key": "lockafter",
+                    "kind": "select",
+                    "label": {
+                        "string": "forum_lockafter"
+                    },
+                    "help": {
+                        "string": "forum_lockafter_hint"
+                    },
+                    "default": "off",
+                    "choices": [
+                        {
+                            "value": "off",
+                            "title": {
+                                "string": "forum_lock_off"
+                            },
+                            "sets": {
+                                "lockdiscussionafter": {
+                                    "enabled": 0
+                                }
+                            }
+                        },
+                        {
+                            "value": "week",
+                            "title": {
+                                "string": "forum_lock_week"
+                            },
+                            "sets": {
+                                "lockdiscussionafter": {
+                                    "enabled": 1,
+                                    "number": 1,
+                                    "timeunit": 604800
+                                }
+                            }
+                        },
+                        {
+                            "value": "fortnight",
+                            "title": {
+                                "string": "forum_lock_fortnight"
+                            },
+                            "sets": {
+                                "lockdiscussionafter": {
+                                    "enabled": 1,
+                                    "number": 2,
+                                    "timeunit": 604800
+                                }
+                            }
+                        },
+                        {
+                            "value": "month",
+                            "title": {
+                                "string": "forum_lock_month"
+                            },
+                            "sets": {
+                                "lockdiscussionafter": {
+                                    "enabled": 1,
+                                    "number": 4,
+                                    "timeunit": 604800
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "postlimit",
+                    "kind": "choice",
+                    "label": {
+                        "string": "forum_postlimit"
+                    },
+                    "default": 0,
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "forum_postlimit_off"
+                            },
+                            "sets": {
+                                "blockperiod": 0
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "forum_postlimit_label"
+                            },
+                            "sets": {
+                                "blockperiod": 86400,
+                                "blockafter": 5,
+                                "warnafter": 4
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "posts",
+                    "title": {
+                        "string": "forum_completion_posts"
+                    },
+                    "desc": {
+                        "string": "forum_completion_posts_desc"
+                    },
+                    "sets": {
+                        "completionpostsenabled": 1,
+                        "completiondiscussionsenabled": 0,
+                        "completionrepliesenabled": 0,
+                        "completionposts": 1
+                    }
+                },
+                {
+                    "value": "discussions",
+                    "title": {
+                        "string": "forum_completion_discussions"
+                    },
+                    "desc": {
+                        "string": "forum_completion_discussions_desc"
+                    },
+                    "sets": {
+                        "completionpostsenabled": 0,
+                        "completiondiscussionsenabled": 1,
+                        "completionrepliesenabled": 0,
+                        "completiondiscussions": 1
+                    }
+                },
+                {
+                    "value": "replies",
+                    "title": {
+                        "string": "forum_completion_replies"
+                    },
+                    "desc": {
+                        "string": "forum_completion_replies_desc"
+                    },
+                    "sets": {
+                        "completionpostsenabled": 0,
+                        "completiondiscussionsenabled": 0,
+                        "completionrepliesenabled": 1,
+                        "completionreplies": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

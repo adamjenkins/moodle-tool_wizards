@@ -71,11 +71,12 @@ different to add next.
 The card never blocks the page. You can:
 
 - close it for now ("I'm done for now"),
-- hide it for one course ("Hide for this course"). To undo that, open the help button (?) at
-  the bottom of that course page and choose "Bring the wizards back". The link appears only
-  while the course is still nearly empty, since the card wouldn't show otherwise,
-- switch it off everywhere ("Don't show me wizard suggestions"). You can switch it back on in
-  Preferences > Wizard suggestions.
+- hide it for one course ("Hide for this course"),
+- switch it off everywhere ("Don't show me wizard suggestions").
+
+To undo either, open the help button (?) at the bottom of a course page and choose **"Bring back
+the course wizards"** (or use Preferences > Wizard suggestions). The card shows again straight
+away, even on a course that already has content.
 
 ### Teacher scaffold (optional)
 
@@ -84,6 +85,48 @@ If [Teacher scaffold](https://github.com/adamjenkins/moodle-tool_teacherscaffold
 their next course page, for example "Nice work! You've unlocked new activities: Quiz, Choice,
 Feedback." The message has a button that opens the matching mini-wizard. Wizards does not
 need Teacher scaffold, and works the same without it.
+
+## Managing wizards
+
+Every wizard, including the course wizard and the seven content wizards that come with the
+plugin, is a **definition**: a JSON document that says what it creates, which screens and
+questions it has, how answers turn into settings, and what each purpose pre-fills. Site
+administrators (capability `tool/wizards:managewizards`) manage them in
+*Site administration > Courses > Wizards > Manage wizards*:
+
+- **Enable, disable and order** the wizards teachers see. Teachers also find them under
+  **"Add with a wizard"** in each course section's add menu, in edit mode.
+- **Edit** a wizard's wording in every installed language, the order of its screens, and its
+  pictures (shipped ones, or your own PNG, JPEG, WebP, SVG or GIF uploads).
+- **Try it**: walk any wizard in a real course and see exactly which settings it would set,
+  without creating anything.
+- **Build a new wizard** with the wizard builder. Choose what it creates (a course or any
+  installed activity), tick the settings to ask about from that activity's own settings form,
+  word the questions and group them into screens, and optionally add purpose cards with presets.
+  New wizards start as drafts.
+- **Duplicate, export and import** wizards, one at a time or in bulk, as a zip with their
+  pictures. Imports are checked first; a wizard that already exists can be imported as a copy,
+  replaced, or skipped.
+- **Improve with AI**: if the site has a text-generation provider in Moodle's AI subsystem,
+  describe a change in your own words and review the proposed differences before applying them.
+
+The default wizards update with the plugin until you edit them. An edited default is flagged
+when a newer version ships, with a comparison, **Reset to default** and **Keep my version**.
+
+### Improving wizards with AI outside Moodle
+
+**Download the AI runbook** from the wizard list. It explains the format, the design rules and
+the round trip for working with any AI assistant on exported wizards, and it is included in
+every export. The format is also described by `runbook/wizard.schema.json`, and files can be
+checked before import with:
+
+    php admin/tool/wizards/cli/validate.php wizards.zip
+
+### Extending
+
+Other plugins can add building blocks that definitions use: **actions**, which run after a wizard
+has created its course or activity, and **transforms**, which turn several answers into settings.
+Register them through the `\tool_wizards\hook\collect_extensions` hook.
 
 ## Settings
 

@@ -102,7 +102,7 @@ final class prompt_test extends advanced_testcase {
         prompt::mark_just_added($this->course->id, $cm->cmid);
         $html = $this->render_prompt();
         $this->assertStringContainsString(get_string('prompt_added', 'tool_wizards', 'Reading list'), $html);
-        $this->assertStringNotContainsString('data-type="page"', $html, 'Suggests something different next.');
+        $this->assertStringNotContainsString('data-wizard="page"', $html, 'Suggests something different next.');
     }
 
     /**
@@ -148,14 +148,12 @@ final class prompt_test extends advanced_testcase {
         $this->assertStringNotContainsString($label, $this->footer_html(null, '/course/edit.php'), 'Only on the course page.');
 
         set_user_preference(prompt::PREF_HIDE, 1);
-        $this->assertStringNotContainsString($label, $this->footer_html(), 'Not while suggestions are off everywhere.');
+        $this->assertStringContainsString($label, $this->footer_html($other), 'Also when switched off everywhere.');
         set_user_preference(prompt::PREF_HIDE, 0);
 
         set_config('emptythreshold', 0, 'tool_wizards');
         $this->getDataGenerator()->create_module('page', ['course' => $this->course->id]);
-        $this->assertStringNotContainsString($label, $this->footer_html(), 'Not when the card would not show anyway.');
-        set_config('emptythreshold', 1, 'tool_wizards');
-        $this->assertStringContainsString($label, $this->footer_html());
+        $this->assertStringContainsString($label, $this->footer_html(), 'Also on a course with content.');
 
         set_config('enabled', 0, 'tool_wizards');
         $this->assertStringNotContainsString($label, $this->footer_html(), 'Not when the site switch is off.');
@@ -164,6 +162,28 @@ final class prompt_test extends advanced_testcase {
         $this->setUser($this->getDataGenerator()->create_and_enrol($this->course, 'student'));
         prompt::dismiss_course($this->course->id);
         $this->assertStringNotContainsString($label, $this->footer_html(), 'Not for someone who cannot add content.');
+    }
+
+    /**
+     * Bringing the wizards back from the help menu undoes hiding them (here and everywhere) and shows
+     * the card on the next view, even on a course with content; only once.
+     */
+    public function test_bring_back(): void {
+        set_config('emptythreshold', 0, 'tool_wizards');
+        $this->getDataGenerator()->create_module('page', ['course' => $this->course->id]);
+        prompt::dismiss_course($this->course->id);
+        set_user_preference(prompt::PREF_HIDE, 1);
+        $this->assertSame('', $this->render_prompt());
+
+        prompt::bring_back($this->course->id);
+        $this->assertFalse(prompt::is_dismissed($this->course->id, $this->teacher->id));
+        $this->assertFalse(prompt::suggestions_hidden());
+        $this->assertStringContainsString(
+            'tool_wizards-firstcontent',
+            $this->render_prompt(),
+            'Shown although the course has content.'
+        );
+        $this->assertSame('', $this->render_prompt(), 'Only once: afterwards the usual rule applies.');
     }
 
     /**
@@ -216,9 +236,9 @@ final class prompt_test extends advanced_testcase {
         accesslib_clear_all_caches_for_unit_testing();
 
         $html = $this->render_prompt();
-        $this->assertStringContainsString('data-type="file"', $html);
-        $this->assertStringNotContainsString('data-type="forum"', $html);
-        $this->assertStringNotContainsString('data-type="page"', $html);
+        $this->assertStringContainsString('data-wizard="file"', $html);
+        $this->assertStringNotContainsString('data-wizard="forum"', $html);
+        $this->assertStringNotContainsString('data-wizard="page"', $html);
     }
 
     /**

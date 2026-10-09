@@ -19,8 +19,9 @@ namespace tool_wizards\output;
 use core\output\renderable;
 use core\output\renderer_base;
 use core\output\templatable;
-use tool_wizards\local\module_types;
 use tool_wizards\local\prompt;
+use tool_wizards\local\wizard\repository;
+use tool_wizards\local\wizard\text;
 
 /**
  * The first-content suggestions card on a course page.
@@ -33,7 +34,7 @@ class first_content implements renderable, templatable {
     /** @var \stdClass the course */
     protected \stdClass $course;
 
-    /** @var string[] the types the user may add, in order */
+    /** @var \stdClass[] the wizards the user may use, in order */
     protected array $types;
 
     /** @var bool whether the user has just created the course with the wizard */
@@ -49,7 +50,7 @@ class first_content implements renderable, templatable {
      * Constructor.
      *
      * @param \stdClass $course the course
-     * @param string[] $types the types the user may add, in order
+     * @param \stdClass[] $types the wizard records the user may use, in order
      * @param bool $justcreated whether the user has just created the course with the wizard
      * @param int|null $justadded the course module a mini-wizard has just added
      * @param bool $questionfailed whether a quiz was added without the first question asked for
@@ -87,22 +88,23 @@ class first_content implements renderable, templatable {
                     'url' => $cm->url ? $cm->url->out(false) : '',
                 ];
                 // Suggest something different next.
-                $others = array_values(array_filter($types, fn($t) => module_types::modname($t) !== $cm->modname));
+                $others = array_values(array_filter($types, fn($t) => $t->target !== $cm->modname));
                 $types = array_slice($others ?: $types, 0, prompt::NEXT_SUGGESTIONS);
             }
         }
 
         $options = [];
-        foreach ($types as $type) {
-            $modname = module_types::modname($type);
+        foreach ($types as $record) {
+            $doc = repository::definition($record);
+            $title = text::get($doc['title'] ?? $record->wizardkey);
             $options[] = [
-                'type' => $type,
-                'formclass' => module_types::formclass($type),
-                'label' => get_string('type_' . $type, 'tool_wizards'),
-                'description' => get_string('type_' . $type . '_desc', 'tool_wizards'),
-                'modaltitle' => get_string('type_' . $type . '_title', 'tool_wizards'),
-                'iconurl' => $output->image_url('monologo', 'mod_' . $modname)->out(false),
-                'modname' => $modname,
+                'type' => $record->wizardkey,
+                'label' => $title,
+                'description' => text::get($doc['description'] ?? ''),
+                'modaltitle' => text::get($doc['heading'] ?? $doc['title'] ?? ''),
+                'iconurl' => $output->image_url('monologo', 'mod_' . $record->target)->out(false),
+                'purpose' => \tool_wizards\hook_callbacks::purpose($record->target),
+                'modname' => $record->target,
             ];
         }
 

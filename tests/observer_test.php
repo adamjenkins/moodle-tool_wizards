@@ -135,7 +135,7 @@ final class observer_test extends advanced_testcase {
         $choice = get_string('modulename', 'choice');
         $list = get_string('unlock_list', 'tool_wizards', (object) ['first' => $quiz, 'last' => $choice]);
         $this->assertStringContainsString(s(get_string('unlock_message', 'tool_wizards', $list)), $first);
-        $this->assertStringContainsString('data-type="quiz"', $first, 'Offers the quiz mini-wizard.');
+        $this->assertStringContainsString('data-wizard="quiz"', $first, 'Offers the quiz mini-wizard.');
 
         set_user_preference(local\prompt::PREF_HIDE, 1);
         $second = messages::render_for_page($course, $renderer);

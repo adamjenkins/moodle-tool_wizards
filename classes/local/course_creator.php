@@ -234,6 +234,43 @@ class course_creator {
     }
 
     /**
+     * Turn a course wizard's fields into the values it will use: any course form field, plus
+     * the wizard's own rules (a suggested short name, sections within the format's limit,
+     * visibility only where the creator may choose it).
+     *
+     * @param array $fields course form field => value (from the wizard's answers)
+     * @param int $categoryid the category, when no answer chose one
+     * @return stdClass the values
+     */
+    public static function prepare_fields(array $fields, int $categoryid): stdClass {
+        $out = (object) $fields;
+        $out->fullname = trim((string) ($fields['fullname'] ?? ''));
+        $out->shortname = trim((string) ($fields['shortname'] ?? ''));
+        if ($out->shortname === '' && $out->fullname !== '') {
+            $out->shortname = self::suggest_shortname($out->fullname);
+        }
+        $out->category = (int) ($fields['category'] ?? $categoryid);
+        if (isset($out->format)) {
+            $out->format = (string) $out->format;
+        }
+        if (isset($out->numsections) && $out->numsections !== '') {
+            $max = isset($out->format) ? self::get_max_sections($out->format) : (int) get_config('moodlecourse', 'maxsections');
+            $out->numsections = max(0, min((int) $out->numsections, $max ?: 52));
+        } else {
+            unset($out->numsections);
+        }
+        if (isset($out->visible) && ($out->visible === '' || !self::can_choose_visibility($out->category))) {
+            unset($out->visible);
+        } else if (isset($out->visible)) {
+            $out->visible = empty($out->visible) ? 0 : 1;
+        }
+        if (isset($out->startdate) && !$out->startdate) {
+            unset($out->startdate);
+        }
+        return $out;
+    }
+
+    /**
      * Whether the wizard asks for a start date.
      *
      * @param array $formatinfo the chosen format (see get_formats())
@@ -275,7 +312,7 @@ class course_creator {
             $errors['category'] = get_string('error_category', 'tool_wizards');
         }
         $formatnames = array_column(self::get_formats(), 'name');
-        if (!in_array($answers->format, $formatnames, true)) {
+        if (isset($answers->format) && !in_array($answers->format, $formatnames, true)) {
             $errors['format'] = get_string('error_format', 'tool_wizards');
         }
         if ($errors) {
@@ -347,6 +384,17 @@ class course_creator {
     }
 
     /**
+     * Core's course form for a new course in a category, as course/edit.php builds it.
+     *
+     * @param int $categoryid the category
+     * @return course_defaults_form
+     */
+    public static function course_form(int $categoryid): course_defaults_form {
+        [$form] = self::build_core_data((object) ['category' => $categoryid]);
+        return $form;
+    }
+
+    /**
      * Build the data array core's form would submit for these answers.
      *
      * @param stdClass $answers normalised answers
@@ -373,9 +421,9 @@ class course_creator {
 
         // The wizard's answers become the form's starting values, as if typed in.
         $course->category = $category->id;
-        foreach (['fullname', 'shortname', 'format', 'numsections', 'startdate', 'visible'] as $field) {
-            if (isset($answers->$field)) {
-                $course->$field = $answers->$field;
+        foreach (get_object_vars($answers) as $field => $value) {
+            if ($field !== 'category' && $field !== 'id') {
+                $course->$field = $value;
             }
         }
 
@@ -390,10 +438,10 @@ class course_creator {
         $data = $form->get_default_data();
         // Values the form would not carry as element defaults.
         $data['category'] = $category->id;
-        foreach (['fullname', 'shortname', 'format', 'numsections', 'startdate', 'visible'] as $field) {
+        foreach (get_object_vars($answers) as $field => $value) {
             // Only fields the form has: a format without a number of sections gets none.
-            if (isset($answers->$field) && $form->has_element($field)) {
-                $data[$field] = $answers->$field;
+            if ($field !== 'category' && $field !== 'id' && $form->has_element($field)) {
+                $data[$field] = $value;
             }
         }
         return [$form, $data, $editoroptions];

@@ -26,7 +26,7 @@
     * added - {name, url} of what was just added, or null
     * questionfailed - whether a quiz was added without the first question asked for
     * focus - whether to move focus to the card when the page loads
-    * options - [{type, formclass, label, description, modaltitle, iconurl, modname}]
+    * options - [{type (the wizard key), label, description, modaltitle, iconurl, purpose, modname}]
     * preferencesurl - where the user can switch suggestions back on
 
     Example context (json):
@@ -37,9 +37,10 @@
         "added": null,
         "questionfailed": false,
         "focus": true,
-        "options": [{"type": "forum", "formclass": "\\tool_wizards\\form\\add_forum", "label": "A forum",
+        "options": [{"type": "forum", "label": "A forum",
             "description": "A place for discussions.", "modaltitle": "Add a forum",
-            "iconurl": "https://example.com/theme/image.php/boost/forum/1/monologo", "modname": "forum"}],
+            "iconurl": "https://example.com/theme/image.php/boost/forum/1/monologo", "purpose": "collaboration",
+            "modname": "forum"}],
         "preferencesurl": "https://example.com/admin/tool/wizards/preferences.php"
     }
 }}
@@ -63,8 +64,10 @@
             {{#options}}
             <li class="col-12 col-sm-6 col-lg-4">
                 <button type="button" class="tool_wizards-option btn btn-outline-secondary w-100 h-100 text-start d-flex gap-3 align-items-start p-3"
-                    data-action="add" data-type="{{type}}" data-formclass="{{formclass}}" data-modaltitle="{{modaltitle}}">
-                    <img src="{{iconurl}}" alt="" class="tool_wizards-optionicon activityicon" aria-hidden="true">
+                    data-action="add" data-wizard="{{type}}" data-modaltitle="{{modaltitle}}">
+                    <span class="activity-icon activityiconcontainer {{purpose}} flex-shrink-0" aria-hidden="true">
+                        <img src="{{iconurl}}" alt="" class="activityicon">
+                    </span>
                     <span>
                         <span class="d-block fw-bold">{{label}}</span>
                         <span class="d-block small text-body-secondary" id="tool_wizards-option-{{type}}-desc">{{description}}</span>

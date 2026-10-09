@@ -19,7 +19,6 @@ namespace tool_wizards\output;
 use core\output\renderable;
 use core\output\renderer_base;
 use core\output\templatable;
-use tool_wizards\local\module_types;
 
 /**
  * "You've unlocked Quiz, Choice and Feedback. Want to try a quiz now?"
@@ -74,17 +73,16 @@ class unlock_message implements renderable, templatable {
     public function export_for_template(renderer_base $output): array {
         $names = array_map(fn($modname) => get_string('modulename', $modname), $this->modules);
 
-        // Offer the first unlocked module that has a mini-wizard and can be added here.
+        // Offer the first wizard, in the admin's order, for an unlocked module that can be added here.
         $try = null;
         if ($this->offertry) {
-            foreach ($this->modules as $modname) {
-                $type = module_types::type_for_module($modname);
-                if ($type && module_types::is_available($this->course, $type)) {
+            foreach (\tool_wizards\local\wizard\repository::for_course($this->course) as $record) {
+                if (in_array($record->target, $this->modules, true)) {
+                    $doc = \tool_wizards\local\wizard\repository::definition($record);
                     $try = [
-                        'type' => $type,
-                        'formclass' => module_types::formclass($type),
-                        'modaltitle' => get_string('type_' . $type . '_title', 'tool_wizards'),
-                        'label' => get_string('unlock_try', 'tool_wizards', get_string('modulename', $modname)),
+                        'type' => $record->wizardkey,
+                        'modaltitle' => \tool_wizards\local\wizard\text::get($doc['heading'] ?? $doc['title'] ?? ''),
+                        'label' => get_string('unlock_try', 'tool_wizards', get_string('modulename', $record->target)),
                     ];
                     break;
                 }

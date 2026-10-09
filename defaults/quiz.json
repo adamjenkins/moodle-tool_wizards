@@ -1,0 +1,926 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "quiz",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "quiz"
+    },
+    "title": {
+        "string": "type_quiz"
+    },
+    "heading": {
+        "string": "type_quiz_title"
+    },
+    "description": {
+        "string": "type_quiz_desc"
+    },
+    "actions": [
+        {
+            "action": "tool_wizards/quiz_first_question",
+            "kind": "firstquestion",
+            "text": "questiontext",
+            "choices": [
+                "choice1",
+                "choice2",
+                "choice3",
+                "choice4"
+            ],
+            "correct": "correctchoice",
+            "truefalse": "truefalse"
+        }
+    ],
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "add_quiz_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "quiz_name"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "description",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "quiz_description"
+                    },
+                    "sets": {
+                        "field": "introeditor",
+                        "as": "editor"
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "quiz_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "practice",
+                            "title": {
+                                "string": "quiz_purpose_practice"
+                            },
+                            "desc": {
+                                "string": "quiz_purpose_practice_desc"
+                            },
+                            "picture": "pix:purpose/quiz_practice",
+                            "preset": {
+                                "attempts": 0,
+                                "grademethod": 1,
+                                "preferredbehaviour": "interactive",
+                                "reviewpattern": "everything",
+                                "questionsperpage": 1,
+                                "shuffleanswers": 1,
+                                "completion": "attempted",
+                                "haspass": 0
+                            }
+                        },
+                        {
+                            "value": "exam",
+                            "title": {
+                                "string": "quiz_purpose_exam"
+                            },
+                            "desc": {
+                                "string": "quiz_purpose_exam_desc"
+                            },
+                            "picture": "pix:purpose/quiz_exam",
+                            "preset": {
+                                "attempts": 1,
+                                "grademethod": 1,
+                                "preferredbehaviour": "deferredfeedback",
+                                "reviewpattern": "scoreonly",
+                                "questionsperpage": 1,
+                                "shuffleanswers": 1,
+                                "completion": "graded"
+                            }
+                        },
+                        {
+                            "value": "pretest",
+                            "title": {
+                                "string": "quiz_purpose_pretest"
+                            },
+                            "desc": {
+                                "string": "quiz_purpose_pretest_desc"
+                            },
+                            "picture": "pix:purpose/quiz_pretest",
+                            "preset": {
+                                "attempts": 1,
+                                "grademethod": 1,
+                                "preferredbehaviour": "deferredfeedback",
+                                "reviewpattern": "noanswers",
+                                "questionsperpage": 0,
+                                "shuffleanswers": 1,
+                                "completion": "attempted",
+                                "haspass": 0
+                            }
+                        },
+                        {
+                            "value": "homework",
+                            "title": {
+                                "string": "quiz_purpose_homework"
+                            },
+                            "desc": {
+                                "string": "quiz_purpose_homework_desc"
+                            },
+                            "picture": "pix:purpose/quiz_homework",
+                            "preset": {
+                                "attempts": 3,
+                                "grademethod": 1,
+                                "preferredbehaviour": "deferredfeedback",
+                                "reviewpattern": "answerslater",
+                                "questionsperpage": 1,
+                                "shuffleanswers": 1,
+                                "completion": "attempted"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "timing",
+            "title": {
+                "string": "quiz_step_timing"
+            },
+            "question": {
+                "string": "quiz_step_timing_q"
+            },
+            "items": [
+                {
+                    "key": "timeopen",
+                    "kind": "date",
+                    "label": {
+                        "string": "quiz_timeopen"
+                    },
+                    "sets": {
+                        "field": "timeopen"
+                    }
+                },
+                {
+                    "key": "timeclose",
+                    "kind": "date",
+                    "label": {
+                        "string": "quiz_timeclose"
+                    },
+                    "help": {
+                        "string": "quiz_timeclose_hint"
+                    },
+                    "sets": {
+                        "field": "timeclose"
+                    }
+                },
+                {
+                    "key": "timelimit",
+                    "kind": "duration",
+                    "label": {
+                        "string": "quiz_timelimit"
+                    },
+                    "units": [
+                        60,
+                        3600
+                    ],
+                    "default": "config:quiz/timelimit",
+                    "sets": {
+                        "field": "timelimit"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "attempts",
+            "title": {
+                "string": "quiz_step_attempts"
+            },
+            "question": {
+                "string": "quiz_step_attempts_q"
+            },
+            "items": [
+                {
+                    "key": "attempts",
+                    "kind": "select",
+                    "label": {
+                        "string": "quiz_attempts"
+                    },
+                    "default": "config:quiz/attempts",
+                    "sets": {
+                        "field": "attempts"
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": "1"
+                        },
+                        {
+                            "value": 2,
+                            "title": "2"
+                        },
+                        {
+                            "value": 3,
+                            "title": "3"
+                        },
+                        {
+                            "value": 5,
+                            "title": "5"
+                        },
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "quiz_attempts_unlimited"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "grademethod",
+                    "kind": "choice",
+                    "label": {
+                        "string": "quiz_grademethod"
+                    },
+                    "default": "config:quiz/grademethod",
+                    "when": {
+                        "answer": "attempts",
+                        "not": 1
+                    },
+                    "sets": {
+                        "field": "grademethod"
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "quiz_grademethod_highest"
+                            },
+                            "desc": {
+                                "string": "quiz_grademethod_highest_desc"
+                            }
+                        },
+                        {
+                            "value": 2,
+                            "title": {
+                                "string": "quiz_grademethod_average"
+                            },
+                            "desc": {
+                                "string": "quiz_grademethod_average_desc"
+                            }
+                        },
+                        {
+                            "value": 3,
+                            "title": {
+                                "string": "quiz_grademethod_first"
+                            },
+                            "desc": {
+                                "string": "quiz_grademethod_first_desc"
+                            }
+                        },
+                        {
+                            "value": 4,
+                            "title": {
+                                "string": "quiz_grademethod_last"
+                            },
+                            "desc": {
+                                "string": "quiz_grademethod_last_desc"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "feedback",
+            "title": {
+                "string": "quiz_step_feedback"
+            },
+            "question": {
+                "string": "quiz_step_feedback_q"
+            },
+            "items": [
+                {
+                    "key": "preferredbehaviour",
+                    "kind": "choice",
+                    "label": {
+                        "string": "quiz_behaviour"
+                    },
+                    "default": "config:quiz/preferredbehaviour",
+                    "sets": {
+                        "field": "preferredbehaviour"
+                    },
+                    "choices": [
+                        {
+                            "value": "deferredfeedback",
+                            "title": {
+                                "string": "quiz_behaviour_deferredfeedback"
+                            },
+                            "desc": {
+                                "string": "quiz_behaviour_deferredfeedback_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "preferredbehaviour",
+                                    "value": "deferredfeedback"
+                                }
+                            }
+                        },
+                        {
+                            "value": "immediatefeedback",
+                            "title": {
+                                "string": "quiz_behaviour_immediatefeedback"
+                            },
+                            "desc": {
+                                "string": "quiz_behaviour_immediatefeedback_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "preferredbehaviour",
+                                    "value": "immediatefeedback"
+                                }
+                            }
+                        },
+                        {
+                            "value": "interactive",
+                            "title": {
+                                "string": "quiz_behaviour_interactive"
+                            },
+                            "desc": {
+                                "string": "quiz_behaviour_interactive_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "preferredbehaviour",
+                                    "value": "interactive"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "review",
+            "title": {
+                "string": "quiz_step_review"
+            },
+            "question": {
+                "string": "quiz_step_review_q"
+            },
+            "items": [
+                {
+                    "key": "reviewpattern",
+                    "kind": "choice",
+                    "label": {
+                        "string": "quiz_review"
+                    },
+                    "choices": [
+                        {
+                            "value": "everything",
+                            "title": {
+                                "string": "quiz_review_everything"
+                            },
+                            "desc": {
+                                "string": "quiz_review_everything_desc"
+                            },
+                            "sets": {
+                                "attemptduring": 1,
+                                "attemptimmediately": 1,
+                                "attemptopen": 1,
+                                "attemptclosed": 1,
+                                "correctnessduring": 1,
+                                "correctnessimmediately": 1,
+                                "correctnessopen": 1,
+                                "correctnessclosed": 1,
+                                "maxmarksduring": 1,
+                                "maxmarksimmediately": 1,
+                                "maxmarksopen": 1,
+                                "maxmarksclosed": 1,
+                                "marksduring": 1,
+                                "marksimmediately": 1,
+                                "marksopen": 1,
+                                "marksclosed": 1,
+                                "specificfeedbackduring": 1,
+                                "specificfeedbackimmediately": 1,
+                                "specificfeedbackopen": 1,
+                                "specificfeedbackclosed": 1,
+                                "generalfeedbackduring": 1,
+                                "generalfeedbackimmediately": 1,
+                                "generalfeedbackopen": 1,
+                                "generalfeedbackclosed": 1,
+                                "rightanswerduring": 1,
+                                "rightanswerimmediately": 1,
+                                "rightansweropen": 1,
+                                "rightanswerclosed": 1,
+                                "overallfeedbackduring": 0,
+                                "overallfeedbackimmediately": 1,
+                                "overallfeedbackopen": 1,
+                                "overallfeedbackclosed": 1
+                            }
+                        },
+                        {
+                            "value": "answerslater",
+                            "title": {
+                                "string": "quiz_review_answerslater"
+                            },
+                            "desc": {
+                                "string": "quiz_review_answerslater_desc"
+                            },
+                            "sets": {
+                                "attemptduring": 1,
+                                "attemptimmediately": 1,
+                                "attemptopen": 1,
+                                "attemptclosed": 1,
+                                "correctnessduring": 1,
+                                "correctnessimmediately": 1,
+                                "correctnessopen": 1,
+                                "correctnessclosed": 1,
+                                "maxmarksduring": 1,
+                                "maxmarksimmediately": 1,
+                                "maxmarksopen": 1,
+                                "maxmarksclosed": 1,
+                                "marksduring": 1,
+                                "marksimmediately": 1,
+                                "marksopen": 1,
+                                "marksclosed": 1,
+                                "specificfeedbackduring": 1,
+                                "specificfeedbackimmediately": 1,
+                                "specificfeedbackopen": 1,
+                                "specificfeedbackclosed": 1,
+                                "generalfeedbackduring": 1,
+                                "generalfeedbackimmediately": 1,
+                                "generalfeedbackopen": 1,
+                                "generalfeedbackclosed": 1,
+                                "rightanswerduring": 1,
+                                "rightanswerimmediately": 0,
+                                "rightansweropen": 0,
+                                "rightanswerclosed": 1,
+                                "overallfeedbackduring": 0,
+                                "overallfeedbackimmediately": 1,
+                                "overallfeedbackopen": 1,
+                                "overallfeedbackclosed": 1
+                            }
+                        },
+                        {
+                            "value": "scoreonly",
+                            "title": {
+                                "string": "quiz_review_scoreonly"
+                            },
+                            "desc": {
+                                "string": "quiz_review_scoreonly_desc"
+                            },
+                            "sets": {
+                                "attemptduring": 1,
+                                "attemptimmediately": 1,
+                                "attemptopen": 1,
+                                "attemptclosed": 1,
+                                "correctnessduring": 1,
+                                "correctnessimmediately": 0,
+                                "correctnessopen": 0,
+                                "correctnessclosed": 1,
+                                "maxmarksduring": 1,
+                                "maxmarksimmediately": 1,
+                                "maxmarksopen": 1,
+                                "maxmarksclosed": 1,
+                                "marksduring": 1,
+                                "marksimmediately": 1,
+                                "marksopen": 1,
+                                "marksclosed": 1,
+                                "specificfeedbackduring": 1,
+                                "specificfeedbackimmediately": 0,
+                                "specificfeedbackopen": 0,
+                                "specificfeedbackclosed": 1,
+                                "generalfeedbackduring": 1,
+                                "generalfeedbackimmediately": 0,
+                                "generalfeedbackopen": 0,
+                                "generalfeedbackclosed": 1,
+                                "rightanswerduring": 1,
+                                "rightanswerimmediately": 0,
+                                "rightansweropen": 0,
+                                "rightanswerclosed": 1,
+                                "overallfeedbackduring": 0,
+                                "overallfeedbackimmediately": 1,
+                                "overallfeedbackopen": 1,
+                                "overallfeedbackclosed": 1
+                            }
+                        },
+                        {
+                            "value": "noanswers",
+                            "title": {
+                                "string": "quiz_review_noanswers"
+                            },
+                            "desc": {
+                                "string": "quiz_review_noanswers_desc"
+                            },
+                            "sets": {
+                                "attemptduring": 1,
+                                "attemptimmediately": 1,
+                                "attemptopen": 1,
+                                "attemptclosed": 1,
+                                "correctnessduring": 1,
+                                "correctnessimmediately": 1,
+                                "correctnessopen": 1,
+                                "correctnessclosed": 1,
+                                "maxmarksduring": 1,
+                                "maxmarksimmediately": 1,
+                                "maxmarksopen": 1,
+                                "maxmarksclosed": 1,
+                                "marksduring": 1,
+                                "marksimmediately": 1,
+                                "marksopen": 1,
+                                "marksclosed": 1,
+                                "specificfeedbackduring": 1,
+                                "specificfeedbackimmediately": 0,
+                                "specificfeedbackopen": 0,
+                                "specificfeedbackclosed": 0,
+                                "generalfeedbackduring": 1,
+                                "generalfeedbackimmediately": 0,
+                                "generalfeedbackopen": 0,
+                                "generalfeedbackclosed": 0,
+                                "rightanswerduring": 1,
+                                "rightanswerimmediately": 0,
+                                "rightansweropen": 0,
+                                "rightanswerclosed": 0,
+                                "overallfeedbackduring": 0,
+                                "overallfeedbackimmediately": 1,
+                                "overallfeedbackopen": 1,
+                                "overallfeedbackclosed": 1
+                            }
+                        }
+                    ]
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "quiz_review_hint"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "passmark",
+            "title": {
+                "string": "quiz_step_passmark"
+            },
+            "question": {
+                "string": "quiz_step_passmark_q"
+            },
+            "items": [
+                {
+                    "key": "haspass",
+                    "kind": "choice",
+                    "label": {
+                        "string": "quiz_passmark"
+                    },
+                    "default": 0,
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "quiz_passmark_none"
+                            },
+                            "desc": {
+                                "string": "quiz_passmark_none_desc"
+                            },
+                            "sets": {
+                                "gradepass": ""
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "quiz_passmark_yes"
+                            },
+                            "desc": {
+                                "string": "quiz_passmark_yes_desc"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "passpercent",
+                    "kind": "percent",
+                    "label": {
+                        "string": "quiz_passpercent"
+                    },
+                    "default": 50,
+                    "min": 1,
+                    "max": 100,
+                    "when": {
+                        "answer": "haspass",
+                        "is": 1
+                    },
+                    "required": {
+                        "answer": "haspass",
+                        "is": 1
+                    },
+                    "sets": {
+                        "field": "gradepass",
+                        "percentof": "config:quiz/maximumgrade"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "layout",
+            "title": {
+                "string": "quiz_step_layout"
+            },
+            "question": {
+                "string": "quiz_step_layout_q"
+            },
+            "items": [
+                {
+                    "key": "questionsperpage",
+                    "kind": "choice",
+                    "label": {
+                        "string": "quiz_perpage"
+                    },
+                    "default": 1,
+                    "sets": {
+                        "field": "questionsperpage"
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "quiz_perpage_one"
+                            },
+                            "desc": {
+                                "string": "quiz_perpage_one_desc"
+                            }
+                        },
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "quiz_perpage_all"
+                            },
+                            "desc": {
+                                "string": "quiz_perpage_all_desc"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "shuffleanswers",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "quiz_shuffle"
+                    },
+                    "sets": {
+                        "field": "shuffleanswers",
+                        "as": "int"
+                    },
+                    "text": {
+                        "string": "quiz_shuffle_label"
+                    },
+                    "default": "config:quiz/shuffleanswers"
+                }
+            ]
+        },
+        {
+            "key": "firstquestion",
+            "title": {
+                "string": "quiz_step_firstquestion"
+            },
+            "question": {
+                "string": "quiz_step_firstquestion_q"
+            },
+            "items": [
+                {
+                    "key": "firstquestion",
+                    "kind": "choice",
+                    "label": {
+                        "string": "quiz_firstquestion_kind"
+                    },
+                    "default": "",
+                    "choices": [
+                        {
+                            "value": "",
+                            "title": {
+                                "string": "quiz_firstquestion_none"
+                            }
+                        },
+                        {
+                            "value": "multichoice",
+                            "title": {
+                                "string": "quiz_firstquestion_multichoice"
+                            },
+                            "when": {
+                                "site": "qtype",
+                                "name": "multichoice"
+                            }
+                        },
+                        {
+                            "value": "truefalse",
+                            "title": {
+                                "string": "quiz_firstquestion_truefalse"
+                            },
+                            "when": {
+                                "site": "qtype",
+                                "name": "truefalse"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "questiontext",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "quiz_questiontext"
+                    },
+                    "when": {
+                        "answer": "firstquestion",
+                        "not": ""
+                    }
+                },
+                {
+                    "key": "choice1",
+                    "kind": "text",
+                    "label": {
+                        "string": "quiz_choice1"
+                    },
+                    "when": {
+                        "answer": "firstquestion",
+                        "is": "multichoice"
+                    }
+                },
+                {
+                    "key": "choice2",
+                    "kind": "text",
+                    "label": {
+                        "string": "quiz_choice2"
+                    },
+                    "when": {
+                        "answer": "firstquestion",
+                        "is": "multichoice"
+                    }
+                },
+                {
+                    "key": "choice3",
+                    "kind": "text",
+                    "label": {
+                        "string": "quiz_choice3"
+                    },
+                    "when": {
+                        "answer": "firstquestion",
+                        "is": "multichoice"
+                    }
+                },
+                {
+                    "key": "choice4",
+                    "kind": "text",
+                    "label": {
+                        "string": "quiz_choice4"
+                    },
+                    "when": {
+                        "answer": "firstquestion",
+                        "is": "multichoice"
+                    }
+                },
+                {
+                    "key": "correctchoice",
+                    "kind": "select",
+                    "label": {
+                        "string": "quiz_correctchoice"
+                    },
+                    "when": {
+                        "answer": "firstquestion",
+                        "is": "multichoice"
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "quiz_choice1"
+                            }
+                        },
+                        {
+                            "value": 2,
+                            "title": {
+                                "string": "quiz_choice2"
+                            }
+                        },
+                        {
+                            "value": 3,
+                            "title": {
+                                "string": "quiz_choice3"
+                            }
+                        },
+                        {
+                            "value": 4,
+                            "title": {
+                                "string": "quiz_choice4"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "truefalse",
+                    "kind": "choice",
+                    "label": {
+                        "string": "quiz_correcttruefalse"
+                    },
+                    "default": 1,
+                    "when": {
+                        "answer": "firstquestion",
+                        "is": "truefalse"
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "true",
+                                "component": "qtype_truefalse"
+                            }
+                        },
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "false",
+                                "component": "qtype_truefalse"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "when": {
+                "capability": [
+                    "mod/quiz:manage",
+                    "moodle/question:add"
+                ]
+            }
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "attempted",
+                    "title": {
+                        "string": "quiz_completion_attempted"
+                    },
+                    "desc": {
+                        "string": "quiz_completion_attempted_desc"
+                    },
+                    "sets": {
+                        "completionminattemptsenabled": 1,
+                        "completionminattempts": 1
+                    }
+                },
+                {
+                    "value": "graded",
+                    "title": {
+                        "string": "quiz_completion_graded"
+                    },
+                    "desc": {
+                        "string": "quiz_completion_graded_desc"
+                    },
+                    "sets": {
+                        "completionusegrade": 1,
+                        "completionpassgrade": 0
+                    }
+                },
+                {
+                    "value": "passed",
+                    "title": {
+                        "string": "quiz_completion_passed"
+                    },
+                    "desc": {
+                        "string": "quiz_completion_passed_desc"
+                    },
+                    "when": {
+                        "answer": "haspass",
+                        "is": 1
+                    },
+                    "sets": {
+                        "completionusegrade": 1,
+                        "completionpassgrade": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

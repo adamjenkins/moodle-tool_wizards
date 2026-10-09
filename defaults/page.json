@@ -1,0 +1,83 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "page",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "page"
+    },
+    "title": {
+        "string": "type_page"
+    },
+    "heading": {
+        "string": "type_page_title"
+    },
+    "description": {
+        "string": "type_page_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "add_page_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "page_name"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "page",
+                    "kind": "editor",
+                    "label": {
+                        "string": "page_content"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_pagecontent"
+                    },
+                    "sets": {
+                        "field": "page"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "page_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -17,6 +17,7 @@
 namespace tool_wizards\local;
 
 use advanced_testcase;
+use tool_wizards\local\wizard\action\quiz_first_question;
 
 /**
  * Tests for adding first content through the mini-wizards' creator.
@@ -27,8 +28,13 @@ use advanced_testcase;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 #[\PHPUnit\Framework\Attributes\CoversClass(module_creator::class)]
-#[\PHPUnit\Framework\Attributes\CoversClass(module_types::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(\tool_wizards\local\wizard\repository::class)]
 final class module_creator_test extends advanced_testcase {
+    /** @var array The default quiz wizard's first-question action. */
+    const QUESTION_CONFIG = ['action' => 'tool_wizards/quiz_first_question', 'kind' => 'firstquestion',
+        'text' => 'questiontext', 'choices' => ['choice1', 'choice2', 'choice3', 'choice4'], 'correct' => 'correctchoice',
+        'truefalse' => 'truefalse'];
+
     /** @var \stdClass the course */
     protected \stdClass $course;
 
@@ -44,6 +50,15 @@ final class module_creator_test extends advanced_testcase {
         $this->course = $this->getDataGenerator()->create_course(['numsections' => 3, 'enablecompletion' => 1]);
         $this->teacher = $this->getDataGenerator()->create_and_enrol($this->course, 'editingteacher');
         $this->setUser($this->teacher);
+    }
+
+    /**
+     * The keys of the wizards the current user is offered in the course.
+     *
+     * @return string[]
+     */
+    protected function offered(): array {
+        return array_column(\tool_wizards\local\wizard\repository::for_course($this->course), 'wizardkey');
     }
 
     /**
@@ -96,7 +111,7 @@ final class module_creator_test extends advanced_testcase {
     public function test_file(): void {
         global $DB;
         $draft = $this->draft_with_file('handout.pdf', '%PDF-1.4 test');
-        $cm = module_creator::create($this->course, 'file', ['name' => 'Week 1 handout', 'files' => $draft]);
+        $cm = module_creator::create($this->course, 'resource', ['name' => 'Week 1 handout', 'files' => $draft]);
 
         $this->assertSame('resource', $cm->modname);
         $resource = $DB->get_record('resource', ['id' => $cm->instance], '*', MUST_EXIST);
@@ -116,7 +131,7 @@ final class module_creator_test extends advanced_testcase {
     public function test_file_needs_a_file(): void {
         $this->expectException(\moodle_exception::class);
         $this->expectExceptionMessage(get_string('error_moduleform', 'tool_wizards'));
-        module_creator::create($this->course, 'file', ['name' => 'Nothing', 'files' => file_get_unused_draft_itemid()]);
+        module_creator::create($this->course, 'resource', ['name' => 'Nothing', 'files' => file_get_unused_draft_itemid()]);
     }
 
     /**
@@ -124,7 +139,7 @@ final class module_creator_test extends advanced_testcase {
      */
     public function test_slides(): void {
         $draft = $this->draft_with_file('lecture.pptx');
-        $cm = module_creator::create($this->course, 'slides', ['name' => 'Lecture 1', 'files' => $draft]);
+        $cm = module_creator::create($this->course, 'resource', ['name' => 'Lecture 1', 'files' => $draft]);
         $this->assertSame('resource', $cm->modname);
         $this->assertSame('Lecture 1', $cm->name);
     }
@@ -158,7 +173,7 @@ final class module_creator_test extends advanced_testcase {
      */
     public function test_prohibited_module_not_offered(): void {
         global $DB;
-        $this->assertContains('forum', module_types::available($this->course));
+        $this->assertContains('forum', $this->offered());
 
         $roleid = create_role('Locked forum', 'lockedforum', 'Prohibits adding forums');
         assign_capability('mod/forum:addinstance', CAP_PROHIBIT, $roleid, \context_system::instance()->id, true);
@@ -166,8 +181,8 @@ final class module_creator_test extends advanced_testcase {
         accesslib_clear_all_caches_for_unit_testing();
         $this->assertFalse(has_capability('mod/forum:addinstance', \context_course::instance($this->course->id)));
 
-        $this->assertNotContains('forum', module_types::available($this->course));
-        $this->assertContains('page', module_types::available($this->course));
+        $this->assertNotContains('forum', $this->offered());
+        $this->assertContains('page', $this->offered());
         $sectionsbefore = $DB->count_records('course_sections', ['course' => $this->course->id]);
         try {
             module_creator::create($this->course, 'forum', ['name' => 'Not allowed'], 7);
@@ -186,9 +201,9 @@ final class module_creator_test extends advanced_testcase {
      * A disabled module is not offered.
      */
     public function test_disabled_module_not_offered(): void {
-        $this->assertContains('page', module_types::available($this->course));
+        $this->assertContains('page', $this->offered());
         \core\plugininfo\mod::enable_plugin('page', 0);
-        $this->assertNotContains('page', module_types::available($this->course));
+        $this->assertNotContains('page', $this->offered());
     }
 
     /**
@@ -213,13 +228,11 @@ final class module_creator_test extends advanced_testcase {
     public function test_picture(): void {
         global $DB, $CFG;
         $draft = $this->draft_with_file('class.png', file_get_contents($CFG->dirroot . '/lib/tests/fixtures/gd-logo.png'));
-        $form = new \ReflectionMethod(\tool_wizards\form\add_picture::class, 'answers_to_fields');
-        $fields = $form->invoke(
-            (new \ReflectionClass(\tool_wizards\form\add_picture::class))->newInstanceWithoutConstructor(),
-            (object) ['picture' => $draft, 'alt' => 'Our class <on> the trip', 'caption' => 'Museum visit']
+        $fields = \tool_wizards\local\wizard\transform\picture_label::apply(
+            ['file' => $draft, 'alt' => 'Our class <on> the trip', 'caption' => 'Museum visit']
         );
 
-        $cm = module_creator::create($this->course, 'picture', $fields);
+        $cm = module_creator::create($this->course, 'label', $fields);
         $label = $DB->get_record('label', ['id' => $cm->instance], '*', MUST_EXIST);
         $this->assertSame('Museum visit', $label->name);
         $this->assertStringContainsString('src="@@PLUGINFILE@@/class.png"', $label->intro);
@@ -240,11 +253,11 @@ final class module_creator_test extends advanced_testcase {
         $this->assertSame('Check your understanding', $quiz->name);
         $this->assertSame(get_config('quiz', 'preferredbehaviour'), $quiz->preferredbehaviour);
 
-        $fields = \tool_wizards\form\add_quiz::question_fields('multichoice', (object) [
+        $fields = quiz_first_question::question_fields(self::QUESTION_CONFIG, [
             'questiontext' => 'Which planet is largest?',
             'choice1' => 'Mars', 'choice2' => 'Jupiter', 'choice3' => '', 'choice4' => 'Venus',
             'correctchoice' => 2,
-        ]);
+        ], 'multichoice');
         $question = question_creator::add_to_quiz($cm, 'multichoice', $fields);
 
         $this->assertSame('multichoice', $question->qtype);
@@ -265,9 +278,10 @@ final class module_creator_test extends advanced_testcase {
     public function test_quiz_with_truefalse_question(): void {
         global $DB;
         $cm = module_creator::create($this->course, 'quiz', ['name' => 'Quick check']);
-        $question = question_creator::add_to_quiz($cm, 'truefalse', \tool_wizards\form\add_quiz::question_fields(
-            'truefalse',
-            (object) ['questiontext' => 'The sun is a star.', 'truefalse' => 1]
+        $question = question_creator::add_to_quiz($cm, 'truefalse', quiz_first_question::question_fields(
+            self::QUESTION_CONFIG,
+            ['questiontext' => 'The sun is a star.', 'truefalse' => 1],
+            'truefalse'
         ));
         $options = $DB->get_record('question_truefalse', ['question' => $question->id], '*', MUST_EXIST);
         $this->assertSame('1.0000000', $DB->get_field('question_answers', 'fraction', ['id' => $options->trueanswer]));
@@ -280,6 +294,6 @@ final class module_creator_test extends advanced_testcase {
      */
     public function test_student_offered_nothing(): void {
         $this->setUser($this->getDataGenerator()->create_and_enrol($this->course, 'student'));
-        $this->assertSame([], module_types::available($this->course));
+        $this->assertSame([], $this->offered());
     }
 }

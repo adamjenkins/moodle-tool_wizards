@@ -23,9 +23,9 @@
  */
 
 import Ajax from 'core/ajax';
-import ModalForm from 'core_form/modalform';
 import Notification from 'core/notification';
 import Pending from 'core/pending';
+import {openWizard} from 'tool_wizards/open_wizard';
 import {add as addToast} from 'core/toast';
 import {getString} from 'core/str';
 import {setUserPreference} from 'core_user/repository';
@@ -69,26 +69,18 @@ export const init = (selector) => {
 };
 
 /**
- * Open the mini-wizard for one option.
+ * Open the wizard for one option.
  *
  * @param {HTMLElement} card the card
  * @param {HTMLElement} button the option's button
  */
 const openMiniWizard = (card, button) => {
-    const form = new ModalForm({
-        formClass: button.dataset.formclass,
-        args: {courseid: card.dataset.courseid},
-        modalConfig: {title: button.dataset.modaltitle},
-        saveButtonText: getString('add', 'core'),
+    openWizard({
+        courseid: Number(card.dataset.courseid),
+        wizard: button.dataset.wizard,
+        title: button.dataset.modaltitle,
         returnFocus: button,
     });
-    form.addEventListener(form.events.FORM_SUBMITTED, () => {
-        // Reload so the new content appears in the course, with the confirmation on top.
-        const pending = new Pending('tool_wizards/first_content:reload');
-        window.location.reload();
-        pending.resolve();
-    });
-    form.show();
 };
 
 /**

@@ -46,19 +46,100 @@ class hook_callbacks {
      */
     public static function before_footer(before_footer_html_generation $hook): void {
         $page = $hook->renderer->get_page();
-        if (!self::wizards_enabled() || !get_config('tool_wizards', 'entrylinks') || !isloggedin() || isguestuser()) {
+        if (!self::wizards_enabled() || !isloggedin() || isguestuser() || during_initial_install()) {
             return;
         }
-        if (during_initial_install() || !self::is_page($page, self::ENTRY_LINK_PAGES)) {
+        if (self::is_page($page, ['/course/view.php'])) {
+            self::section_links($hook);
             return;
         }
-        if (!course_creator::get_categories()) {
+        if (!get_config('tool_wizards', 'entrylinks') || !self::is_page($page, self::ENTRY_LINK_PAGES)) {
+            return;
+        }
+        if (!local\wizard\repository::course_wizards() || !course_creator::get_categories()) {
             return;
         }
         $page->requires->js_call_amd('tool_wizards/entrylink', 'init', [
             (new \moodle_url('/admin/tool/wizards/course.php'))->out(false),
             get_string('createcoursewithwizard', 'tool_wizards'),
         ]);
+    }
+
+    /**
+     * "Add with a wizard" beside each section's "Add an activity or resource", in edit mode.
+     *
+     * The list of wizards is rendered here into a hidden template element, so the script that
+     * places the links only needs to know where it is.
+     *
+     * @param before_footer_html_generation $hook the hook
+     */
+    protected static function section_links(before_footer_html_generation $hook): void {
+        $page = $hook->renderer->get_page();
+        $course = $page->course;
+        self::try_wizard($page);
+        if (empty($course->id) || $course->id == SITEID || !$page->user_is_editing()) {
+            return;
+        }
+        $wizards = [];
+        foreach (local\wizard\repository::for_course($course) as $record) {
+            $doc = local\wizard\repository::definition($record);
+            $wizards[] = [
+                'key' => $record->wizardkey,
+                'title' => local\wizard\text::get($doc['title'] ?? $record->wizardkey),
+                'heading' => local\wizard\text::get($doc['heading'] ?? $doc['title'] ?? ''),
+                'description' => local\wizard\text::get($doc['description'] ?? ''),
+                'icon' => $page->get_renderer('core')->image_url('monologo', 'mod_' . $record->target)->out(false),
+                'purpose' => self::purpose($record->target),
+            ];
+        }
+        if (!$wizards) {
+            return;
+        }
+        $list = $hook->renderer->render_from_template('tool_wizards/wizard_list', ['wizards' => $wizards]);
+        $hook->add_html(\html_writer::tag('template', $list, [
+            'id' => 'tool_wizards-wizardlist',
+            'data-courseid' => (int) $course->id,
+            'data-label' => get_string('addwithwizard', 'tool_wizards'),
+            'data-choose' => get_string('choosewizard', 'tool_wizards'),
+        ]));
+        $page->requires->js_call_amd('tool_wizards/section_link', 'init', ['#tool_wizards-wizardlist']);
+    }
+
+    /**
+     * An activity's purpose, which colours its icon as in Moodle's activity chooser.
+     *
+     * @param string $modname the module
+     * @return string
+     */
+    public static function purpose(string $modname): string {
+        return (string) plugin_supports('mod', $modname, FEATURE_MOD_PURPOSE, MOD_PURPOSE_OTHER);
+    }
+
+    /**
+     * "Try it" from the wizard list: open the wizard in preview on this course page.
+     *
+     * @param \moodle_page $page the course page
+     */
+    protected static function try_wizard(\moodle_page $page): void {
+        $key = optional_param('tool_wizards_try', '', PARAM_ALPHANUMEXT);
+        if ($key === '' || !has_capability('tool/wizards:managewizards', \core\context\system::instance())) {
+            return;
+        }
+        $record = local\wizard\repository::get_by_key($key);
+        if (
+            !$record || $record->target === 'course'
+                || !\tool_wizards\local\module_creator::is_available($page->course, $record->target)
+        ) {
+            return;
+        }
+        $doc = local\wizard\repository::definition($record);
+        $page->requires->js_call_amd('tool_wizards/open_wizard', 'openWizard', [[
+            'courseid' => (int) $page->course->id,
+            'wizard' => $record->wizardkey,
+            'title' => get_string('preview_title', 'tool_wizards') . ': '
+                . local\wizard\text::get($doc['heading'] ?? $doc['title'] ?? ''),
+            'preview' => true,
+        ]]);
     }
 
     /**
@@ -78,7 +159,7 @@ class hook_callbacks {
     }
 
     /**
-     * Add "Bring the wizards back" to the footer's help popover, beside core's
+     * Add "Bring back the course wizards" to the footer's help popover, under core's
      * "Reset user tour on this page", on a course page where the user hid the suggestions.
      *
      * @param before_standard_footer_html_generation $hook the hook

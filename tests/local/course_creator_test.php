@@ -355,7 +355,12 @@ final class course_creator_test extends advanced_testcase {
             'shortname' => 'NEEDSDEPT', 'category' => $category->id, 'format' => 'topics']));
         $this->assertArrayHasKey('customfield_dept', $errors);
         $this->assertSame(get_string('error_requiredsetting', 'tool_wizards', 'Department'), $errors['customfield_dept']);
-        $this->assertSame('review', course_wizard::step_for_error('customfield_dept'));
+        // No wizard question sets it, so the wizard shows it at the top of its first screen.
+        global $CFG;
+        $doc = json_decode(file_get_contents($CFG->dirroot . '/admin/tool/wizards/defaults/course.json'), true);
+        $engine = new \tool_wizards\local\wizard\engine($doc, 0, null, $category->id);
+        $placed = $engine->place_errors($errors);
+        $this->assertStringContainsString($errors['customfield_dept'], $placed['wizarderrors'] ?? '');
     }
 
     /**

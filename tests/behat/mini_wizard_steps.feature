@@ -53,10 +53,8 @@ Feature: Mini-wizards ask a few questions at a time
     When I click on "Add" "button" in the ".modal-dialog form" "css_element"
     And I wait until the page is ready
     Then I should see "Nice, Warm-up was added."
-    And I am on the "Warm-up" "quiz activity editing" page
-    And I expand all fieldsets
-    And the field "How questions behave" matches value "Interactive with multiple tries"
-    And the field "Attempts allowed" matches value "Unlimited"
+    And the quiz "Warm-up" has "preferredbehaviour" set to "interactive"
+    And the quiz "Warm-up" has "attempts" set to "0"
 
   Scenario: Changing the purpose re-fills only what the teacher has not changed
     When I click on "A quiz" "button" in the "[data-region='tool_wizards-firstcontent']" "css_element"
@@ -82,10 +80,8 @@ Feature: Mini-wizards ask a few questions at a time
     When I click on "[data-wizard='go']" "css_element"
     And I wait until the page is ready
     Then I should see "Nice, Test 1 was added."
-    And I am on the "Test 1" "quiz activity editing" page
-    And I expand all fieldsets
-    And the field "How questions behave" matches value "Deferred feedback"
-    And the field "Attempts allowed" matches value "2"
+    And the quiz "Test 1" has "preferredbehaviour" set to "deferredfeedback"
+    And the quiz "Test 1" has "attempts" set to "2"
 
   Scenario: Enough questions creates a Q and A forum from the essentials
     When I click on "A forum" "button" in the "[data-region='tool_wizards-firstcontent']" "css_element"
@@ -99,17 +95,32 @@ Feature: Mini-wizards ask a few questions at a time
     And I am on the "Big question" "forum activity editing" page
     And the field "Forum type" matches value "Q and A forum"
 
-  Scenario: A problem found on submitting opens the screen it belongs to
+  Scenario: A required answer is asked for before moving on
     When I click on "A forum" "button" in the "[data-region='tool_wizards-firstcontent']" "css_element"
     And I wait until the page is ready
     And I set the field "Forum name" to "Our topic"
     And I click on "input[name='purpose'][value='single']" "css_element"
     And I click on "Next" "button" in the ".modal-dialog" "css_element"
+    Then I should see "Please answer the questions marked on this screen before going on."
+    And I should see "What is this forum for?"
+
+  Scenario: A problem the activity's own form finds opens the screen it belongs to
+    When I click on "A forum" "button" in the "[data-region='tool_wizards-firstcontent']" "css_element"
+    And I wait until the page is ready
+    And I set the field "Forum name" to "Deadline talk"
+    And I click on "input[name='purpose'][value='general']" "css_element"
+    And I click on "Next" "button" in the ".modal-dialog" "css_element"
+    And I click on "Next" "button" in the ".modal-dialog" "css_element"
+    Then I should see "Is there a deadline?"
+    When I set the following fields to these values:
+      | duedate[enabled]    | 1  |
+      | duedate[day]        | 20 |
+      | cutoffdate[enabled] | 1  |
+      | cutoffdate[day]     | 10 |
     And I click on "[data-wizard='go']" "css_element"
     And I wait until the page is ready
-    Then I should see "please write the opening post here"
-    And I should see "What is this forum for?"
-    And "[data-wizard='go']" "css_element" should not be visible
+    Then I should see "The cut-off date cannot be earlier than the due date."
+    And I should see "Is there a deadline?"
 
   Scenario: A glossary for students to build together gets their settings
     When I click on "A glossary" "button" in the "[data-region='tool_wizards-firstcontent']" "css_element"

@@ -32,12 +32,9 @@ use mod_quiz\question\display_options;
  * @copyright  2026 Adam Jenkins <adam@wisecat.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-#[\PHPUnit\Framework\Attributes\CoversClass(add_module_base::class)]
-#[\PHPUnit\Framework\Attributes\CoversClass(add_quiz::class)]
-#[\PHPUnit\Framework\Attributes\CoversClass(add_forum::class)]
-#[\PHPUnit\Framework\Attributes\CoversClass(add_glossary::class)]
-#[\PHPUnit\Framework\Attributes\CoversClass(add_file::class)]
-#[\PHPUnit\Framework\Attributes\CoversClass(add_slides::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(wizard_form::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(\tool_wizards\local\wizard\engine::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(\tool_wizards\local\wizard\shared::class)]
 final class presets_test extends advanced_testcase {
     /** @var \stdClass the course, with completion tracking on */
     protected \stdClass $course;
@@ -56,22 +53,43 @@ final class presets_test extends advanced_testcase {
     }
 
     /**
-     * Submit a mini-wizard with the essentials and a purpose's preset, as "let's go" does.
+     * The preset of one of a default wizard's purposes.
      *
-     * @param string $class the form class
+     * @param string $wizard the wizard key
+     * @param string $purpose the purpose
+     * @return array question key => value
+     */
+    protected static function preset(string $wizard, string $purpose): array {
+        $doc = \tool_wizards\local\wizard\repository::definition(\tool_wizards\local\wizard\repository::get_by_key($wizard));
+        foreach ($doc['screens'][0]['items'] as $item) {
+            if (($item['key'] ?? '') === 'purpose') {
+                foreach ($item['choices'] as $choice) {
+                    if ($choice['value'] === $purpose) {
+                        return $choice['preset'] ?? [];
+                    }
+                }
+            }
+        }
+        return [];
+    }
+
+    /**
+     * Submit a wizard with the essentials and a purpose's preset, as "let's go" does.
+     *
+     * @param string $wizard the wizard key
      * @param string $purpose the purpose
      * @param array $extra more answers (overriding the preset)
      * @return array the web service result
      */
-    protected function letsgo(string $class, string $purpose, array $extra = []): array {
-        $shortclass = substr($class, strrpos($class, '\\') + 1);
+    protected function letsgo(string $wizard, string $purpose, array $extra = []): array {
         $values = array_replace(
-            ['courseid' => $this->course->id, 'name' => 'Wizard ' . $purpose, 'description' => 'What it is for.',
-                'purpose' => $purpose, 'sesskey' => sesskey(), '_qf__tool_wizards_form_' . $shortclass => 1],
-            $class::presets()[$purpose] ?? [],
+            ['courseid' => $this->course->id, 'wizard' => $wizard, 'name' => 'Wizard ' . $purpose,
+                'description' => 'What it is for.', 'purpose' => $purpose, 'sesskey' => sesskey(),
+                '_qf__tool_wizards_form_wizard_form' => 1],
+            self::preset($wizard, $purpose),
             $extra
         );
-        return dynamic_form_ws::execute($class, http_build_query($values));
+        return dynamic_form_ws::execute(wizard_form::class, http_build_query($values));
     }
 
     /**
@@ -105,7 +123,7 @@ final class presets_test extends advanced_testcase {
      * Practice: interactive, unlimited tries, everything shown at once, done when attempted.
      */
     public function test_quiz_practice(): void {
-        [$cm, $quiz] = $this->created($this->letsgo(add_quiz::class, 'practice'), 'quiz');
+        [$cm, $quiz] = $this->created($this->letsgo('quiz', 'practice'), 'quiz');
         $this->assertSame('interactive', $quiz->preferredbehaviour);
         $this->assertEquals(0, $quiz->attempts);
         $this->assertTrue(self::shown($quiz, 'rightanswer', display_options::IMMEDIATELY_AFTER));
@@ -118,7 +136,7 @@ final class presets_test extends advanced_testcase {
      * Graded test: deferred feedback, one try, only the score before it closes.
      */
     public function test_quiz_exam(): void {
-        [$cm, $quiz] = $this->created($this->letsgo(add_quiz::class, 'exam'), 'quiz');
+        [$cm, $quiz] = $this->created($this->letsgo('quiz', 'exam'), 'quiz');
         $this->assertSame('deferredfeedback', $quiz->preferredbehaviour);
         $this->assertEquals(1, $quiz->attempts);
         $this->assertTrue(self::shown($quiz, 'marks', display_options::IMMEDIATELY_AFTER));
@@ -136,7 +154,7 @@ final class presets_test extends advanced_testcase {
     public function test_quiz_pretest_never_shows_answers(): void {
         $close = time() + WEEKSECS;
         $date = usergetdate($close);
-        [, $quiz] = $this->created($this->letsgo(add_quiz::class, 'pretest', ['timeclose' => [
+        [, $quiz] = $this->created($this->letsgo('quiz', 'pretest', ['timeclose' => [
             'enabled' => 1, 'day' => $date['mday'], 'month' => $date['mon'], 'year' => $date['year'],
             'hour' => $date['hours'], 'minute' => $date['minutes'],
         ]]), 'quiz');
@@ -153,7 +171,7 @@ final class presets_test extends advanced_testcase {
      * Homework: three tries, best counts, correct answers held back until it closes.
      */
     public function test_quiz_homework(): void {
-        [, $quiz] = $this->created($this->letsgo(add_quiz::class, 'homework'), 'quiz');
+        [, $quiz] = $this->created($this->letsgo('quiz', 'homework'), 'quiz');
         $this->assertEquals(3, $quiz->attempts);
         $this->assertEquals(QUIZ_GRADEHIGHEST, $quiz->grademethod);
         $this->assertTrue(self::shown($quiz, 'specificfeedback', display_options::IMMEDIATELY_AFTER));
@@ -161,17 +179,17 @@ final class presets_test extends advanced_testcase {
     }
 
     /**
-     * A pass mark as a percentage becomes the quiz's grade to pass, and "done when passed" needs one.
+     * A pass mark as a percentage becomes the quiz's grade to pass; "done when passed" needs one.
      */
     public function test_quiz_pass_mark(): void {
-        $result = $this->letsgo(add_quiz::class, 'exam', ['completionchoice' => 'passed']);
-        $this->assertFalse($result['submitted']);
-        $this->assertStringContainsString(get_string('error_passneeded', 'tool_wizards'), $result['html']);
+        // Without a pass mark, "done when they pass" is not offered, so the answer is ignored.
+        [$cm] = $this->created($this->letsgo('quiz', 'exam', ['completion' => 'passed']), 'quiz');
+        $this->assertEquals(0, $cm->completionpassgrade);
 
         [$cm] = $this->created($this->letsgo(
-            add_quiz::class,
+            'quiz',
             'exam',
-            ['haspass' => 1, 'passpercent' => 60, 'completionchoice' => 'passed']
+            ['haspass' => 1, 'passpercent' => 60, 'completion' => 'passed']
         ), 'quiz');
         $item = \grade_item::fetch(['itemtype' => 'mod', 'itemmodule' => 'quiz', 'iteminstance' => $cm->instance,
             'courseid' => $this->course->id]);
@@ -189,7 +207,7 @@ final class presets_test extends advanced_testcase {
      */
     #[\PHPUnit\Framework\Attributes\DataProvider('forum_provider')]
     public function test_forum(string $purpose, string $type, int $subscribe, string $rule): void {
-        [$cm, $forum] = $this->created($this->letsgo(add_forum::class, $purpose), 'forum');
+        [$cm, $forum] = $this->created($this->letsgo('forum', $purpose), 'forum');
         $this->assertSame($type, $forum->type);
         $this->assertEquals($subscribe, $forum->forcesubscribe);
         $this->assertEquals(0, $forum->assessed);
@@ -222,13 +240,13 @@ final class presets_test extends advanced_testcase {
      */
     public function test_forum_grading(): void {
         [, $forum] = $this->created(
-            $this->letsgo(add_forum::class, 'general', ['gradingchoice' => 'whole', 'maxgrade' => 20]),
+            $this->letsgo('forum', 'general', ['gradingchoice' => 'whole', 'maxgrade' => 20]),
             'forum'
         );
         $this->assertEquals(20, $forum->grade_forum);
         $this->assertEquals(0, $forum->assessed);
         [, $forum] = $this->created(
-            $this->letsgo(add_forum::class, 'general', ['gradingchoice' => 'ratings', 'maxgrade' => 5]),
+            $this->letsgo('forum', 'general', ['gradingchoice' => 'ratings', 'maxgrade' => 5]),
             'forum'
         );
         $this->assertEquals(RATING_AGGREGATE_AVERAGE, $forum->assessed);
@@ -240,7 +258,7 @@ final class presets_test extends advanced_testcase {
      */
     public function test_forum_errors_placed(): void {
         global $DB;
-        $result = $this->letsgo(add_forum::class, 'single', ['description' => '']);
+        $result = $this->letsgo('forum', 'single', ['description' => '']);
         $this->assertFalse($result['submitted']);
         $this->assertStringContainsString(get_string('error_singledescription', 'tool_wizards'), $result['html']);
 
@@ -249,7 +267,7 @@ final class presets_test extends advanced_testcase {
         $cutoff = usergetdate(time() + DAYSECS);
         $date = fn($d) => ['enabled' => 1, 'day' => $d['mday'], 'month' => $d['mon'], 'year' => $d['year'],
             'hour' => $d['hours'], 'minute' => $d['minutes']];
-        $result = $this->letsgo(add_forum::class, 'general', ['duedate' => $date($due), 'cutoffdate' => $date($cutoff)]);
+        $result = $this->letsgo('forum', 'general', ['duedate' => $date($due), 'cutoffdate' => $date($cutoff)]);
         $this->assertFalse($result['submitted']);
         $message = get_string('cutoffdatevalidation', 'forum');
         $this->assertMatchesRegularExpression(
@@ -279,7 +297,7 @@ final class presets_test extends advanced_testcase {
      */
     #[\PHPUnit\Framework\Attributes\DataProvider('glossary_provider')]
     public function test_glossary(string $purpose, int $approval, string $format, int $entries): void {
-        [, $glossary] = $this->created($this->letsgo(add_glossary::class, $purpose), 'glossary');
+        [, $glossary] = $this->created($this->letsgo('glossary', $purpose), 'glossary');
         $this->assertEquals($approval, $glossary->defaultapproval);
         $this->assertSame($format, $glossary->displayformat);
         $this->assertEquals($entries, $glossary->completionentries);
@@ -319,14 +337,14 @@ final class presets_test extends advanced_testcase {
     /**
      * What students do with a file decides how it opens.
      *
-     * @param string $class the form class
+     * @param string $wizard the wizard key
      * @param string $purpose the purpose
      * @param string $filename the uploaded file
      * @param int $display the resourcelib display
      */
     #[\PHPUnit\Framework\Attributes\DataProvider('file_provider')]
-    public function test_file_display(string $class, string $purpose, string $filename, int $display): void {
-        [, $resource] = $this->created($this->letsgo($class, $purpose, ['files' => $this->draft_file($filename)]), 'resource');
+    public function test_file_display(string $wizard, string $purpose, string $filename, int $display): void {
+        [, $resource] = $this->created($this->letsgo($wizard, $purpose, ['files' => $this->draft_file($filename)]), 'resource');
         $this->assertEquals($display, $resource->display);
     }
 
@@ -337,11 +355,11 @@ final class presets_test extends advanced_testcase {
      */
     public static function file_provider(): array {
         return [
-            'read' => [add_file::class, 'read', 'notes.pdf', 1],
-            'download' => [add_file::class, 'download', 'worksheet.docx', 4],
-            'print' => [add_file::class, 'print', 'handout.pdf', 5],
-            'slides view' => [add_slides::class, 'view', 'week1.pdf', 1],
-            'slides download' => [add_slides::class, 'download', 'week1.pptx', 4],
+            'read' => ['file', 'read', 'notes.pdf', 1],
+            'download' => ['file', 'download', 'worksheet.docx', 4],
+            'print' => ['file', 'print', 'handout.pdf', 5],
+            'slides view' => ['slides', 'view', 'week1.pdf', 1],
+            'slides download' => ['slides', 'download', 'week1.pptx', 4],
         ];
     }
 
@@ -349,7 +367,7 @@ final class presets_test extends advanced_testcase {
      * Slides to look through in the course must be a PDF.
      */
     public function test_slides_view_needs_pdf(): void {
-        $result = $this->letsgo(add_slides::class, 'view', ['files' => $this->draft_file('week1.pptx')]);
+        $result = $this->letsgo('slides', 'view', ['files' => $this->draft_file('week1.pptx')]);
         $this->assertFalse($result['submitted']);
         $this->assertStringContainsString(get_string('error_slidesnotpdf', 'tool_wizards'), $result['html']);
     }
@@ -358,7 +376,7 @@ final class presets_test extends advanced_testcase {
      * The groups screen appears only where groups can matter, and visibility and group mode are stored.
      */
     public function test_shared_screens(): void {
-        $load = fn() => dynamic_form_ws::execute(add_forum::class, 'courseid=' . $this->course->id)['html'];
+        $load = fn() => dynamic_form_ws::execute(wizard_form::class, 'wizard=forum&courseid=' . $this->course->id)['html'];
         $this->assertStringNotContainsString('data-step="groups"', $load(), 'No groups in the course yet.');
         $this->assertStringContainsString('data-step="completion"', $load());
         $this->assertStringContainsString('data-step="visibility"', $load());
@@ -366,7 +384,7 @@ final class presets_test extends advanced_testcase {
         $this->getDataGenerator()->create_group(['courseid' => $this->course->id]);
         $this->assertStringContainsString('data-step="groups"', $load());
 
-        $result = $this->letsgo(add_forum::class, 'general', ['groupmode' => SEPARATEGROUPS, 'visible' => 0]);
+        $result = $this->letsgo('forum', 'general', ['groupmode' => SEPARATEGROUPS, 'visible' => 0]);
         [$cm] = $this->created($result, 'forum');
         $this->assertEquals(SEPARATEGROUPS, $cm->groupmode);
         $this->assertEquals(0, $cm->visible);
@@ -382,7 +400,7 @@ final class presets_test extends advanced_testcase {
      * Without a purpose there is nothing to base the settings on.
      */
     public function test_purpose_required(): void {
-        $result = $this->letsgo(add_forum::class, 'nonsense');
+        $result = $this->letsgo('forum', 'nonsense');
         $this->assertFalse($result['submitted']);
         $this->assertStringContainsString(get_string('error_purpose', 'tool_wizards'), $result['html']);
     }

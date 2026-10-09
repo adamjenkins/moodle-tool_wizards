@@ -14,22 +14,34 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Shows a mini-wizard form one screen at a time inside its modal, with Back, Next,
- * "Enough questions, let's go" and Add, and re-fills the later screens with the
- * choices that suit the purpose the teacher picked.
+ * Shows a wizard form one screen at a time, in a modal or on a page: Back, Next, "Enough
+ * questions, let's go" and the finish button; screens, questions and choices that depend on
+ * earlier answers; presets that re-fill later screens when a choice is made; the review
+ * screen; and the course short name suggestion.
  *
- * Started by the form itself, so it runs again whenever the modal re-renders the
- * form (for example after a server-side validation error).
+ * Started by the form itself, so it runs again whenever a modal re-renders the form
+ * (for example after a server-side validation error).
  *
  * @module     tool_wizards/modal_stepper
  * @copyright  2026 Adam Jenkins <adam@wisecat.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import {getString} from 'core/str';
+import Ajax from 'core/ajax';
+import {notifyFormSubmittedByJavascript} from 'core_form/events';
+import {getString, getStrings} from 'core/str';
 
-/** @var {string} Anything the form shows as an error. */
-const ERROR_SELECTOR = '.is-invalid, [aria-invalid="true"], .invalid-feedback:not(:empty), .error:not(:empty)';
+/**
+ * Whether a screen shows an error. Empty error containers hold whitespace, so their text is checked.
+ *
+ * @param {HTMLElement} step the screen
+ * @returns {boolean}
+ */
+const hasError = step => !!step.querySelector('.is-invalid, [aria-invalid="true"]')
+    || Array.from(step.querySelectorAll('.invalid-feedback, .error')).some(el => el.textContent.trim() !== '');
+
+/** @var {number} How long to wait after typing before suggesting a short name, in ms. */
+const SUGGEST_DELAY = 400;
 
 /**
  * Set up the stepper on the form.
@@ -46,7 +58,23 @@ export const init = (selector) => {
 };
 
 /**
- * One mini-wizard form, shown a screen at a time.
+ * Parse a JSON data attribute.
+ *
+ * @param {HTMLElement} el the element
+ * @param {string} name the dataset name
+ * @param {*} fallback the value when missing
+ * @returns {*}
+ */
+const data = (el, name, fallback) => {
+    try {
+        return el.dataset[name] ? JSON.parse(el.dataset[name]) : fallback;
+    } catch (e) {
+        return fallback;
+    }
+};
+
+/**
+ * One wizard form, shown a screen at a time.
  */
 class Stepper {
     /**
@@ -56,29 +84,37 @@ class Stepper {
         this.form = form;
         this.steps = Array.from(form.querySelectorAll('fieldset.tool_wizards-step'));
         this.nav = form.querySelector('[data-region="tool_wizards-stepnav"]');
-        this.presets = JSON.parse(this.nav?.dataset.presets || '{}');
+        this.presets = this.nav ? data(this.nav, 'presets', {}) : {};
         this.touched = new Set();
         this.filling = false;
         this.current = 0;
+        this.suggesttimer = null;
     }
 
     /**
-     * Build the progress list, wire the buttons, and show the first screen (or the first with an error).
+     * Wire everything and show the first screen (or the first with an error).
      */
     start() {
         if (!this.nav || !this.steps.length) {
             return;
         }
         this.hideModalSave();
+        this.nav.querySelector('[data-wizard="nojs"]')?.remove();
         this.progress = this.buildProgress();
 
         this.nav.addEventListener('click', e => {
             const button = e.target.closest('[data-wizard]');
-            if (!button) {
-                return;
+            if (button) {
+                e.preventDefault();
+                this.act(button.dataset.wizard);
             }
-            e.preventDefault();
-            this.act(button.dataset.wizard);
+        });
+        this.form.addEventListener('click', e => {
+            const change = e.target.closest('[data-wizard-goto]');
+            if (change) {
+                e.preventDefault();
+                this.show(Number(change.dataset.wizardGoto), true);
+            }
         });
 
         // Enter in a one-line field moves on instead of submitting the whole form early.
@@ -90,19 +126,22 @@ class Stepper {
             this.act(this.isLast() ? 'add' : 'next');
         });
 
-        // Remember what the teacher chose themselves, so a new purpose does not overwrite it.
         this.form.addEventListener('change', e => {
-            if (this.filling || !e.target.name) {
+            const name = e.target.name;
+            if (this.filling || !name) {
                 return;
             }
-            if (e.target.name === 'purpose') {
-                this.applyPreset(e.target.value);
-            } else {
-                this.touched.add(e.target.name);
+            this.touched.add(name);
+            if (this.presets[name] && this.presets[name][this.value(name)]) {
+                this.applyPreset(this.presets[name][this.value(name)]);
             }
+            this.applyConditions();
         });
+        this.form.addEventListener('input', () => this.applyConditions());
 
-        const withError = this.steps.findIndex(step => step.querySelector(ERROR_SELECTOR));
+        this.setupShortname();
+        this.applyConditions();
+        const withError = this.steps.findIndex(hasError);
         this.show(withError > 0 ? withError : 0, withError > 0);
     }
 
@@ -113,10 +152,10 @@ class Stepper {
      */
     act(action) {
         if (action === 'back') {
-            this.show(Math.max(0, this.current - 1), true);
+            this.show(this.neighbour(-1), true);
         } else if (action === 'next') {
             if (this.checkStep()) {
-                this.show(this.current + 1, true);
+                this.show(this.neighbour(1), true);
             }
         } else if (action === 'go' || action === 'add') {
             if (this.checkStep()) {
@@ -126,12 +165,43 @@ class Stepper {
     }
 
     /**
-     * Whether this is the last screen.
+     * The next or previous screen that applies.
+     *
+     * @param {number} direction 1 or -1
+     * @returns {number}
+     */
+    neighbour(direction) {
+        for (let i = this.current + direction; i >= 0 && i < this.steps.length; i += direction) {
+            if (this.applies(this.steps[i])) {
+                return i;
+            }
+        }
+        return this.current;
+    }
+
+    /**
+     * Whether a screen applies to the answers so far.
+     *
+     * @param {HTMLElement} step the screen
+     * @returns {boolean}
+     */
+    applies(step) {
+        if (!this.holds(data(step, 'when', null))) {
+            return false;
+        }
+        // A screen whose every item is hidden by its condition has nothing to ask.
+        const conds = data(step, 'itemwhen', {});
+        const items = data(step, 'items', []);
+        return !items.length || items.some(key => !conds[key] || this.holds(conds[key]));
+    }
+
+    /**
+     * Whether this is the last screen that applies.
      *
      * @returns {boolean}
      */
     isLast() {
-        return this.current === this.steps.length - 1;
+        return this.neighbour(1) === this.current;
     }
 
     /**
@@ -146,28 +216,24 @@ class Stepper {
             step.hidden = i !== index;
         });
         const button = name => this.nav.querySelector(`[data-wizard="${name}"]`);
-        button('back').hidden = index === 0;
+        const first = this.neighbour(-1) === index;
+        button('back').hidden = first;
         button('next').hidden = this.isLast();
         button('add').hidden = !this.isLast();
-        // "Enough questions" once the essentials are answered, and while there is still something to skip.
-        button('go').hidden = index === 0 || this.isLast();
+        // "Enough questions" once the first screen is answered, while there is still something to skip.
+        button('go').hidden = first || this.isLast();
 
-        this.progress?.querySelectorAll('li').forEach((item, i) => {
-            item.classList.toggle('active', i === index);
-            item.classList.toggle('done', i < index);
-            if (i === index) {
-                item.setAttribute('aria-current', 'step');
-            } else {
-                item.removeAttribute('aria-current');
-            }
-        });
+        if (this.steps[index].querySelector('[data-region="tool_wizards-review"]')) {
+            this.buildReview(this.steps[index].querySelector('[data-region="tool_wizards-review"]'));
+        }
+        this.updateProgress();
         if (focus) {
             this.steps[index].querySelector('legend')?.focus();
         }
     }
 
     /**
-     * The theme names of the screens, as a list above them. Nothing when there is only one screen.
+     * The theme names of the screens, as a list above them.
      *
      * @returns {HTMLElement|null}
      */
@@ -188,24 +254,174 @@ class Stepper {
     }
 
     /**
-     * Check the screen before leaving it forwards: required answers, and a purpose if there is a choice.
+     * Mark the current screen, hide screens that do not apply.
+     */
+    updateProgress() {
+        this.progress?.querySelectorAll('li').forEach((item, i) => {
+            item.hidden = !this.applies(this.steps[i]);
+            item.classList.toggle('active', i === this.current);
+            item.classList.toggle('done', i < this.current);
+            if (i === this.current) {
+                item.setAttribute('aria-current', 'step');
+            } else {
+                item.removeAttribute('aria-current');
+            }
+        });
+    }
+
+    /**
+     * The current answer to a question.
+     *
+     * @param {string} name the question key
+     * @returns {string|null}
+     */
+    value(name) {
+        const controls = Array.from(this.form.querySelectorAll(`[name="${CSS.escape(name)}"]`));
+        if (!controls.length) {
+            // A rich text editor posts its text as name[text].
+            const editor = this.form.querySelector(`[name="${CSS.escape(name)}[text]"]`);
+            return editor ? editor.value : null;
+        }
+        if (controls[0].type === 'radio') {
+            const checked = controls.find(c => c.checked);
+            return checked ? checked.value : null;
+        }
+        const checkbox = controls.find(c => c.type === 'checkbox');
+        if (checkbox) {
+            return checkbox.checked ? (checkbox.value || '1') : '0';
+        }
+        return controls[controls.length - 1].value;
+    }
+
+    /**
+     * The flags of a question's chosen choice.
+     *
+     * @param {string} name the question key
+     * @returns {string[]}
+     */
+    flags(name) {
+        // Formslib puts a radio's attributes on its label.
+        const checked = this.form.querySelector(`input[name="${CSS.escape(name)}"]:checked`);
+        const holder = checked?.closest('[data-flags]');
+        return holder ? holder.dataset.flags.split(' ') : [];
+    }
+
+    /**
+     * Evaluate a condition (already settled on the server except for answers).
+     *
+     * @param {Object|null} cond the condition
+     * @returns {boolean}
+     */
+    holds(cond) {
+        if (cond === null || cond === undefined || cond === true) {
+            return true;
+        }
+        if (cond === false) {
+            return false;
+        }
+        if (cond.all) {
+            return cond.all.every(c => this.holds(c));
+        }
+        if (cond.any) {
+            return cond.any.some(c => this.holds(c));
+        }
+        if ('not' in cond && !('answer' in cond)) {
+            return !this.holds(cond.not);
+        }
+        if ('answer' in cond) {
+            const value = this.value(cond.answer);
+            if ('is' in cond) {
+                return value !== null && value === String(cond.is);
+            }
+            if ('not' in cond) {
+                return value === null || value !== String(cond.not);
+            }
+            if ('in' in cond) {
+                return value !== null && cond.in.map(String).includes(value);
+            }
+            if ('has' in cond) {
+                return this.flags(cond.answer).includes(cond.has);
+            }
+            if ('empty' in cond) {
+                return ((value ?? '').trim() === '') === !!cond.empty;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Show or hide the questions and choices that depend on answers.
+     */
+    applyConditions() {
+        this.steps.forEach(step => {
+            const conds = data(step, 'itemwhen', {});
+            Object.entries(conds).forEach(([key, cond]) => {
+                const container = this.container(key);
+                if (container) {
+                    container.hidden = !this.holds(cond);
+                }
+            });
+        });
+        // Formslib puts a radio's attributes (here its condition) on its label.
+        this.form.querySelectorAll('.tool_wizards-cardinput[data-when]').forEach(label => {
+            const ok = this.holds(data(label, 'when', null));
+            const input = label.querySelector('input');
+            label.hidden = !ok;
+            if (!ok && input?.checked) {
+                input.checked = false;
+            }
+        });
+        this.updateProgress();
+    }
+
+    /**
+     * The element holding a question.
+     *
+     * @param {string} key the question key
+     * @returns {HTMLElement|null}
+     */
+    container(key) {
+        const group = this.form.querySelector(`[data-groupname="${CSS.escape(key)}group"]`);
+        if (group) {
+            return group;
+        }
+        const marked = this.form.querySelector(`[data-wizard-question="${CSS.escape(key)}"]`);
+        if (marked) {
+            return marked.closest('.fitem') || marked;
+        }
+        const control = this.form.querySelector(`[name="${CSS.escape(key)}"], [name^="${CSS.escape(key)}["]`);
+        return control ? control.closest('.fitem') : null;
+    }
+
+    /**
+     * Check the screen before leaving it forwards: its required answers.
      *
      * @returns {boolean} whether it may be left
      */
     checkStep() {
         const step = this.steps[this.current];
+        // Rich text editors copy their content into the form when told it is being submitted.
+        notifyFormSubmittedByJavascript(this.form);
         let ok = true;
-        step.querySelectorAll('[data-wizard-required]').forEach(input => {
-            if (input.value.trim() === '') {
-                this.markInvalid(input);
+        data(step, 'required', []).forEach(entry => {
+            const key = typeof entry === 'string' ? entry : entry.key;
+            if (typeof entry !== 'string' && !this.holds(entry.when)) {
+                return;
+            }
+            const container = this.container(key);
+            if (container?.hidden) {
+                return;
+            }
+            const value = this.value(key);
+            const text = (value ?? '').replace(/<(?!img|video|audio|iframe|object)[^>]*>/gi, '').replace(/&nbsp;/g, ' ');
+            if (value === null || text.trim() === '') {
+                const target = this.form.querySelector(`[name="${CSS.escape(key)}"], [name="${CSS.escape(key)}[text]"]`);
+                if (target) {
+                    this.markInvalid(target);
+                }
                 ok = false;
             }
         });
-        const purposes = step.querySelectorAll('input[name="purpose"]');
-        if (purposes.length && !step.querySelector('input[name="purpose"]:checked')) {
-            this.markInvalid(purposes[0]);
-            ok = false;
-        }
         if (!ok) {
             this.showStepError(step);
         } else {
@@ -222,10 +438,14 @@ class Stepper {
     markInvalid(input) {
         input.classList.add('is-invalid');
         input.setAttribute('aria-invalid', 'true');
-        input.addEventListener('input', () => {
-            input.classList.remove('is-invalid');
-            input.removeAttribute('aria-invalid');
-        }, {once: true});
+        const clear = () => {
+            this.form.querySelectorAll(`[name="${CSS.escape(input.name)}"]`).forEach(el => {
+                el.classList.remove('is-invalid');
+                el.removeAttribute('aria-invalid');
+            });
+        };
+        input.addEventListener('input', clear, {once: true});
+        input.addEventListener('change', clear, {once: true});
     }
 
     /**
@@ -246,22 +466,17 @@ class Stepper {
     }
 
     /**
-     * Fill the later screens with the choices that suit a purpose, except those the teacher changed.
+     * Fill later questions with the answers that suit a choice, except those the teacher changed.
      *
-     * @param {string} purpose the purpose
+     * @param {Object} preset question key => value
      */
-    applyPreset(purpose) {
-        const preset = this.presets[purpose];
-        if (!preset) {
-            return;
-        }
+    applyPreset(preset) {
         this.filling = true;
         Object.entries(preset).forEach(([name, value]) => {
             if (this.touched.has(name)) {
                 return;
             }
-            const controls = this.form.querySelectorAll(`[name="${CSS.escape(name)}"]`);
-            controls.forEach(control => {
+            this.form.querySelectorAll(`[name="${CSS.escape(name)}"]`).forEach(control => {
                 if (control.type === 'radio') {
                     control.checked = control.value === String(value);
                 } else if (control.type === 'checkbox') {
@@ -276,6 +491,136 @@ class Stepper {
             });
         });
         this.filling = false;
+    }
+
+    /**
+     * The review screen: every answer so far, each with a way back to change it.
+     *
+     * @param {HTMLElement} region the review region
+     */
+    async buildReview(region) {
+        const [changeLabel, yes, no] = await getStrings([
+            {key: 'change', component: 'tool_wizards'},
+            {key: 'yes', component: 'core'},
+            {key: 'no', component: 'core'},
+        ]);
+        const list = document.createElement('dl');
+        list.className = 'row';
+        this.steps.forEach((step, index) => {
+            if (index >= this.current || !this.applies(step)) {
+                return;
+            }
+            step.querySelectorAll('.fitem').forEach(item => {
+                if (item.hidden || item.closest('[hidden]') !== step && item.closest('[hidden]')) {
+                    return;
+                }
+                const answer = this.describeItem(item, yes, no);
+                if (answer === null) {
+                    return;
+                }
+                const label = item.querySelector('.col-form-label label, .col-form-label p, .col-form-label')
+                    ?.textContent.trim() || step.dataset.title;
+                const dt = document.createElement('dt');
+                dt.className = 'col-sm-4';
+                dt.textContent = label;
+                const dd = document.createElement('dd');
+                dd.className = 'col-sm-8';
+                dd.textContent = answer + ' ';
+                const change = document.createElement('button');
+                change.type = 'button';
+                change.className = 'btn btn-link btn-sm p-0 align-baseline';
+                change.dataset.wizardGoto = String(index);
+                change.textContent = changeLabel;
+                dd.append(change);
+                list.append(dt, dd);
+            });
+        });
+        region.replaceChildren(list);
+    }
+
+    /**
+     * An answer as text, for the review screen.
+     *
+     * @param {HTMLElement} item the form item
+     * @param {string} yes "Yes"
+     * @param {string} no "No"
+     * @returns {string|null} null for items that are not answers
+     */
+    describeItem(item, yes, no) {
+        const checkedRadio = item.querySelector('input[type="radio"]:checked');
+        if (item.querySelector('input[type="radio"]')) {
+            return checkedRadio ? (checkedRadio.closest('label')?.querySelector('strong')?.textContent
+                || checkedRadio.closest('label')?.textContent.trim() || checkedRadio.value) : '–';
+        }
+        const select = item.querySelector('select');
+        if (select && !item.querySelector('[name$="[day]"]')) {
+            return select.options[select.selectedIndex]?.textContent.trim() ?? '';
+        }
+        if (item.querySelector('[name$="[day]"]')) {
+            const enabled = item.querySelector('input[name$="[enabled]"]');
+            if (enabled && !enabled.checked) {
+                return '–';
+            }
+            return Array.from(item.querySelectorAll('select')).map(s => s.options[s.selectedIndex]?.textContent.trim())
+                .join(' ');
+        }
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        if (checkbox) {
+            return checkbox.checked ? yes : no;
+        }
+        const text = item.querySelector('input[type="text"], textarea');
+        if (text) {
+            return text.value.trim() || '–';
+        }
+        return null;
+    }
+
+    /**
+     * Suggest a free course short name from the full name, and check one typed in.
+     */
+    setupShortname() {
+        const shortname = this.form.querySelector('[data-wizard-shortname]');
+        if (!shortname) {
+            return;
+        }
+        const source = shortname.dataset.wizardShortname
+            ? this.form.querySelector(`[name="${CSS.escape(shortname.dataset.wizardShortname)}"]`) : null;
+        let edited = shortname.value.trim() !== '';
+        shortname.addEventListener('input', () => {
+            edited = shortname.value.trim() !== '';
+        });
+        source?.addEventListener('input', () => {
+            if (edited) {
+                return;
+            }
+            clearTimeout(this.suggesttimer);
+            this.suggesttimer = setTimeout(async() => {
+                if (edited || source.value.trim() === '') {
+                    return;
+                }
+                const result = await Ajax.call([{methodname: 'tool_wizards_suggest_shortname',
+                    args: {fullname: source.value}}])[0];
+                if (!edited) {
+                    shortname.value = result.shortname;
+                }
+            }, SUGGEST_DELAY);
+        });
+        shortname.addEventListener('change', async() => {
+            if (shortname.value.trim() === '') {
+                return;
+            }
+            const result = await Ajax.call([{methodname: 'tool_wizards_check_shortname',
+                args: {shortname: shortname.value}}])[0];
+            const feedback = shortname.closest('.fitem')?.querySelector('.form-control-feedback');
+            if (!result.available && feedback) {
+                feedback.textContent = await getString('shortname_taken', 'tool_wizards', {suggestion: result.suggestion});
+                feedback.style.display = 'block';
+                shortname.classList.add('is-invalid');
+            } else if (feedback) {
+                feedback.textContent = '';
+                shortname.classList.remove('is-invalid');
+            }
+        });
     }
 
     /**

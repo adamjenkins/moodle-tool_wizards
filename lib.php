@@ -131,3 +131,45 @@ function tool_wizards_user_preferences(): array {
         ],
     ];
 }
+
+/**
+ * Serve wizard pictures (the "picture" area, item = wizard id, system context).
+ *
+ * Pictures are shown to anyone who can use the wizards, so any logged-in user may load them.
+ * They are always sent as downloads: an <img> still shows them, but an uploaded SVG opened
+ * directly cannot run script on the site.
+ *
+ * @param stdClass $course not used
+ * @param stdClass|null $cm not used
+ * @param context $context the context
+ * @param string $filearea the area
+ * @param array $args item id and file path
+ * @param bool $forcedownload ignored: always downloaded
+ * @param array $options send options
+ * @return bool false if not found
+ */
+function tool_wizards_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
+    if ($context->contextlevel != CONTEXT_SYSTEM || $filearea !== 'picture') {
+        return false;
+    }
+    require_login(null, false);
+    $itemid = (int) array_shift($args);
+    $filename = array_pop($args);
+    $filepath = $args ? '/' . implode('/', $args) . '/' : '/';
+    $file = get_file_storage()->get_file($context->id, 'tool_wizards', 'picture', $itemid, $filepath, $filename);
+    if (!$file || $file->is_directory()) {
+        return false;
+    }
+    send_stored_file($file, DAYSECS, 0, true, $options);
+}
+
+/**
+ * Font Awesome icons for this plugin's pix icons.
+ *
+ * @return array pix icon => Font Awesome class
+ */
+function tool_wizards_get_fontawesome_icon_map(): array {
+    return [
+        'tool_wizards:wand' => 'fa-wand-magic-sparkles',
+    ];
+}

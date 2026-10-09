@@ -34,8 +34,8 @@ class prefill {
     /** @var int How long the answers wait, in seconds. */
     const LIFETIME = HOURSECS;
 
-    /** @var string[] Fields set in after_form_definition, before core sets the course data. */
-    const FIELDS = ['fullname', 'shortname', 'format', 'startdate', 'visible'];
+    /** @var string[] Fields not set in after_form_definition: the category is the page's, sections the format's. */
+    const LATER = ['category', 'numsections', 'id'];
 
     /**
      * Keep the answers for the standard form.
@@ -88,9 +88,9 @@ class prefill {
         if (!$answers) {
             return;
         }
-        foreach (self::FIELDS as $field) {
-            if (isset($answers->$field) && $answers->$field !== '' && $hook->mform->elementExists($field)) {
-                $hook->mform->setDefault($field, $answers->$field);
+        foreach (get_object_vars($answers) as $field => $value) {
+            if (!in_array($field, self::LATER, true) && $value !== '' && $hook->mform->elementExists($field)) {
+                $hook->mform->setDefault($field, $value);
             }
         }
     }

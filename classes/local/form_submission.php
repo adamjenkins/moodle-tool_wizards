@@ -136,6 +136,35 @@ class form_submission {
     }
 
     /**
+     * The values a form offers for each choice control: select options, radio values,
+     * checkbox values. Disabled controls are left out.
+     *
+     * @param \moodleform $form the form
+     * @return array control name (without "[]") => string[]
+     */
+    public static function offered_values(\moodleform $form): array {
+        $dom = new \DOMDocument();
+        $previous = libxml_use_internal_errors(true);
+        $dom->loadHTML('<?xml encoding="utf-8"?>' . $form->render());
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+        $xpath = new \DOMXPath($dom);
+        $out = [];
+        foreach ($xpath->query('//select[@name]') as $select) {
+            $name = preg_replace('/\[\]$/', '', $select->getAttribute('name'));
+            foreach ($xpath->query('.//option', $select) as $option) {
+                $out[$name][] = $option->getAttribute('value');
+            }
+        }
+        foreach ($xpath->query('//input[@name][@type="radio" or @type="checkbox"]') as $input) {
+            if (!$input->hasAttribute('disabled')) {
+                $out[$input->getAttribute('name')][] = $input->hasAttribute('value') ? $input->getAttribute('value') : 'on';
+            }
+        }
+        return array_map('array_values', array_map('array_unique', $out));
+    }
+
+    /**
      * Answers as the flat name => value pairs a browser posts ("intro[text]", "tags[]").
      *
      * @param array $answers name => value, nested like $_POST

@@ -68,7 +68,7 @@ final class provider_test extends provider_testcase {
         $items = provider::get_metadata(new \core_privacy\local\metadata\collection('tool_wizards'))->get_collection();
         $names = array_map(fn($i) => $i->get_name(), $items);
         $this->assertEqualsCanonicalizing(
-            ['tool_wizards_dismissed', 'tool_wizards_message', 'tool_wizards_hidesuggestions'],
+            ['tool_wizards_dismissed', 'tool_wizards_message', 'tool_wizards_hidesuggestions', 'tool_wizards_trycourse'],
             $names
         );
     }

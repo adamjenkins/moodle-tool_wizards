@@ -148,20 +148,35 @@ class prompt {
     }
 
     /**
-     * Whether to offer "Bring the wizards back" on this course: the user hid the suggestions
-     * here, and bringing them back would show the card (not switched off everywhere, and the
-     * course still nearly empty).
+     * Whether to offer "Bring back the course wizards" on this course: the user can add content
+     * here, and has hidden the suggestions on this course or switched them off everywhere.
      *
      * @param stdClass $course the course
      * @return bool
      */
     public static function may_bring_back(stdClass $course): bool {
         global $USER;
-        if (!self::may_add_content($course) || self::suggestions_hidden() || !self::is_dismissed($course->id, $USER->id)) {
+        if (!self::may_add_content($course) || !wizard\repository::for_course($course)) {
             return false;
         }
-        $threshold = max(0, (int) get_config('tool_wizards', 'emptythreshold'));
-        return module_types::available($course) && self::count_content($course) <= $threshold;
+        // Hidden for this course, or switched off everywhere.
+        return self::suggestions_hidden() || self::is_dismissed($course->id, $USER->id);
+    }
+
+    /**
+     * Bring the suggestions back on a course for the current user: undo hiding them there (and
+     * switching them off everywhere), and show the card on the next view of the course page even
+     * if the course already has content.
+     *
+     * @param int $courseid the course
+     */
+    public static function bring_back(int $courseid): void {
+        global $SESSION;
+        self::undismiss_course($courseid);
+        if (self::suggestions_hidden()) {
+            set_user_preference(self::PREF_HIDE, 0);
+        }
+        $SESSION->tool_wizards_showonce = $courseid;
     }
 
     /**
@@ -194,6 +209,9 @@ class prompt {
 
         $justcreated = !empty($SESSION->tool_wizards_justcreated) && $SESSION->tool_wizards_justcreated == $course->id;
         unset($SESSION->tool_wizards_justcreated);
+        // Just brought back from the help menu: show the card this once, whatever the course holds.
+        $showonce = !empty($SESSION->tool_wizards_showonce) && $SESSION->tool_wizards_showonce == $course->id;
+        unset($SESSION->tool_wizards_showonce);
         $justadded = null;
         if (!empty($SESSION->tool_wizards_justadded) && $SESSION->tool_wizards_justadded->courseid == $course->id) {
             $justadded = $SESSION->tool_wizards_justadded->cmid;
@@ -205,12 +223,12 @@ class prompt {
         if (!self::may_suggest($course)) {
             return $html;
         }
-        $types = module_types::available($course);
+        $types = wizard\repository::for_course($course);
         if (!$types) {
             return $html;
         }
         $threshold = max(0, (int) get_config('tool_wizards', 'emptythreshold'));
-        if (!$justcreated && !$justadded && self::count_content($course) > $threshold) {
+        if (!$justcreated && !$justadded && !$showonce && self::count_content($course) > $threshold) {
             return $html;
         }
 

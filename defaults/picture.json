@@ -1,0 +1,79 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "picture",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "label"
+    },
+    "title": {
+        "string": "type_picture"
+    },
+    "heading": {
+        "string": "type_picture_title"
+    },
+    "description": {
+        "string": "type_picture_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "add_picture_intro"
+                    }
+                },
+                {
+                    "key": "picture",
+                    "kind": "file",
+                    "label": {
+                        "string": "picture_file"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_nopicture"
+                    },
+                    "accept": [
+                        "web_image"
+                    ],
+                    "sets": {
+                        "transform": "tool_wizards/picture_label",
+                        "from": {
+                            "file": "picture",
+                            "alt": "alt",
+                            "caption": "caption"
+                        }
+                    }
+                },
+                {
+                    "key": "alt",
+                    "kind": "text",
+                    "label": {
+                        "string": "picture_alt"
+                    },
+                    "help": {
+                        "string": "picture_alt_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_alt"
+                    },
+                    "maxlength": 255
+                },
+                {
+                    "key": "caption",
+                    "kind": "text",
+                    "label": {
+                        "string": "picture_caption"
+                    },
+                    "maxlength": 255
+                }
+            ]
+        }
+    ]
+}

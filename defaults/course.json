@@ -1,0 +1,259 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "course",
+    "defaultversion": 1,
+    "target": {
+        "type": "course"
+    },
+    "title": {
+        "string": "coursewizard"
+    },
+    "description": {
+        "string": "coursewizard_desc"
+    },
+    "screens": [
+        {
+            "key": "name",
+            "title": {
+                "string": "step_name"
+            },
+            "question": {
+                "string": "step_name_title"
+            },
+            "items": [
+                {
+                    "key": "fullname",
+                    "kind": "text",
+                    "label": {
+                        "string": "fullname"
+                    },
+                    "help": {
+                        "string": "fullname_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_fullname"
+                    },
+                    "maxlength": 254,
+                    "sets": {
+                        "field": "fullname"
+                    }
+                },
+                {
+                    "key": "shortname",
+                    "kind": "shortname",
+                    "label": {
+                        "string": "shortname"
+                    },
+                    "help": {
+                        "string": "shortname_help"
+                    },
+                    "suggestfrom": "fullname",
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "shortname"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "category",
+            "title": {
+                "string": "category"
+            },
+            "question": {
+                "string": "step_category_title"
+            },
+            "when": {
+                "site": "categorychoice"
+            },
+            "items": [
+                {
+                    "key": "category",
+                    "kind": "category",
+                    "label": {
+                        "string": "category"
+                    },
+                    "help": {
+                        "string": "category_help"
+                    },
+                    "sets": {
+                        "field": "category"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "layout",
+            "title": {
+                "string": "layout"
+            },
+            "question": {
+                "string": "step_layout_title"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "step_layout_help"
+                    }
+                },
+                {
+                    "key": "format",
+                    "kind": "choice",
+                    "label": {
+                        "string": "layout"
+                    },
+                    "choicesfrom": "course:formats",
+                    "required": true,
+                    "default": "config:moodlecourse/format",
+                    "requiredmessage": {
+                        "string": "error_format"
+                    },
+                    "sets": {
+                        "field": "format"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "sections",
+            "title": {
+                "string": "numsections"
+            },
+            "question": {
+                "string": "step_sections_title"
+            },
+            "when": {
+                "answer": "format",
+                "has": "usessections"
+            },
+            "items": [
+                {
+                    "key": "numsections",
+                    "kind": "number",
+                    "label": {
+                        "string": "numsections"
+                    },
+                    "help": {
+                        "string": "numsections_help"
+                    },
+                    "min": 0,
+                    "max": 52,
+                    "default": "config:moodlecourse/numsections",
+                    "sets": {
+                        "field": "numsections",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "visibility",
+            "title": {
+                "string": "step_visibility"
+            },
+            "question": {
+                "string": "step_visibility_title"
+            },
+            "when": {
+                "capability": "moodle/course:visibility"
+            },
+            "items": [
+                {
+                    "key": "visible",
+                    "kind": "choice",
+                    "label": {
+                        "string": "visibility"
+                    },
+                    "default": "config:moodlecourse/visible",
+                    "sets": {
+                        "field": "visible",
+                        "as": "int"
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "visible_now"
+                            }
+                        },
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "visible_later"
+                            },
+                            "desc": {
+                                "string": "visible_later_help"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "startdate",
+            "title": {
+                "string": "startdate"
+            },
+            "question": {
+                "string": "step_startdate_title"
+            },
+            "when": {
+                "any": [
+                    {
+                        "answer": "format",
+                        "has": "usesstartdate"
+                    },
+                    {
+                        "all": [
+                            {
+                                "answer": "visible",
+                                "is": 0
+                            },
+                            {
+                                "site": "showstartedcourses"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "items": [
+                {
+                    "key": "startdate",
+                    "kind": "date",
+                    "label": {
+                        "string": "startdate"
+                    },
+                    "help": {
+                        "string": "startdate_help"
+                    },
+                    "optional": false,
+                    "sets": {
+                        "field": "startdate"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "review",
+            "title": {
+                "string": "step_review"
+            },
+            "question": {
+                "string": "step_review_title"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "step_review_help"
+                    }
+                },
+                {
+                    "kind": "review"
+                }
+            ]
+        }
+    ]
+}

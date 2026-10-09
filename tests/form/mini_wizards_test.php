@@ -18,19 +18,22 @@ namespace tool_wizards\form;
 
 use advanced_testcase;
 use core_form\external\dynamic_form as dynamic_form_ws;
-use tool_wizards\local\module_types;
+use tool_wizards\local\wizard\repository;
 
 /**
- * The mini-wizard forms, driven through core's dynamic form web service as the modal drives them.
+ * The activity wizards, driven through core's dynamic form web service as the modal drives them.
  *
  * @package    tool_wizards
  * @category   test
  * @copyright  2026 Adam Jenkins <adam@wisecat.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-#[\PHPUnit\Framework\Attributes\CoversClass(add_module_base::class)]
-#[\PHPUnit\Framework\Attributes\CoversClass(add_quiz::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(wizard_form::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(\tool_wizards\local\wizard\form_builder::class)]
 final class mini_wizards_test extends advanced_testcase {
+    /** @var string[] The default activity wizards. */
+    const DEFAULTS = ['file', 'slides', 'picture', 'page', 'forum', 'glossary', 'quiz'];
+
     /** @var \stdClass the course */
     protected \stdClass $course;
 
@@ -51,54 +54,51 @@ final class mini_wizards_test extends advanced_testcase {
     }
 
     /**
-     * Every mini-wizard's form loads for the teacher.
+     * Submit a wizard.
+     *
+     * @param string $wizard the wizard key
+     * @param array $values the answers
+     * @return array the web service result
      */
-    public function test_every_form_loads(): void {
-        foreach (module_types::all() as $type) {
-            $result = dynamic_form_ws::execute(module_types::formclass($type), 'courseid=' . $this->course->id);
-            $this->assertFalse($result['submitted'], $type);
-            $this->assertStringContainsString('name="courseid"', $result['html'], $type);
+    protected function submit(string $wizard, array $values): array {
+        $values += ['courseid' => $this->course->id, 'wizard' => $wizard, 'sesskey' => sesskey(),
+            '_qf__tool_wizards_form_wizard_form' => 1];
+        return dynamic_form_ws::execute(wizard_form::class, http_build_query($values));
+    }
+
+    /**
+     * Every default activity wizard loads for the teacher, with its screens and the stepper.
+     */
+    public function test_every_default_loads(): void {
+        foreach (self::DEFAULTS as $key) {
+            $result = dynamic_form_ws::execute(wizard_form::class, 'wizard=' . $key . '&courseid=' . $this->course->id);
+            $this->assertFalse($result['submitted'], $key);
+            $this->assertStringContainsString('data-step="basics"', $result['html'], $key);
+            $this->assertStringContainsString('tool_wizards/modal_stepper', $result['javascript'], $key);
+            $this->assertStringNotContainsString('[[', $result['html'], "$key: no missing strings");
         }
     }
 
     /**
-     * Submitting the forum mini-wizard creates the forum.
+     * Submitting the forum wizard creates the forum.
      */
     public function test_submit_forum(): void {
         global $DB;
-        $formdata = http_build_query([
-            'courseid' => $this->course->id,
-            'name' => 'Week 1 discussion',
-            'description' => 'Say hello',
-            'purpose' => 'general',
-            'sesskey' => sesskey(),
-            '_qf__tool_wizards_form_add_forum' => 1,
-        ]);
-        $result = dynamic_form_ws::execute(add_forum::class, $formdata);
-        $this->assertTrue($result['submitted']);
+        $result = $this->submit('forum', ['name' => 'Week 1 discussion', 'description' => 'Say hello', 'purpose' => 'general']);
+        $this->assertTrue($result['submitted'], strip_tags($result['html'] ?? ''));
         $data = json_decode($result['data']);
         $this->assertSame('Week 1 discussion', $data->name);
         $this->assertTrue($DB->record_exists('forum', ['course' => $this->course->id, 'name' => 'Week 1 discussion']));
     }
 
     /**
-     * Submitting the quiz mini-wizard with a true/false question creates both.
+     * Submitting the quiz wizard with a true/false question creates both.
      */
     public function test_submit_quiz_with_question(): void {
         global $DB;
-        $formdata = http_build_query([
-            'courseid' => $this->course->id,
-            'name' => 'Quick check',
-            'purpose' => 'practice',
-            'firstquestion' => 'truefalse',
-            'questiontext' => 'Water boils at 100 degrees Celsius at sea level.',
-            'truefalse' => 1,
-            'correctchoice' => 1,
-            'sesskey' => sesskey(),
-            '_qf__tool_wizards_form_add_quiz' => 1,
-        ]);
-        $result = dynamic_form_ws::execute(add_quiz::class, $formdata);
-        $this->assertTrue($result['submitted'], $result['html'] ?? '');
+        $result = $this->submit('quiz', ['name' => 'Quick check', 'purpose' => 'practice', 'firstquestion' => 'truefalse',
+            'questiontext' => 'Water boils at 100 degrees Celsius at sea level.', 'truefalse' => 1]);
+        $this->assertTrue($result['submitted'], strip_tags($result['html'] ?? ''));
         $quiz = $DB->get_record('quiz', ['course' => $this->course->id, 'name' => 'Quick check'], '*', MUST_EXIST);
         $this->assertEquals(1, $DB->count_records('quiz_slots', ['quizid' => $quiz->id]));
     }
@@ -108,44 +108,65 @@ final class mini_wizards_test extends advanced_testcase {
      */
     public function test_quiz_question_needs_text(): void {
         global $DB;
-        $formdata = http_build_query([
-            'courseid' => $this->course->id,
-            'name' => 'Nope',
-            'purpose' => 'practice',
-            'firstquestion' => 'multichoice',
-            'questiontext' => '',
-            'choice1' => 'A',
-            'choice2' => 'B',
-            'correctchoice' => 1,
-            'sesskey' => sesskey(),
-            '_qf__tool_wizards_form_add_quiz' => 1,
-        ]);
-        $result = dynamic_form_ws::execute(add_quiz::class, $formdata);
+        $result = $this->submit('quiz', ['name' => 'Nope', 'purpose' => 'practice', 'firstquestion' => 'multichoice',
+            'questiontext' => '', 'choice1' => 'A', 'choice2' => 'B', 'correctchoice' => 1]);
         $this->assertFalse($result['submitted']);
         $this->assertStringContainsString(get_string('error_questiontext', 'tool_wizards'), $result['html']);
         $this->assertFalse($DB->record_exists('quiz', ['course' => $this->course->id]));
     }
 
     /**
-     * A student cannot open a mini-wizard, whatever course id the browser sends.
+     * "Try it" creates nothing and says what would be set; only wizard managers may use it.
+     */
+    public function test_preview(): void {
+        global $DB;
+        $values = ['name' => 'Just looking', 'description' => '', 'purpose' => 'qanda', 'preview' => 1];
+        try {
+            $this->submit('forum', $values);
+            $this->fail('A teacher cannot use "Try it".');
+        } catch (\required_capability_exception $e) {
+            $this->assertStringContainsString(get_string('wizards:managewizards', 'tool_wizards'), $e->getMessage());
+        }
+        $this->setAdminUser();
+        $_POST['sesskey'] = sesskey();
+        $result = $this->submit('forum', $values);
+        $this->assertTrue($result['submitted'], strip_tags($result['html'] ?? ''));
+        $data = json_decode($result['data'], true);
+        $this->assertTrue($data['preview']);
+        $this->assertContains('type = qanda', $data['lines']);
+        $this->assertFalse($DB->record_exists('forum', ['course' => $this->course->id, 'name' => 'Just looking']));
+    }
+
+    /**
+     * A disabled wizard cannot be used.
+     */
+    public function test_disabled_wizard_refused(): void {
+        repository::set_status((int) repository::get_by_key('forum')->id, repository::STATUS_DISABLED);
+        $this->expectException(\moodle_exception::class);
+        $this->expectExceptionMessage(get_string('error_nowizard', 'tool_wizards'));
+        dynamic_form_ws::execute(wizard_form::class, 'wizard=forum&courseid=' . $this->course->id);
+    }
+
+    /**
+     * A student cannot open a wizard, whatever course id the browser sends.
      */
     public function test_student_refused(): void {
         $this->setUser($this->getDataGenerator()->create_and_enrol($this->course, 'student'));
         $this->expectException(\required_capability_exception::class);
-        dynamic_form_ws::execute(add_forum::class, 'courseid=' . $this->course->id);
+        dynamic_form_ws::execute(wizard_form::class, 'wizard=forum&courseid=' . $this->course->id);
     }
 
     /**
-     * A teacher cannot open a mini-wizard for another course (the id comes from the browser).
+     * A teacher cannot open a wizard for another course (the id comes from the browser).
      */
     public function test_other_course_refused(): void {
         $other = $this->getDataGenerator()->create_course();
         $this->expectException(\require_login_exception::class);
-        dynamic_form_ws::execute(add_forum::class, 'courseid=' . $other->id);
+        dynamic_form_ws::execute(wizard_form::class, 'wizard=forum&courseid=' . $other->id);
     }
 
     /**
-     * A module the teacher may not add cannot be added through its mini-wizard either.
+     * A module the teacher may not add cannot be added through its wizard either.
      */
     public function test_prohibited_module_refused(): void {
         $roleid = create_role('No forums', 'noforums', '');
@@ -154,6 +175,6 @@ final class mini_wizards_test extends advanced_testcase {
         accesslib_clear_all_caches_for_unit_testing();
         $this->expectException(\moodle_exception::class);
         $this->expectExceptionMessage(get_string('error_notavailable', 'tool_wizards'));
-        dynamic_form_ws::execute(add_forum::class, 'courseid=' . $this->course->id);
+        dynamic_form_ws::execute(wizard_form::class, 'wizard=forum&courseid=' . $this->course->id);
     }
 }

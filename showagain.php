@@ -17,7 +17,7 @@
 /**
  * Show the first-content suggestions on one course again, for the current user.
  *
- * Reached from "Bring the wizards back" in the footer of the course page.
+ * Reached from "Bring back the course wizards" in the footer of the course page.
  *
  * @package    tool_wizards
  * @copyright  2026 Adam Jenkins <adam@wisecat.net>
@@ -32,6 +32,6 @@ $course = get_course($courseid);
 require_login($course, false);
 require_sesskey();
 
-\tool_wizards\local\prompt::undismiss_course($course->id);
+\tool_wizards\local\prompt::bring_back($course->id);
 
 redirect(new moodle_url('/course/view.php', ['id' => $course->id]));

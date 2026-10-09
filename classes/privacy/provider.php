@@ -70,6 +70,7 @@ class provider implements
         ], 'privacy:metadata:tool_wizards_message');
 
         $collection->add_user_preference('tool_wizards_hidesuggestions', 'privacy:metadata:preference:hidesuggestions');
+        $collection->add_user_preference('tool_wizards_trycourse', 'privacy:metadata:preference:trycourse');
 
         return $collection;
     }
@@ -160,6 +161,15 @@ class provider implements
             $description = $value ? get_string('privacy:preference:hidesuggestions:yes', 'tool_wizards')
                 : get_string('privacy:preference:hidesuggestions:no', 'tool_wizards');
             writer::export_user_preference('tool_wizards', 'tool_wizards_hidesuggestions', (string) $value, $description);
+        }
+        $trycourse = get_user_preferences('tool_wizards_trycourse', null, $userid);
+        if ($trycourse !== null) {
+            writer::export_user_preference(
+                'tool_wizards',
+                'tool_wizards_trycourse',
+                (string) $trycourse,
+                get_string('privacy:preference:trycourse', 'tool_wizards')
+            );
         }
     }
 

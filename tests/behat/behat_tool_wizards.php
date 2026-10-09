@@ -27,6 +27,7 @@
 
 require_once(__DIR__ . '/../../../../../lib/behat/behat_base.php');
 
+use Behat\Mink\Exception\ExpectationException;
 use Moodle\BehatExtension\Exception\SkippedException;
 
 /**
@@ -74,5 +75,23 @@ class behat_tool_wizards extends behat_base {
             'relateduserid' => $user->id,
             'other' => ['tier' => 2, 'unlockedmodules' => array_map('trim', explode(',', $modules))],
         ])->trigger();
+    }
+
+    /**
+     * Check a setting the wizard saved on a quiz, straight from the database: the quiz settings
+     * page, with its many editors, can be too slow to load reliably here.
+     *
+     * @Then /^the quiz "(?P<name>[^"]*)" has "(?P<field>[a-z_]+)" set to "(?P<value>[^"]*)"$/
+     * @param string $name the quiz name
+     * @param string $field a column of the quiz table
+     * @param string $value the expected value
+     * @throws ExpectationException when it differs
+     */
+    public function the_quiz_has_set_to(string $name, string $field, string $value): void {
+        global $DB;
+        $actual = (string) $DB->get_field('quiz', $field, ['name' => $name], MUST_EXIST);
+        if ($actual !== $value) {
+            throw new ExpectationException("Quiz \"$name\" has $field \"$actual\", expected \"$value\".", $this->getSession());
+        }
     }
 }
