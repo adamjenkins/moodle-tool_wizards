@@ -10,16 +10,25 @@ description: |
   site's usual defaults.
 
   The course wizard creates a course step by step and shows a review before
-  anything is created. On new or nearly empty courses, a "What would you like
-  to add first?" card opens wizards for a file, slides, a picture, a page, a
-  forum, a glossary or a quiz. Each starts by asking what it is for, as picture
-  cards, and fills in the later screens to suit. "Enough questions, let's go"
-  creates it at any point. In edit mode, "Add with a wizard" is in every
-  section's add menu.
+  anything is created. Every core activity and resource has a wizard, from
+  files, pages and forums to assignments, lessons, workshops, SCORM and
+  question banks. Each starts by asking what it is for, as picture cards, and
+  fills in the later screens to suit. "Enough questions, let's go" creates it
+  at any point. A new course offers them on a "What would you like to add
+  first?" card, and in edit mode "Add with a wizard" is in every section's add
+  menu.
+
+  In-activity wizards then fill the activity, one item at a time with "Add
+  another": quiz and question bank questions, question bank categories (for
+  example one per textbook chapter, each with vocabulary and grammar inside),
+  lesson pages, book chapters, glossary entries, database fields, feedback
+  questions, choice options and a workshop's assessment form. Only teachers
+  who can edit the course see the wizards.
 
   Site administrators manage the wizards like User tours: switch them on or
-  off, reorder, reword them in every language, change pictures, try them
-  without creating anything, and export or import them in bulk. A wizard
+  off with a switch per wizard or per group, reorder, reword them in every
+  language, change pictures, try them without creating anything, and export
+  or import them in bulk, as a zip or one JSON file. A wizard
   builder makes new wizards from any activity's own settings. Wizards can be
   improved with Moodle's AI subsystem, or with any AI assistant using the
   included runbook. Optionally works with Teacher scaffold.
