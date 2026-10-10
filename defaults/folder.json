@@ -1,0 +1,185 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "folder",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "folder"
+    },
+    "title": {
+        "string": "type_folder"
+    },
+    "heading": {
+        "string": "type_folder_title"
+    },
+    "description": {
+        "string": "type_folder_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "folder_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "folder_name"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "files",
+                    "kind": "file",
+                    "label": {
+                        "string": "folder_upload"
+                    },
+                    "help": {
+                        "string": "folder_upload_help"
+                    },
+                    "accept": "*",
+                    "maxfiles": -1,
+                    "sets": {
+                        "field": "files",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "folder_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "page",
+                            "title": {
+                                "string": "folder_purpose_page"
+                            },
+                            "desc": {
+                                "string": "folder_purpose_page_desc"
+                            },
+                            "picture": "pix:purpose/folder_page",
+                            "when": {
+                                "offered": {
+                                    "field": "display",
+                                    "value": 0
+                                }
+                            },
+                            "sets": {
+                                "display": 0
+                            },
+                            "preset": {
+                                "showdownloadfolder": 1,
+                                "forcedownload": 1,
+                                "completion": "view"
+                            }
+                        },
+                        {
+                            "value": "inline",
+                            "title": {
+                                "string": "folder_purpose_inline"
+                            },
+                            "desc": {
+                                "string": "folder_purpose_inline_desc"
+                            },
+                            "picture": "pix:purpose/folder_inline",
+                            "when": {
+                                "offered": {
+                                    "field": "display",
+                                    "value": 1
+                                }
+                            },
+                            "sets": {
+                                "display": 1
+                            },
+                            "preset": {
+                                "showdownloadfolder": 1,
+                                "forcedownload": 1,
+                                "completion": "default"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "details",
+            "title": {
+                "string": "folder_step_details"
+            },
+            "question": {
+                "string": "folder_step_details_q"
+            },
+            "items": [
+                {
+                    "key": "showdownloadfolder",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "folder_showdownloadfolder"
+                    },
+                    "default": 1,
+                    "sets": {
+                        "field": "showdownloadfolder",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "forcedownload",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "folder_forcedownload"
+                    },
+                    "help": {
+                        "string": "folder_forcedownload_help"
+                    },
+                    "default": 1,
+                    "sets": {
+                        "field": "forcedownload",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "folder_completion_view_desc"
+                    },
+                    "when": {
+                        "answer": "purpose",
+                        "not": "inline"
+                    },
+                    "sets": {
+                        "completionview": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

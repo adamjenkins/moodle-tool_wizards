@@ -1,0 +1,86 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "externaltool",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "lti"
+    },
+    "title": {
+        "string": "type_externaltool"
+    },
+    "heading": {
+        "string": "type_externaltool_title"
+    },
+    "description": {
+        "string": "type_externaltool_desc"
+    },
+    "notes": "Since Moodle 4.3 an external tool is always one of the tools set up for the site or the course (mod/lti/mod_form.php:73-92). The tool question lists them (choicesfrom course:ltitools), and the wizard is offered only in courses that have at least one.",
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "externaltool_intro"
+                    }
+                },
+                {
+                    "key": "typeid",
+                    "kind": "choice",
+                    "label": {
+                        "string": "externaltool_tool"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "externaltool_error_tool"
+                    },
+                    "choicesfrom": "course:ltitools",
+                    "sets": {
+                        "field": "typeid",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "externaltool_name"
+                    },
+                    "help": {
+                        "string": "externaltool_name_help"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "externaltool_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -15,20 +15,26 @@ Feature: Manage the wizards
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
 
-  Scenario: The default wizards are listed, enabled
+  Scenario: The default wizards are listed, enabled, in their groups
     Given I log in as "admin"
     When I navigate to "Courses > Wizards > Manage wizards" in site administration
     Then I should see "A forum"
     And I should see "A quiz"
     And I should see "Course wizard"
+    And I should see "Course wizards"
+    And I should see "Activity wizards"
+    And I should see "In-activity wizards"
     And I should see "Enabled" in the "A forum" "table_row"
     And I should see "Default" in the "A forum" "table_row"
 
-  Scenario: A disabled wizard is no longer offered to teachers
+  @javascript
+  Scenario: A wizard switched off on the list is no longer offered to teachers
     Given I log in as "admin"
     And I navigate to "Courses > Wizards > Manage wizards" in site administration
-    When I click on "Disable" "link" in the "A forum" "table_row"
+    When I click on "[data-action='tool_wizards-switch'][aria-label='Switch on or off: A forum']" "css_element"
     Then I should see "Disabled" in the "A forum" "table_row"
+    And I reload the page
+    And I should see "Disabled" in the "A forum" "table_row"
     And I log out
     And I log in as "teacher1"
     And I am on "Course 1" course homepage
@@ -111,3 +117,12 @@ Feature: Manage the wizards
     And I click on "[data-wizard='go']" "css_element"
     And I wait until the page is ready
     Then I should see "Questions for week 2" in the "#section-2" "css_element"
+
+  @javascript
+  Scenario: A whole group of wizards is switched off at once
+    Given I log in as "admin"
+    And I navigate to "Courses > Wizards > Manage wizards" in site administration
+    When I click on "[data-action='tool_wizards-switch'][aria-label='Switch all of these on or off: In-activity wizards']" "css_element"
+    And I reload the page
+    Then I should see "Disabled" in the "Add quiz questions" "table_row"
+    And I should see "Enabled" in the "A quiz" "table_row"

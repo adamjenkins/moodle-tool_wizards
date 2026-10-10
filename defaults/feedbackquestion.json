@@ -1,0 +1,290 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "feedbackquestion",
+    "defaultversion": 1,
+    "target": {
+        "type": "content",
+        "modname": "feedback",
+        "content": "tool_wizards/feedback_item"
+    },
+    "title": {
+        "string": "type_feedbackquestion"
+    },
+    "heading": {
+        "string": "type_feedbackquestion_title"
+    },
+    "description": {
+        "string": "type_feedbackquestion_desc"
+    },
+    "screens": [
+        {
+            "key": "kind",
+            "title": {
+                "string": "feedbackquestion_step_kind"
+            },
+            "question": {
+                "string": "feedbackquestion_step_kind_q"
+            },
+            "items": [
+                {
+                    "key": "itemtype",
+                    "kind": "cards",
+                    "label": {
+                        "string": "feedbackquestion_typ"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "feedbackquestion_error_typ"
+                    },
+                    "choices": [
+                        {
+                            "value": "multichoice",
+                            "title": {
+                                "string": "feedbackquestion_typ_multichoice"
+                            },
+                            "desc": {
+                                "string": "feedbackquestion_typ_multichoice_desc"
+                            },
+                            "picture": "pix:purpose/feedbackquestion_multichoice",
+                            "sets": {
+                                "typ": "multichoice"
+                            }
+                        },
+                        {
+                            "value": "textfield",
+                            "title": {
+                                "string": "feedbackquestion_typ_textfield"
+                            },
+                            "desc": {
+                                "string": "feedbackquestion_typ_textfield_desc"
+                            },
+                            "picture": "pix:purpose/feedbackquestion_textfield",
+                            "sets": {
+                                "typ": "textfield"
+                            }
+                        },
+                        {
+                            "value": "textarea",
+                            "title": {
+                                "string": "feedbackquestion_typ_textarea"
+                            },
+                            "desc": {
+                                "string": "feedbackquestion_typ_textarea_desc"
+                            },
+                            "picture": "pix:purpose/feedbackquestion_textarea",
+                            "sets": {
+                                "typ": "textarea"
+                            }
+                        },
+                        {
+                            "value": "numeric",
+                            "title": {
+                                "string": "feedbackquestion_typ_numeric"
+                            },
+                            "desc": {
+                                "string": "feedbackquestion_typ_numeric_desc"
+                            },
+                            "picture": "pix:purpose/feedbackquestion_numeric",
+                            "sets": {
+                                "typ": "numeric"
+                            }
+                        },
+                        {
+                            "value": "label",
+                            "title": {
+                                "string": "feedbackquestion_typ_label"
+                            },
+                            "desc": {
+                                "string": "feedbackquestion_typ_label_desc"
+                            },
+                            "picture": "pix:purpose/feedbackquestion_label",
+                            "sets": {
+                                "typ": "label"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "question",
+            "title": {
+                "string": "feedbackquestion_step_question"
+            },
+            "question": {
+                "string": "feedbackquestion_step_question_q"
+            },
+            "items": [
+                {
+                    "key": "name",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "feedbackquestion_name"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "feedbackquestion_error_name"
+                    },
+                    "maxlength": 1333,
+                    "when": {
+                        "answer": "itemtype",
+                        "not": "label"
+                    },
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "required",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "feedbackquestion_required"
+                    },
+                    "text": {
+                        "string": "feedbackquestion_required_text"
+                    },
+                    "default": 0,
+                    "when": {
+                        "answer": "itemtype",
+                        "not": "label"
+                    },
+                    "sets": {
+                        "field": "required",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "text",
+                    "kind": "editor",
+                    "label": {
+                        "string": "feedbackquestion_text"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "feedbackquestion_error_text"
+                    },
+                    "when": {
+                        "answer": "itemtype",
+                        "is": "label"
+                    },
+                    "sets": {
+                        "field": "text"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "answers",
+            "title": {
+                "string": "feedbackquestion_step_answers"
+            },
+            "question": {
+                "string": "feedbackquestion_step_answers_q"
+            },
+            "when": {
+                "answer": "itemtype",
+                "is": "multichoice"
+            },
+            "items": [
+                {
+                    "key": "values",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "feedbackquestion_values"
+                    },
+                    "help": {
+                        "string": "feedbackquestion_values_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "feedbackquestion_error_values"
+                    },
+                    "sets": {
+                        "field": "values"
+                    }
+                },
+                {
+                    "key": "subtype",
+                    "kind": "choice",
+                    "label": {
+                        "string": "feedbackquestion_subtype"
+                    },
+                    "default": "r",
+                    "choices": [
+                        {
+                            "value": "r",
+                            "title": {
+                                "string": "feedbackquestion_subtype_r"
+                            },
+                            "desc": {
+                                "string": "feedbackquestion_subtype_r_desc"
+                            }
+                        },
+                        {
+                            "value": "c",
+                            "title": {
+                                "string": "feedbackquestion_subtype_c"
+                            },
+                            "desc": {
+                                "string": "feedbackquestion_subtype_c_desc"
+                            }
+                        },
+                        {
+                            "value": "d",
+                            "title": {
+                                "string": "feedbackquestion_subtype_d"
+                            },
+                            "desc": {
+                                "string": "feedbackquestion_subtype_d_desc"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "subtype"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "range",
+            "title": {
+                "string": "feedbackquestion_step_range"
+            },
+            "question": {
+                "string": "feedbackquestion_step_range_q"
+            },
+            "when": {
+                "answer": "itemtype",
+                "is": "numeric"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "feedbackquestion_range_hint"
+                    }
+                },
+                {
+                    "key": "rangefrom",
+                    "kind": "number",
+                    "label": {
+                        "string": "feedbackquestion_rangefrom"
+                    },
+                    "sets": {
+                        "field": "rangefrom"
+                    }
+                },
+                {
+                    "key": "rangeto",
+                    "kind": "number",
+                    "label": {
+                        "string": "feedbackquestion_rangeto"
+                    },
+                    "sets": {
+                        "field": "rangeto"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,52 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "subsection",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "subsection"
+    },
+    "title": {
+        "string": "type_subsection"
+    },
+    "heading": {
+        "string": "type_subsection_title"
+    },
+    "description": {
+        "string": "type_subsection_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "subsection_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "subsection_name"
+                    },
+                    "help": {
+                        "string": "subsection_name_help"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        }
+    ]
+}

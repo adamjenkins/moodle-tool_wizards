@@ -32,7 +32,14 @@ use tool_wizards\local\wizard\repository;
 #[\PHPUnit\Framework\Attributes\CoversClass(\tool_wizards\local\wizard\form_builder::class)]
 final class mini_wizards_test extends advanced_testcase {
     /** @var string[] The default activity wizards. */
-    const DEFAULTS = ['file', 'slides', 'picture', 'page', 'forum', 'glossary', 'quiz'];
+    const DEFAULTS = ['file', 'slides', 'picture', 'page', 'forum', 'glossary', 'quiz', 'assignment', 'link', 'folder',
+        'book', 'choice', 'feedback', 'database', 'wiki', 'lesson', 'workshop', 'h5p', 'scorm', 'contentpackage',
+        'externaltool', 'bigbluebutton', 'subsection'];
+
+    /** @var string[] The core activities and resources a teacher can add, each of which has a default wizard. */
+    const CORE_MODULES = ['assign', 'bigbluebuttonbn', 'book', 'choice', 'data', 'feedback', 'folder', 'forum', 'glossary',
+        'h5pactivity', 'imscp', 'label', 'lesson', 'lti', 'page', 'quiz', 'resource', 'scorm', 'subsection', 'url', 'wiki',
+        'workshop'];
 
     /** @var \stdClass the course */
     protected \stdClass $course;
@@ -70,13 +77,69 @@ final class mini_wizards_test extends advanced_testcase {
      * Every default activity wizard loads for the teacher, with its screens and the stepper.
      */
     public function test_every_default_loads(): void {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/lti/locallib.php');
+        // The external tool wizard needs a tool set up for the course.
+        $this->setAdminUser();
+        $this->getDataGenerator()->get_plugin_generator('mod_lti')->create_tool_types(['name' => 'A tool',
+            'baseurl' => 'https://example.com/lti', 'coursevisible' => LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
+            'state' => LTI_TOOL_STATE_CONFIGURED]);
+        $this->setUser($this->teacher);
+        $_POST['sesskey'] = sesskey();
         foreach (self::DEFAULTS as $key) {
+            if ($key === 'bigbluebutton') {
+                // Its form asks the meeting server about the site, which a unit test cannot reach.
+                continue;
+            }
             $result = dynamic_form_ws::execute(wizard_form::class, 'wizard=' . $key . '&courseid=' . $this->course->id);
             $this->assertFalse($result['submitted'], $key);
             $this->assertStringContainsString('data-step="basics"', $result['html'], $key);
             $this->assertStringContainsString('tool_wizards/modal_stepper', $result['javascript'], $key);
             $this->assertStringNotContainsString('[[', $result['html'], "$key: no missing strings");
         }
+    }
+
+    /**
+     * Every core activity and resource has a default wizard.
+     */
+    public function test_every_core_module_has_a_wizard(): void {
+        $targets = [];
+        foreach (\tool_wizards\local\wizard\defaults::shipped() as $doc) {
+            $targets[] = $doc['target']['modname'] ?? null;
+        }
+        foreach (self::CORE_MODULES as $modname) {
+            $this->assertContains($modname, $targets, $modname);
+        }
+        // Nothing addable in core is missing from the list above.
+        $standard = \core_plugin_manager::standard_plugins_list('mod');
+        foreach ($standard as $modname) {
+            if (plugin_supports('mod', $modname, FEATURE_CAN_DISPLAY, true) && $modname !== 'qbank') {
+                $this->assertContains($modname, self::CORE_MODULES, $modname);
+            }
+        }
+    }
+
+    /**
+     * "Add with a wizard" is offered on a quiz's questions page, with the quiz's in-activity wizards, and
+     * not on its other pages.
+     */
+    public function test_content_link_on_activity_page(): void {
+        $quiz = $this->getDataGenerator()->create_module('quiz', ['course' => $this->course->id]);
+        $cm = get_fast_modinfo($this->course)->get_cm($quiz->cmid);
+        $html = function (string $pagetype) use ($cm): string {
+            global $PAGE;
+            $PAGE = new \moodle_page();
+            $PAGE->set_url(new \moodle_url('/mod/quiz/edit.php', ['cmid' => $cm->id]));
+            $PAGE->set_cm($cm, $this->course);
+            $PAGE->set_pagetype($pagetype);
+            $hook = new \core\hook\output\before_footer_html_generation($PAGE->get_renderer('core'));
+            \tool_wizards\hook_callbacks::before_footer($hook);
+            return $hook->get_output();
+        };
+        $output = $html('mod-quiz-edit');
+        $this->assertStringContainsString('tool_wizards-contentlist', $output);
+        $this->assertStringContainsString('data-wizard="quizquestion"', $output);
+        $this->assertStringNotContainsString('tool_wizards-contentlist', $html('mod-quiz-view'));
     }
 
     /**
@@ -89,6 +152,77 @@ final class mini_wizards_test extends advanced_testcase {
         $data = json_decode($result['data']);
         $this->assertSame('Week 1 discussion', $data->name);
         $this->assertTrue($DB->record_exists('forum', ['course' => $this->course->id, 'name' => 'Week 1 discussion']));
+    }
+
+    /**
+     * Each wizard creates its activity from the essentials alone, for each purpose.
+     *
+     * @param string $wizard the wizard key
+     * @param string $modname the module it creates
+     * @param array $answers the answers
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('essentials_provider')]
+    public function test_essentials_create(string $wizard, string $modname, array $answers): void {
+        global $DB;
+        $result = $this->submit($wizard, $answers + ['name' => 'Made by the ' . $wizard . ' wizard']);
+        $this->assertTrue($result['submitted'], $wizard . ': ' . strip_tags($result['html'] ?? ''));
+        $name = 'Made by the ' . $wizard . ' wizard';
+        $this->assertTrue($DB->record_exists($modname, ['course' => $this->course->id, 'name' => $name]));
+    }
+
+    /**
+     * The essentials of the wizards for the other core activities, one case per purpose.
+     *
+     * @return array
+     */
+    public static function essentials_provider(): array {
+        $cases = [];
+        $purposes = [
+            ['assignment', 'assign', ['essay', 'online', 'paper'], []],
+            ['link', 'url', ['read', 'watch'], ['externalurl' => 'https://example.com/article']],
+            ['folder', 'folder', ['page', 'inline'], []],
+            ['book', 'book', ['textbook', 'handbook', 'collection'], []],
+            ['choice', 'choice', ['vote', 'signup', 'check', 'wishes'],
+                ['description' => 'Which day suits you?', 'option1' => 'Monday', 'option2' => 'Tuesday']],
+            ['feedback', 'feedback', ['evaluation', 'opinion', 'collect', 'checkin'], []],
+            ['database', 'data', ['collection', 'showcase', 'checked', 'oneeach'], []],
+            ['wiki', 'wiki', ['class', 'individual'], ['firstpagetitle' => 'Start here']],
+            ['lesson', 'lesson', ['tutorial', 'branching', 'graded'], []],
+            ['workshop', 'workshop', ['writing', 'projects', 'self'], []],
+        ];
+        foreach ($purposes as [$wizard, $modname, $values, $answers]) {
+            foreach ($values as $purpose) {
+                $cases["$wizard: $purpose"] = [$wizard, $modname, $answers + ['purpose' => $purpose]];
+            }
+        }
+        $cases['subsection'] = ['subsection', 'subsection', []];
+        return $cases;
+    }
+
+    /**
+     * The external tool wizard offers the tools set up for the course, and is not offered where there are none.
+     */
+    public function test_external_tool(): void {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/mod/lti/locallib.php');
+        $this->assertFalse(\tool_wizards\local\module_creator::is_available($this->course, 'lti'), 'No tools yet.');
+
+        $this->setAdminUser();
+        $typeid = $this->getDataGenerator()->get_plugin_generator('mod_lti')->create_tool_types([
+            'name' => 'Publisher exercises', 'baseurl' => 'https://example.com/lti',
+            'coursevisible' => LTI_COURSEVISIBLE_ACTIVITYCHOOSER, 'state' => LTI_TOOL_STATE_CONFIGURED,
+        ]);
+        $this->setUser($this->teacher);
+        $_POST['sesskey'] = sesskey();
+        $this->assertTrue(\tool_wizards\local\module_creator::is_available($this->course, 'lti'));
+
+        $form = dynamic_form_ws::execute(wizard_form::class, 'wizard=externaltool&courseid=' . $this->course->id);
+        $this->assertStringContainsString('Publisher exercises', $form['html']);
+
+        $result = $this->submit('externaltool', ['typeid' => $typeid, 'name' => 'Week 3 exercises']);
+        $this->assertTrue($result['submitted'], strip_tags($result['html'] ?? ''));
+        $lti = $DB->get_record('lti', ['course' => $this->course->id, 'name' => 'Week 3 exercises'], '*', MUST_EXIST);
+        $this->assertEquals($typeid, $lti->typeid);
     }
 
     /**

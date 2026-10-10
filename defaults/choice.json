@@ -1,0 +1,544 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "choice",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "choice"
+    },
+    "title": {
+        "string": "type_choice"
+    },
+    "heading": {
+        "string": "type_choice_title"
+    },
+    "description": {
+        "string": "type_choice_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "choice_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "choice_name"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "description",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "choice_question"
+                    },
+                    "placeholder": {
+                        "string": "choice_question_placeholder"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "choice_error_question"
+                    },
+                    "sets": {
+                        "field": "introeditor",
+                        "as": "editor"
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "choice_options_hint"
+                    }
+                },
+                {
+                    "key": "option1",
+                    "kind": "text",
+                    "label": {
+                        "string": "choice_option1"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "option[0]"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_twochoices"
+                    }
+                },
+                {
+                    "key": "option2",
+                    "kind": "text",
+                    "label": {
+                        "string": "choice_option2"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "option[1]"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_twochoices"
+                    }
+                },
+                {
+                    "key": "option3",
+                    "kind": "text",
+                    "label": {
+                        "string": "choice_option3"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "option[2]"
+                    }
+                },
+                {
+                    "key": "option4",
+                    "kind": "text",
+                    "label": {
+                        "string": "choice_option4"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "option[3]"
+                    }
+                },
+                {
+                    "key": "option5",
+                    "kind": "text",
+                    "label": {
+                        "string": "choice_option5"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "option[4]"
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "choice_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "vote",
+                            "title": {
+                                "string": "choice_purpose_vote"
+                            },
+                            "desc": {
+                                "string": "choice_purpose_vote_desc"
+                            },
+                            "picture": "pix:purpose/choice_vote",
+                            "preset": {
+                                "allowmultiple": 0,
+                                "allowupdate": 0,
+                                "limitanswers": 0,
+                                "showresults": 1,
+                                "publish": 0,
+                                "completion": "submit"
+                            }
+                        },
+                        {
+                            "value": "signup",
+                            "title": {
+                                "string": "choice_purpose_signup"
+                            },
+                            "desc": {
+                                "string": "choice_purpose_signup_desc"
+                            },
+                            "picture": "pix:purpose/choice_signup",
+                            "preset": {
+                                "allowmultiple": 0,
+                                "allowupdate": 1,
+                                "limitanswers": 1,
+                                "showavailable": 1,
+                                "showresults": 3,
+                                "publish": 1,
+                                "completion": "submit"
+                            }
+                        },
+                        {
+                            "value": "check",
+                            "title": {
+                                "string": "choice_purpose_check"
+                            },
+                            "desc": {
+                                "string": "choice_purpose_check_desc"
+                            },
+                            "picture": "pix:purpose/choice_check",
+                            "preset": {
+                                "allowmultiple": 0,
+                                "allowupdate": 1,
+                                "limitanswers": 0,
+                                "showresults": 0,
+                                "publish": 0,
+                                "completion": "submit"
+                            }
+                        },
+                        {
+                            "value": "wishes",
+                            "title": {
+                                "string": "choice_purpose_wishes"
+                            },
+                            "desc": {
+                                "string": "choice_purpose_wishes_desc"
+                            },
+                            "picture": "pix:purpose/choice_wishes",
+                            "preset": {
+                                "allowmultiple": 1,
+                                "allowupdate": 1,
+                                "limitanswers": 0,
+                                "showresults": 1,
+                                "publish": 0,
+                                "completion": "submit"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "answering",
+            "title": {
+                "string": "choice_step_answering"
+            },
+            "question": {
+                "string": "choice_step_answering_q"
+            },
+            "items": [
+                {
+                    "key": "allowmultiple",
+                    "kind": "choice",
+                    "label": {
+                        "string": "choice_allowmultiple"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "allowmultiple"
+                    },
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "choice_multiple_no"
+                            },
+                            "desc": {
+                                "string": "choice_multiple_no_desc"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "choice_multiple_yes"
+                            },
+                            "desc": {
+                                "string": "choice_multiple_yes_desc"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "allowupdate",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "choice_allowupdate"
+                    },
+                    "text": {
+                        "string": "choice_allowupdate_label"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "allowupdate",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "limits",
+            "title": {
+                "string": "choice_step_limits"
+            },
+            "question": {
+                "string": "choice_step_limits_q"
+            },
+            "items": [
+                {
+                    "key": "limitanswers",
+                    "kind": "choice",
+                    "label": {
+                        "string": "choice_limitanswers"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "limitanswers"
+                    },
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "choice_limit_no"
+                            },
+                            "desc": {
+                                "string": "choice_limit_no_desc"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "choice_limit_yes"
+                            },
+                            "desc": {
+                                "string": "choice_limit_yes_desc"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "limit",
+                    "kind": "number",
+                    "label": {
+                        "string": "choice_limit"
+                    },
+                    "help": {
+                        "string": "choice_limit_hint"
+                    },
+                    "default": 5,
+                    "min": 1,
+                    "max": 1000,
+                    "required": {
+                        "answer": "limitanswers",
+                        "is": 1
+                    },
+                    "when": {
+                        "answer": "limitanswers",
+                        "is": 1
+                    },
+                    "sets": [
+                        {
+                            "field": "limit[0]"
+                        },
+                        {
+                            "field": "limit[1]"
+                        },
+                        {
+                            "field": "limit[2]"
+                        },
+                        {
+                            "field": "limit[3]"
+                        },
+                        {
+                            "field": "limit[4]"
+                        }
+                    ]
+                },
+                {
+                    "key": "showavailable",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "choice_showavailable"
+                    },
+                    "text": {
+                        "string": "choice_showavailable_label"
+                    },
+                    "default": 0,
+                    "when": {
+                        "answer": "limitanswers",
+                        "is": 1
+                    },
+                    "sets": {
+                        "field": "showavailable",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "results",
+            "title": {
+                "string": "choice_step_results"
+            },
+            "question": {
+                "string": "choice_step_results_q"
+            },
+            "items": [
+                {
+                    "key": "showresults",
+                    "kind": "choice",
+                    "label": {
+                        "string": "choice_showresults"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "showresults"
+                    },
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "choice_results_never"
+                            },
+                            "desc": {
+                                "string": "choice_results_never_desc"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "choice_results_afteranswer"
+                            },
+                            "desc": {
+                                "string": "choice_results_afteranswer_desc"
+                            }
+                        },
+                        {
+                            "value": 2,
+                            "title": {
+                                "string": "choice_results_afterclose"
+                            },
+                            "desc": {
+                                "string": "choice_results_afterclose_desc"
+                            }
+                        },
+                        {
+                            "value": 3,
+                            "title": {
+                                "string": "choice_results_always"
+                            },
+                            "desc": {
+                                "string": "choice_results_always_desc"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "publish",
+                    "kind": "choice",
+                    "label": {
+                        "string": "choice_publish"
+                    },
+                    "default": 0,
+                    "when": {
+                        "answer": "showresults",
+                        "not": 0
+                    },
+                    "sets": {
+                        "field": "publish"
+                    },
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "choice_publish_anonymous"
+                            },
+                            "desc": {
+                                "string": "choice_publish_anonymous_desc"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "choice_publish_names"
+                            },
+                            "desc": {
+                                "string": "choice_publish_names_desc"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "timing",
+            "title": {
+                "string": "choice_step_timing"
+            },
+            "question": {
+                "string": "choice_step_timing_q"
+            },
+            "items": [
+                {
+                    "key": "timeopen",
+                    "kind": "date",
+                    "label": {
+                        "string": "choice_timeopen"
+                    },
+                    "help": {
+                        "string": "choice_timeopen_hint"
+                    },
+                    "sets": {
+                        "field": "timeopen"
+                    }
+                },
+                {
+                    "key": "timeclose",
+                    "kind": "date",
+                    "label": {
+                        "string": "choice_timeclose"
+                    },
+                    "help": {
+                        "string": "choice_timeclose_hint"
+                    },
+                    "sets": {
+                        "field": "timeclose"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "choice_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1,
+                        "completionsubmit": 0
+                    }
+                },
+                {
+                    "value": "submit",
+                    "title": {
+                        "string": "choice_completion_submit"
+                    },
+                    "desc": {
+                        "string": "choice_completion_submit_desc"
+                    },
+                    "sets": {
+                        "completionview": 0,
+                        "completionsubmit": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

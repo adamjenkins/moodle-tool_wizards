@@ -1,0 +1,240 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "link",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "url"
+    },
+    "title": {
+        "string": "type_link"
+    },
+    "heading": {
+        "string": "type_link_title"
+    },
+    "description": {
+        "string": "type_link_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "link_intro"
+                    }
+                },
+                {
+                    "key": "externalurl",
+                    "kind": "text",
+                    "label": {
+                        "string": "link_url"
+                    },
+                    "help": {
+                        "string": "link_url_help"
+                    },
+                    "placeholder": {
+                        "string": "link_url_placeholder"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "link_error_url"
+                    },
+                    "sets": {
+                        "field": "externalurl"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "link_name"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "link_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "read",
+                            "title": {
+                                "string": "link_purpose_read"
+                            },
+                            "desc": {
+                                "string": "link_purpose_read_desc"
+                            },
+                            "picture": "pix:purpose/link_read",
+                            "when": {
+                                "offered": {
+                                    "field": "display",
+                                    "value": 5
+                                }
+                            },
+                            "sets": {
+                                "display": 5
+                            },
+                            "preset": {
+                                "showdescription": 1,
+                                "completion": "view"
+                            }
+                        },
+                        {
+                            "value": "watch",
+                            "title": {
+                                "string": "link_purpose_watch"
+                            },
+                            "desc": {
+                                "string": "link_purpose_watch_desc"
+                            },
+                            "picture": "pix:purpose/link_watch",
+                            "when": {
+                                "offered": {
+                                    "field": "display",
+                                    "value": 1
+                                }
+                            },
+                            "sets": {
+                                "display": 1
+                            },
+                            "preset": {
+                                "showdescription": 0,
+                                "completion": "view"
+                            }
+                        },
+                        {
+                            "value": "tool",
+                            "title": {
+                                "string": "link_purpose_tool"
+                            },
+                            "desc": {
+                                "string": "link_purpose_tool_desc"
+                            },
+                            "picture": "pix:purpose/link_tool",
+                            "when": {
+                                "offered": {
+                                    "field": "display",
+                                    "value": 3
+                                }
+                            },
+                            "sets": {
+                                "display": 3
+                            },
+                            "preset": {
+                                "showdescription": 1,
+                                "completion": "view"
+                            }
+                        },
+                        {
+                            "value": "toolwindow",
+                            "title": {
+                                "string": "link_purpose_tool"
+                            },
+                            "desc": {
+                                "string": "link_purpose_toolwindow_desc"
+                            },
+                            "picture": "pix:purpose/link_tool",
+                            "when": {
+                                "all": [
+                                    {
+                                        "not": {
+                                            "offered": {
+                                                "field": "display",
+                                                "value": 3
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "offered": {
+                                            "field": "display",
+                                            "value": 6
+                                        }
+                                    }
+                                ]
+                            },
+                            "sets": {
+                                "display": 6
+                            },
+                            "preset": {
+                                "showdescription": 1,
+                                "completion": "view"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "note",
+            "title": {
+                "string": "link_step_note"
+            },
+            "question": {
+                "string": "link_step_note_q"
+            },
+            "items": [
+                {
+                    "key": "description",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "link_description"
+                    },
+                    "help": {
+                        "string": "link_description_help"
+                    },
+                    "sets": {
+                        "field": "introeditor",
+                        "as": "editor"
+                    }
+                },
+                {
+                    "key": "showdescription",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "link_showdescription"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "showdescription",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "link_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

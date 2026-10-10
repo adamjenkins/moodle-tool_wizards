@@ -47,7 +47,9 @@ class defaults {
         }
         ksort($out);
         // The order teachers see them in, as before definitions existed.
-        $order = ['course', 'file', 'slides', 'picture', 'page', 'forum', 'glossary', 'quiz'];
+        $order = ['course', 'file', 'slides', 'picture', 'page', 'forum', 'glossary', 'quiz', 'assignment', 'link',
+            'folder', 'book', 'choice', 'feedback', 'database', 'wiki', 'lesson', 'workshop', 'h5p', 'scorm',
+            'contentpackage', 'externaltool', 'bigbluebutton', 'subsection'];
         $rank = fn($key) => ($pos = array_search($key, $order, true)) === false ? 99 : $pos;
         uksort($out, fn($a, $b) => $rank($a) <=> $rank($b));
         return $out;

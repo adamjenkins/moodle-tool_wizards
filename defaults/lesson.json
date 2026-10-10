@@ -1,0 +1,515 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "lesson",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "lesson"
+    },
+    "title": {
+        "string": "type_lesson"
+    },
+    "heading": {
+        "string": "type_lesson_title"
+    },
+    "description": {
+        "string": "type_lesson_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "lesson_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "lesson_name"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "description",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "lesson_description"
+                    },
+                    "sets": {
+                        "field": "introeditor",
+                        "as": "editor"
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "lesson_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "tutorial",
+                            "title": {
+                                "string": "lesson_purpose_tutorial"
+                            },
+                            "desc": {
+                                "string": "lesson_purpose_tutorial_desc"
+                            },
+                            "picture": "pix:purpose/lesson_tutorial",
+                            "preset": {
+                                "mode": 1,
+                                "retake": 1,
+                                "review": 1,
+                                "maxattempts": 3,
+                                "progressbar": 1,
+                                "displayleft": 1,
+                                "completion": "end"
+                            }
+                        },
+                        {
+                            "value": "branching",
+                            "title": {
+                                "string": "lesson_purpose_branching"
+                            },
+                            "desc": {
+                                "string": "lesson_purpose_branching_desc"
+                            },
+                            "picture": "pix:purpose/lesson_branching",
+                            "preset": {
+                                "mode": 1,
+                                "retake": 1,
+                                "review": 0,
+                                "maxattempts": 1,
+                                "progressbar": 0,
+                                "displayleft": 0,
+                                "completion": "end"
+                            }
+                        },
+                        {
+                            "value": "graded",
+                            "title": {
+                                "string": "lesson_purpose_graded"
+                            },
+                            "desc": {
+                                "string": "lesson_purpose_graded_desc"
+                            },
+                            "picture": "pix:purpose/lesson_graded",
+                            "preset": {
+                                "mode": 0,
+                                "retake": 0,
+                                "usemaxgrade": 1,
+                                "review": 0,
+                                "maxattempts": 1,
+                                "progressbar": 1,
+                                "displayleft": 0,
+                                "ongoing": 0,
+                                "completion": "graded"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "lesson_pages_hint"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "mode",
+            "title": {
+                "string": "lesson_step_mode"
+            },
+            "question": {
+                "string": "lesson_step_mode_q"
+            },
+            "items": [
+                {
+                    "key": "mode",
+                    "kind": "choice",
+                    "label": {
+                        "string": "lesson_step_mode"
+                    },
+                    "default": "config:mod_lesson/practice",
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "lesson_mode_practice"
+                            },
+                            "desc": {
+                                "string": "lesson_mode_practice_desc"
+                            },
+                            "sets": {
+                                "practice": 1,
+                                "grade": {
+                                    "modgrade_type": "none"
+                                }
+                            }
+                        },
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "lesson_mode_graded"
+                            },
+                            "desc": {
+                                "string": "lesson_mode_graded_desc"
+                            },
+                            "sets": {
+                                "practice": 0,
+                                "grade": {
+                                    "modgrade_type": "point",
+                                    "modgrade_point": "{answer:maxgrade}"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "maxgrade",
+                    "kind": "number",
+                    "label": {
+                        "string": "maxgrade"
+                    },
+                    "default": "config:core/gradepointdefault",
+                    "min": 1,
+                    "required": {
+                        "answer": "mode",
+                        "is": 0
+                    },
+                    "when": {
+                        "answer": "mode",
+                        "is": 0
+                    }
+                }
+            ]
+        },
+        {
+            "key": "retakes",
+            "title": {
+                "string": "lesson_step_retakes"
+            },
+            "question": {
+                "string": "lesson_step_retakes_q"
+            },
+            "items": [
+                {
+                    "key": "retake",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "lesson_retake"
+                    },
+                    "text": {
+                        "string": "lesson_retake_label"
+                    },
+                    "default": "config:mod_lesson/retakesallowed",
+                    "sets": {
+                        "field": "retake",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "usemaxgrade",
+                    "kind": "choice",
+                    "label": {
+                        "string": "lesson_usemaxgrade"
+                    },
+                    "default": "config:mod_lesson/handlingofretakes",
+                    "sets": {
+                        "field": "usemaxgrade",
+                        "as": "int"
+                    },
+                    "when": {
+                        "all": [
+                            {
+                                "answer": "retake",
+                                "is": 1
+                            },
+                            {
+                                "answer": "mode",
+                                "is": 0
+                            }
+                        ]
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "lesson_usemaxgrade_best"
+                            },
+                            "desc": {
+                                "string": "lesson_usemaxgrade_best_desc"
+                            }
+                        },
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "lesson_usemaxgrade_mean"
+                            },
+                            "desc": {
+                                "string": "lesson_usemaxgrade_mean_desc"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "questions",
+            "title": {
+                "string": "lesson_step_questions"
+            },
+            "question": {
+                "string": "lesson_step_questions_q"
+            },
+            "items": [
+                {
+                    "key": "maxattempts",
+                    "kind": "select",
+                    "label": {
+                        "string": "lesson_maxattempts"
+                    },
+                    "help": {
+                        "string": "lesson_maxattempts_help"
+                    },
+                    "default": "config:mod_lesson/maximumnumberofattempts",
+                    "sets": {
+                        "field": "maxattempts",
+                        "as": "int"
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": "1"
+                        },
+                        {
+                            "value": 2,
+                            "title": "2"
+                        },
+                        {
+                            "value": 3,
+                            "title": "3"
+                        },
+                        {
+                            "value": 5,
+                            "title": "5"
+                        },
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "lesson_maxattempts_unlimited"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "review",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "lesson_review"
+                    },
+                    "help": {
+                        "string": "lesson_review_help"
+                    },
+                    "text": {
+                        "string": "lesson_review_label"
+                    },
+                    "default": "config:mod_lesson/displayreview",
+                    "sets": {
+                        "field": "review",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "navigation",
+            "title": {
+                "string": "lesson_step_navigation"
+            },
+            "question": {
+                "string": "lesson_step_navigation_q"
+            },
+            "items": [
+                {
+                    "key": "progressbar",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "lesson_progressbar"
+                    },
+                    "text": {
+                        "string": "lesson_progressbar_label"
+                    },
+                    "default": "config:mod_lesson/progressbar",
+                    "sets": {
+                        "field": "progressbar",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "displayleft",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "lesson_displayleft"
+                    },
+                    "text": {
+                        "string": "lesson_displayleft_label"
+                    },
+                    "default": "config:mod_lesson/displayleftmenu",
+                    "sets": {
+                        "field": "displayleft",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "ongoing",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "lesson_ongoing"
+                    },
+                    "text": {
+                        "string": "lesson_ongoing_label"
+                    },
+                    "default": "config:mod_lesson/ongoing",
+                    "sets": {
+                        "field": "ongoing",
+                        "as": "int"
+                    },
+                    "when": {
+                        "answer": "mode",
+                        "is": 0
+                    }
+                }
+            ]
+        },
+        {
+            "key": "timing",
+            "title": {
+                "string": "lesson_step_timing"
+            },
+            "question": {
+                "string": "lesson_step_timing_q"
+            },
+            "items": [
+                {
+                    "key": "available",
+                    "kind": "date",
+                    "label": {
+                        "string": "lesson_available"
+                    },
+                    "sets": {
+                        "field": "available"
+                    }
+                },
+                {
+                    "key": "deadline",
+                    "kind": "date",
+                    "label": {
+                        "string": "lesson_deadline"
+                    },
+                    "help": {
+                        "string": "lesson_deadline_hint"
+                    },
+                    "sets": {
+                        "field": "deadline"
+                    }
+                },
+                {
+                    "key": "timelimit",
+                    "kind": "duration",
+                    "label": {
+                        "string": "lesson_timelimit"
+                    },
+                    "help": {
+                        "string": "lesson_timelimit_hint"
+                    },
+                    "default": "config:mod_lesson/timelimit",
+                    "units": [
+                        60,
+                        3600
+                    ],
+                    "sets": {
+                        "field": "timelimit"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "end",
+                    "title": {
+                        "string": "lesson_completion_end"
+                    },
+                    "desc": {
+                        "string": "lesson_completion_end_desc"
+                    },
+                    "sets": {
+                        "completionendreached": 1,
+                        "completiontimespentenabled": 0,
+                        "completionview": 0,
+                        "completionusegrade": 0
+                    }
+                },
+                {
+                    "value": "graded",
+                    "title": {
+                        "string": "lesson_completion_graded"
+                    },
+                    "desc": {
+                        "string": "lesson_completion_graded_desc"
+                    },
+                    "when": {
+                        "answer": "mode",
+                        "is": 0
+                    },
+                    "sets": {
+                        "completionusegrade": 1,
+                        "completionpassgrade": 0,
+                        "completionendreached": 0,
+                        "completiontimespentenabled": 0,
+                        "completionview": 0
+                    }
+                },
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "lesson_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1,
+                        "completionendreached": 0,
+                        "completiontimespentenabled": 0,
+                        "completionusegrade": 0
+                    }
+                }
+            ]
+        }
+    ]
+}

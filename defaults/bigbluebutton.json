@@ -1,0 +1,316 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "bigbluebutton",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "bigbluebuttonbn"
+    },
+    "title": {
+        "string": "type_bigbluebutton"
+    },
+    "heading": {
+        "string": "type_bigbluebutton_title"
+    },
+    "description": {
+        "string": "type_bigbluebutton_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "bigbluebutton_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "bigbluebutton_name"
+                    },
+                    "required": true,
+                    "maxlength": 64,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "description",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "bigbluebutton_description"
+                    },
+                    "sets": {
+                        "field": "introeditor",
+                        "as": "editor"
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "bigbluebutton_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "class",
+                            "title": {
+                                "string": "bigbluebutton_purpose_class"
+                            },
+                            "desc": {
+                                "string": "bigbluebutton_purpose_class_desc"
+                            },
+                            "picture": "pix:purpose/bigbluebutton_class",
+                            "when": {
+                                "any": [
+                                    {
+                                        "offered": {
+                                            "field": "type",
+                                            "value": 0
+                                        }
+                                    },
+                                    {
+                                        "not": {
+                                            "any": [
+                                                {
+                                                    "offered": {
+                                                        "field": "type",
+                                                        "value": 1
+                                                    }
+                                                },
+                                                {
+                                                    "offered": {
+                                                        "field": "type",
+                                                        "value": 2
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            "sets": {
+                                "type": 0
+                            },
+                            "preset": {
+                                "wait": 1,
+                                "record": 1,
+                                "completion": "view"
+                            }
+                        },
+                        {
+                            "value": "liveonly",
+                            "title": {
+                                "string": "bigbluebutton_purpose_liveonly"
+                            },
+                            "desc": {
+                                "string": "bigbluebutton_purpose_liveonly_desc"
+                            },
+                            "picture": "pix:purpose/bigbluebutton_liveonly",
+                            "when": {
+                                "offered": {
+                                    "field": "type",
+                                    "value": 1
+                                }
+                            },
+                            "sets": {
+                                "type": 1
+                            },
+                            "preset": {
+                                "wait": 1,
+                                "record": 0,
+                                "completion": "view"
+                            }
+                        },
+                        {
+                            "value": "recordings",
+                            "title": {
+                                "string": "bigbluebutton_purpose_recordings"
+                            },
+                            "desc": {
+                                "string": "bigbluebutton_purpose_recordings_desc"
+                            },
+                            "picture": "pix:purpose/bigbluebutton_recordings",
+                            "when": {
+                                "offered": {
+                                    "field": "type",
+                                    "value": 2
+                                }
+                            },
+                            "sets": {
+                                "type": 2
+                            },
+                            "preset": {
+                                "completion": "view"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "room",
+            "title": {
+                "string": "bigbluebutton_step_room"
+            },
+            "question": {
+                "string": "bigbluebutton_step_room_q"
+            },
+            "when": {
+                "answer": "purpose",
+                "in": [
+                    "class",
+                    "liveonly"
+                ]
+            },
+            "items": [
+                {
+                    "key": "wait",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "bigbluebutton_wait"
+                    },
+                    "text": {
+                        "string": "bigbluebutton_wait_label"
+                    },
+                    "default": "config:core/bigbluebuttonbn_waitformoderator_default",
+                    "when": {
+                        "offered": {
+                            "field": "wait",
+                            "value": 1
+                        }
+                    },
+                    "sets": {
+                        "field": "wait",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "record",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "bigbluebutton_record"
+                    },
+                    "text": {
+                        "string": "bigbluebutton_record_label"
+                    },
+                    "default": "config:core/bigbluebuttonbn_recording_default",
+                    "when": {
+                        "offered": {
+                            "field": "record",
+                            "value": 1
+                        }
+                    },
+                    "sets": {
+                        "field": "record",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "schedule",
+            "title": {
+                "string": "bigbluebutton_step_schedule"
+            },
+            "question": {
+                "string": "bigbluebutton_step_schedule_q"
+            },
+            "when": {
+                "answer": "purpose",
+                "in": [
+                    "class",
+                    "liveonly"
+                ]
+            },
+            "items": [
+                {
+                    "key": "openingtime",
+                    "kind": "date",
+                    "label": {
+                        "string": "quiz_timeopen"
+                    },
+                    "sets": {
+                        "field": "openingtime"
+                    }
+                },
+                {
+                    "key": "closingtime",
+                    "kind": "date",
+                    "label": {
+                        "string": "quiz_timeclose"
+                    },
+                    "help": {
+                        "string": "bigbluebutton_closingtime_hint"
+                    },
+                    "sets": {
+                        "field": "closingtime"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "bigbluebutton_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1
+                    }
+                },
+                {
+                    "value": "attended",
+                    "title": {
+                        "string": "bigbluebutton_completion_attended"
+                    },
+                    "desc": {
+                        "string": "bigbluebutton_completion_attended_desc"
+                    },
+                    "when": {
+                        "all": [
+                            {
+                                "offered": {
+                                    "field": "completionattendanceenabled",
+                                    "value": 1
+                                }
+                            },
+                            {
+                                "answer": "purpose",
+                                "in": [
+                                    "class",
+                                    "liveonly"
+                                ]
+                            }
+                        ]
+                    },
+                    "sets": {
+                        "completionattendanceenabled": 1,
+                        "completionattendance": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

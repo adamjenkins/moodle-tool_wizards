@@ -63,7 +63,7 @@ class wizard_form extends dynamic_form {
     protected function get_record(): \stdClass {
         if ($this->record === null) {
             $record = repository::get_by_key($this->optional_param('wizard', '', PARAM_ALPHANUMEXT));
-            if (!$record || $record->target === 'course') {
+            if (!$record || $record->target === 'course' || repository::is_content($record)) {
                 throw new \moodle_exception('error_nowizard', 'tool_wizards');
             }
             $this->record = $record;

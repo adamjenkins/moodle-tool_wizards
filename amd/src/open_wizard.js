@@ -14,8 +14,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Open an activity wizard in a modal: from the first-content card, from "Add with a wizard"
- * in a course section, or as "Try it" from the wizard list.
+ * Open a wizard in a modal: an activity wizard from the first-content card, from "Add with a
+ * wizard" in a course section, or as "Try it" from the wizard list; or an in-activity wizard
+ * (a question, a lesson page, ...) from the activity's own pages, which then offers "Add another".
  *
  * @module     tool_wizards/open_wizard
  * @copyright  2026 Adam Jenkins <adam@wisecat.net>
@@ -24,11 +25,16 @@
 
 import ModalForm from 'core_form/modalform';
 import Modal from 'core/modal';
+import ModalEvents from 'core/modal_events';
+import ModalSaveCancel from 'core/modal_save_cancel';
 import Pending from 'core/pending';
 import {getString} from 'core/str';
 
 /** @var {string} The form every activity wizard uses. */
 const FORM_CLASS = 'tool_wizards\\form\\wizard_form';
+
+/** @var {string} The form every in-activity wizard uses. */
+const CONTENT_FORM_CLASS = 'tool_wizards\\form\\content_wizard_form';
 
 /**
  * Open a wizard.
@@ -67,6 +73,92 @@ export const openWizard = ({courseid, wizard, title, section, preview, returnFoc
         pending.resolve();
     });
     form.show();
+};
+
+/**
+ * Open an in-activity wizard. After each save the teacher may add another, until they are done;
+ * then the page reloads (or, from the course page, goes to the activity) to show what was added.
+ *
+ * @param {Object} options
+ * @param {number} options.cmid the activity
+ * @param {string} options.wizard the wizard key
+ * @param {string} options.title the modal title
+ * @param {boolean} [options.preview] "Try it": show what would be set instead of saving
+ * @param {boolean} [options.gotoactivity] when done, go to the activity instead of reloading
+ * @param {HTMLElement} [options.returnFocus] where focus goes back to
+ * @param {string[]} [added] what was added so far in this run
+ */
+export const openContentWizard = ({cmid, wizard, title, preview, gotoactivity, returnFocus}, added = []) => {
+    const args = {cmid, wizard};
+    if (preview) {
+        args.preview = 1;
+    }
+    const form = new ModalForm({
+        formClass: CONTENT_FORM_CLASS,
+        args,
+        modalConfig: {title},
+        saveButtonText: getString('add', 'core'),
+        returnFocus,
+    });
+    form.addEventListener(form.events.FORM_SUBMITTED, async(e) => {
+        const result = e.detail || {};
+        if (result.preview) {
+            await showPreview(result.lines || []);
+            return;
+        }
+        const done = added.concat([result.added]);
+        const finish = () => {
+            const pending = new Pending('tool_wizards/open_wizard:finish');
+            if (gotoactivity && result.url) {
+                window.location.href = result.url;
+            } else {
+                window.location.reload();
+            }
+            pending.resolve();
+        };
+        if (!result.repeat) {
+            finish();
+            return;
+        }
+        await askAnother(done, () => openContentWizard({cmid, wizard, title, gotoactivity, returnFocus}, done), finish);
+    });
+    form.show();
+};
+
+/**
+ * Say what was added and offer to add another.
+ *
+ * @param {string[]} added what was added so far
+ * @param {Function} another opens the wizard again
+ * @param {Function} finish ends the run
+ */
+const askAnother = async(added, another, finish) => {
+    const body = document.createElement('div');
+    const intro = document.createElement('p');
+    intro.textContent = await getString('content_added', 'tool_wizards', added.length);
+    const list = document.createElement('ul');
+    list.className = 'tool_wizards-added';
+    added.forEach(text => {
+        const item = document.createElement('li');
+        item.textContent = text;
+        list.append(item);
+    });
+    body.append(intro, list);
+    const modal = await ModalSaveCancel.create({
+        title: await getString('content_addanother_title', 'tool_wizards'),
+        body: body.outerHTML,
+        buttons: {
+            save: await getString('content_addanother', 'tool_wizards'),
+            cancel: await getString('content_finished', 'tool_wizards'),
+        },
+        removeOnClose: true,
+    });
+    let again = false;
+    modal.getRoot().on(ModalEvents.save, () => {
+        again = true;
+    });
+    modal.getRoot().on(ModalEvents.hidden, () => (again ? another() : finish()));
+    modal.show();
 };
 
 /**

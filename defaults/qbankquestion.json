@@ -1,0 +1,1079 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "qbankquestion",
+    "defaultversion": 1,
+    "target": {
+        "type": "content",
+        "modname": "qbank",
+        "content": "tool_wizards/qbank_question"
+    },
+    "title": {
+        "string": "type_qbankquestion"
+    },
+    "heading": {
+        "string": "type_qbankquestion_title"
+    },
+    "description": {
+        "string": "type_qbankquestion_desc"
+    },
+    "screens": [
+        {
+            "key": "kind",
+            "title": {
+                "string": "question_step_kind"
+            },
+            "question": {
+                "string": "question_step_kind_q"
+            },
+            "items": [
+                {
+                    "key": "kind",
+                    "kind": "cards",
+                    "label": {
+                        "string": "question_kind"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "question_error_kind"
+                    },
+                    "choices": [
+                        {
+                            "value": "multichoice",
+                            "title": {
+                                "string": "question_kind_multichoice"
+                            },
+                            "desc": {
+                                "string": "question_kind_multichoice_desc"
+                            },
+                            "picture": "pix:purpose/question_multichoice",
+                            "when": {
+                                "offered": {
+                                    "field": "qtype",
+                                    "value": "multichoice"
+                                }
+                            },
+                            "sets": {
+                                "qtype": "multichoice",
+                                "single": 1
+                            }
+                        },
+                        {
+                            "value": "multiresponse",
+                            "title": {
+                                "string": "question_kind_multiresponse"
+                            },
+                            "desc": {
+                                "string": "question_kind_multiresponse_desc"
+                            },
+                            "picture": "pix:purpose/question_multiresponse",
+                            "when": {
+                                "offered": {
+                                    "field": "qtype",
+                                    "value": "multichoice"
+                                }
+                            },
+                            "sets": {
+                                "qtype": "multichoice",
+                                "single": 0
+                            }
+                        },
+                        {
+                            "value": "truefalse",
+                            "title": {
+                                "string": "question_kind_truefalse"
+                            },
+                            "desc": {
+                                "string": "question_kind_truefalse_desc"
+                            },
+                            "picture": "pix:purpose/question_truefalse",
+                            "when": {
+                                "offered": {
+                                    "field": "qtype",
+                                    "value": "truefalse"
+                                }
+                            },
+                            "sets": {
+                                "qtype": "truefalse"
+                            }
+                        },
+                        {
+                            "value": "shortanswer",
+                            "title": {
+                                "string": "question_kind_shortanswer"
+                            },
+                            "desc": {
+                                "string": "question_kind_shortanswer_desc"
+                            },
+                            "picture": "pix:purpose/question_shortanswer",
+                            "when": {
+                                "offered": {
+                                    "field": "qtype",
+                                    "value": "shortanswer"
+                                }
+                            },
+                            "sets": {
+                                "qtype": "shortanswer"
+                            }
+                        },
+                        {
+                            "value": "numerical",
+                            "title": {
+                                "string": "question_kind_numerical"
+                            },
+                            "desc": {
+                                "string": "question_kind_numerical_desc"
+                            },
+                            "picture": "pix:purpose/question_numerical",
+                            "when": {
+                                "offered": {
+                                    "field": "qtype",
+                                    "value": "numerical"
+                                }
+                            },
+                            "sets": {
+                                "qtype": "numerical"
+                            }
+                        },
+                        {
+                            "value": "match",
+                            "title": {
+                                "string": "question_kind_match"
+                            },
+                            "desc": {
+                                "string": "question_kind_match_desc"
+                            },
+                            "picture": "pix:purpose/question_match",
+                            "when": {
+                                "offered": {
+                                    "field": "qtype",
+                                    "value": "match"
+                                }
+                            },
+                            "sets": {
+                                "qtype": "match"
+                            }
+                        },
+                        {
+                            "value": "essay",
+                            "title": {
+                                "string": "question_kind_essay"
+                            },
+                            "desc": {
+                                "string": "question_kind_essay_desc"
+                            },
+                            "picture": "pix:purpose/question_essay",
+                            "when": {
+                                "offered": {
+                                    "field": "qtype",
+                                    "value": "essay"
+                                }
+                            },
+                            "sets": {
+                                "qtype": "essay"
+                            }
+                        },
+                        {
+                            "value": "description",
+                            "title": {
+                                "string": "question_kind_description"
+                            },
+                            "desc": {
+                                "string": "question_kind_description_desc"
+                            },
+                            "picture": "pix:purpose/question_description",
+                            "when": {
+                                "offered": {
+                                    "field": "qtype",
+                                    "value": "description"
+                                }
+                            },
+                            "sets": {
+                                "qtype": "description"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "question",
+            "title": {
+                "string": "question_step_question"
+            },
+            "question": {
+                "string": "question_step_question_q"
+            },
+            "items": [
+                {
+                    "key": "questiontext",
+                    "kind": "editor",
+                    "label": {
+                        "string": "question_questiontext"
+                    },
+                    "help": {
+                        "string": "question_questiontext_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_questiontext"
+                    },
+                    "when": {
+                        "answer": "kind",
+                        "not": "description"
+                    },
+                    "sets": {
+                        "field": "questiontext"
+                    }
+                },
+                {
+                    "key": "infotext",
+                    "kind": "editor",
+                    "label": {
+                        "string": "question_infotext"
+                    },
+                    "help": {
+                        "string": "question_infotext_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "question_error_text"
+                    },
+                    "when": {
+                        "answer": "kind",
+                        "is": "description"
+                    },
+                    "sets": {
+                        "field": "questiontext"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_name"
+                    },
+                    "help": {
+                        "string": "question_name_help"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "choices",
+            "title": {
+                "string": "question_step_choices"
+            },
+            "question": {
+                "string": "question_step_choices_q"
+            },
+            "when": {
+                "answer": "kind",
+                "in": [
+                    "multichoice",
+                    "multiresponse"
+                ]
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "question_choices_hint"
+                    }
+                },
+                {
+                    "key": "choice1",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_choice1"
+                    },
+                    "sets": {
+                        "field": "choice[1]"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_twochoices"
+                    }
+                },
+                {
+                    "key": "choice2",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_choice2"
+                    },
+                    "sets": {
+                        "field": "choice[2]"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_twochoices"
+                    }
+                },
+                {
+                    "key": "choice3",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_choice3"
+                    },
+                    "sets": {
+                        "field": "choice[3]"
+                    }
+                },
+                {
+                    "key": "choice4",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_choice4"
+                    },
+                    "sets": {
+                        "field": "choice[4]"
+                    }
+                },
+                {
+                    "key": "choice5",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_choice5"
+                    },
+                    "sets": {
+                        "field": "choice[5]"
+                    }
+                },
+                {
+                    "key": "choice6",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_choice6"
+                    },
+                    "sets": {
+                        "field": "choice[6]"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "right",
+            "title": {
+                "string": "question_step_right"
+            },
+            "question": {
+                "string": "question_step_right_q"
+            },
+            "when": {
+                "answer": "kind",
+                "in": [
+                    "multichoice",
+                    "multiresponse"
+                ]
+            },
+            "items": [
+                {
+                    "key": "rightchoice",
+                    "kind": "select",
+                    "label": {
+                        "string": "question_rightchoice"
+                    },
+                    "default": 1,
+                    "when": {
+                        "answer": "kind",
+                        "is": "multichoice"
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "question_choice1"
+                            }
+                        },
+                        {
+                            "value": 2,
+                            "title": {
+                                "string": "question_choice2"
+                            }
+                        },
+                        {
+                            "value": 3,
+                            "title": {
+                                "string": "question_choice3"
+                            }
+                        },
+                        {
+                            "value": 4,
+                            "title": {
+                                "string": "question_choice4"
+                            }
+                        },
+                        {
+                            "value": 5,
+                            "title": {
+                                "string": "question_choice5"
+                            }
+                        },
+                        {
+                            "value": 6,
+                            "title": {
+                                "string": "question_choice6"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "rightchoice"
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "question_right_hint"
+                    },
+                    "when": {
+                        "answer": "kind",
+                        "is": "multiresponse"
+                    }
+                },
+                {
+                    "key": "right1",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "question_choice1"
+                    },
+                    "text": {
+                        "string": "question_isright"
+                    },
+                    "default": 0,
+                    "when": {
+                        "answer": "kind",
+                        "is": "multiresponse"
+                    },
+                    "sets": {
+                        "field": "right[1]"
+                    }
+                },
+                {
+                    "key": "right2",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "question_choice2"
+                    },
+                    "text": {
+                        "string": "question_isright"
+                    },
+                    "default": 0,
+                    "when": {
+                        "answer": "kind",
+                        "is": "multiresponse"
+                    },
+                    "sets": {
+                        "field": "right[2]"
+                    }
+                },
+                {
+                    "key": "right3",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "question_choice3"
+                    },
+                    "text": {
+                        "string": "question_isright"
+                    },
+                    "default": 0,
+                    "when": {
+                        "answer": "kind",
+                        "is": "multiresponse"
+                    },
+                    "sets": {
+                        "field": "right[3]"
+                    }
+                },
+                {
+                    "key": "right4",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "question_choice4"
+                    },
+                    "text": {
+                        "string": "question_isright"
+                    },
+                    "default": 0,
+                    "when": {
+                        "answer": "kind",
+                        "is": "multiresponse"
+                    },
+                    "sets": {
+                        "field": "right[4]"
+                    }
+                },
+                {
+                    "key": "right5",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "question_choice5"
+                    },
+                    "text": {
+                        "string": "question_isright"
+                    },
+                    "default": 0,
+                    "when": {
+                        "answer": "kind",
+                        "is": "multiresponse"
+                    },
+                    "sets": {
+                        "field": "right[5]"
+                    }
+                },
+                {
+                    "key": "right6",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "question_choice6"
+                    },
+                    "text": {
+                        "string": "question_isright"
+                    },
+                    "default": 0,
+                    "when": {
+                        "answer": "kind",
+                        "is": "multiresponse"
+                    },
+                    "sets": {
+                        "field": "right[6]"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "truefalse",
+            "title": {
+                "string": "question_step_truefalse"
+            },
+            "question": {
+                "string": "question_step_truefalse_q"
+            },
+            "when": {
+                "answer": "kind",
+                "is": "truefalse"
+            },
+            "items": [
+                {
+                    "key": "correctanswer",
+                    "kind": "choice",
+                    "label": {
+                        "string": "question_correctanswer"
+                    },
+                    "default": 1,
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "true",
+                                "component": "qtype_truefalse"
+                            },
+                            "desc": {
+                                "string": "question_correctanswer_true_desc"
+                            }
+                        },
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "false",
+                                "component": "qtype_truefalse"
+                            },
+                            "desc": {
+                                "string": "question_correctanswer_false_desc"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "correctanswer"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "accept",
+            "title": {
+                "string": "question_step_accept"
+            },
+            "question": {
+                "string": "question_step_accept_q"
+            },
+            "when": {
+                "answer": "kind",
+                "is": "shortanswer"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "question_accept_hint"
+                    }
+                },
+                {
+                    "key": "accept1",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_accept1"
+                    },
+                    "sets": {
+                        "field": "accept[1]"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "question_error_noaccept"
+                    }
+                },
+                {
+                    "key": "accept2",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_accept2"
+                    },
+                    "sets": {
+                        "field": "accept[2]"
+                    }
+                },
+                {
+                    "key": "accept3",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_accept3"
+                    },
+                    "sets": {
+                        "field": "accept[3]"
+                    }
+                },
+                {
+                    "key": "accept4",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_accept4"
+                    },
+                    "sets": {
+                        "field": "accept[4]"
+                    }
+                },
+                {
+                    "key": "accept5",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_accept5"
+                    },
+                    "sets": {
+                        "field": "accept[5]"
+                    }
+                },
+                {
+                    "key": "accept6",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_accept6"
+                    },
+                    "sets": {
+                        "field": "accept[6]"
+                    }
+                },
+                {
+                    "key": "casesensitive",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "question_casesensitive"
+                    },
+                    "help": {
+                        "string": "question_casesensitive_help"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "casesensitive"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "number",
+            "title": {
+                "string": "question_step_number"
+            },
+            "question": {
+                "string": "question_step_number_q"
+            },
+            "when": {
+                "answer": "kind",
+                "is": "numerical"
+            },
+            "items": [
+                {
+                    "key": "number",
+                    "kind": "number",
+                    "label": {
+                        "string": "question_number"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "question_error_number"
+                    },
+                    "sets": {
+                        "field": "number"
+                    }
+                },
+                {
+                    "key": "tolerance",
+                    "kind": "number",
+                    "label": {
+                        "string": "question_tolerance"
+                    },
+                    "help": {
+                        "string": "question_tolerance_help"
+                    },
+                    "min": 0,
+                    "default": 0,
+                    "sets": {
+                        "field": "tolerance"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "pairs",
+            "title": {
+                "string": "question_step_pairs"
+            },
+            "question": {
+                "string": "question_step_pairs_q"
+            },
+            "when": {
+                "answer": "kind",
+                "is": "match"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "question_pairs_hint"
+                    }
+                },
+                {
+                    "key": "item1",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_item1"
+                    },
+                    "sets": {
+                        "field": "item[1]"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "question_error_twopairs"
+                    }
+                },
+                {
+                    "key": "match1",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_matches"
+                    },
+                    "sets": {
+                        "field": "match[1]"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "question_error_twopairs"
+                    }
+                },
+                {
+                    "key": "item2",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_item2"
+                    },
+                    "sets": {
+                        "field": "item[2]"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "question_error_twopairs"
+                    }
+                },
+                {
+                    "key": "match2",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_matches"
+                    },
+                    "sets": {
+                        "field": "match[2]"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "question_error_twopairs"
+                    }
+                },
+                {
+                    "key": "item3",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_item3"
+                    },
+                    "sets": {
+                        "field": "item[3]"
+                    }
+                },
+                {
+                    "key": "match3",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_matches"
+                    },
+                    "sets": {
+                        "field": "match[3]"
+                    }
+                },
+                {
+                    "key": "item4",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_item4"
+                    },
+                    "sets": {
+                        "field": "item[4]"
+                    }
+                },
+                {
+                    "key": "match4",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_matches"
+                    },
+                    "sets": {
+                        "field": "match[4]"
+                    }
+                },
+                {
+                    "key": "item5",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_item5"
+                    },
+                    "sets": {
+                        "field": "item[5]"
+                    }
+                },
+                {
+                    "key": "match5",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_matches"
+                    },
+                    "sets": {
+                        "field": "match[5]"
+                    }
+                },
+                {
+                    "key": "item6",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_item6"
+                    },
+                    "sets": {
+                        "field": "item[6]"
+                    }
+                },
+                {
+                    "key": "match6",
+                    "kind": "text",
+                    "label": {
+                        "string": "question_matches"
+                    },
+                    "sets": {
+                        "field": "match[6]"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "essay",
+            "title": {
+                "string": "question_step_essay"
+            },
+            "question": {
+                "string": "question_step_essay_q"
+            },
+            "when": {
+                "answer": "kind",
+                "is": "essay"
+            },
+            "items": [
+                {
+                    "key": "responseformat",
+                    "kind": "choice",
+                    "label": {
+                        "string": "question_responseformat"
+                    },
+                    "default": "editor",
+                    "choices": [
+                        {
+                            "value": "editor",
+                            "title": {
+                                "string": "question_responseformat_editor"
+                            },
+                            "desc": {
+                                "string": "question_responseformat_editor_desc"
+                            }
+                        },
+                        {
+                            "value": "plain",
+                            "title": {
+                                "string": "question_responseformat_plain"
+                            },
+                            "desc": {
+                                "string": "question_responseformat_plain_desc"
+                            }
+                        },
+                        {
+                            "value": "file",
+                            "title": {
+                                "string": "question_responseformat_file"
+                            },
+                            "desc": {
+                                "string": "question_responseformat_file_desc"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "responseformat"
+                    }
+                },
+                {
+                    "key": "responselines",
+                    "kind": "select",
+                    "label": {
+                        "string": "question_responselines"
+                    },
+                    "default": 15,
+                    "when": {
+                        "answer": "responseformat",
+                        "not": "file"
+                    },
+                    "choices": [
+                        {
+                            "value": 5,
+                            "title": {
+                                "string": "question_responselines_short"
+                            }
+                        },
+                        {
+                            "value": 15,
+                            "title": {
+                                "string": "question_responselines_medium"
+                            }
+                        },
+                        {
+                            "value": 30,
+                            "title": {
+                                "string": "question_responselines_long"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "responselines"
+                    }
+                },
+                {
+                    "key": "maxwords",
+                    "kind": "number",
+                    "label": {
+                        "string": "question_maxwords"
+                    },
+                    "help": {
+                        "string": "question_maxwords_help"
+                    },
+                    "min": 1,
+                    "when": {
+                        "answer": "responseformat",
+                        "not": "file"
+                    },
+                    "sets": {
+                        "field": "maxwords"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "marking",
+            "title": {
+                "string": "question_step_marking"
+            },
+            "question": {
+                "string": "question_step_marking_q"
+            },
+            "when": {
+                "answer": "kind",
+                "not": "description"
+            },
+            "items": [
+                {
+                    "key": "mark",
+                    "kind": "number",
+                    "label": {
+                        "string": "question_mark"
+                    },
+                    "help": {
+                        "string": "question_mark_help"
+                    },
+                    "default": 1,
+                    "min": 0,
+                    "required": true,
+                    "sets": {
+                        "field": "mark"
+                    }
+                },
+                {
+                    "key": "feedbackright",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "question_feedbackright"
+                    },
+                    "when": {
+                        "answer": "kind",
+                        "not": "essay"
+                    },
+                    "sets": {
+                        "field": "feedbackright"
+                    }
+                },
+                {
+                    "key": "feedbackwrong",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "question_feedbackwrong"
+                    },
+                    "when": {
+                        "answer": "kind",
+                        "not": "essay"
+                    },
+                    "sets": {
+                        "field": "feedbackwrong"
+                    }
+                },
+                {
+                    "key": "graderinfo",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "question_graderinfo"
+                    },
+                    "help": {
+                        "string": "question_graderinfo_help"
+                    },
+                    "when": {
+                        "answer": "kind",
+                        "is": "essay"
+                    },
+                    "sets": {
+                        "field": "graderinfo"
+                    }
+                }
+            ]
+        }
+    ]
+}

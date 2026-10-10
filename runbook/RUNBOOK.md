@@ -83,7 +83,7 @@ explains it.
 | `format` | Always `"tool_wizards/wizard@1"`. |
 | `key` | Unique id: lower-case letters, digits and `_`. **Do not change it** when improving a wizard; a new key makes a new wizard. |
 | `defaultversion` | Only in wizards shipped with the plugin. Leave it alone. |
-| `target` | `{"type": "course"}` for a course wizard, or `{"type": "module", "modname": "forum"}` for an activity. |
+| `target` | `{"type": "course"}` for a course wizard, `{"type": "module", "modname": "forum"}` for an activity, or `{"type": "content", "modname": "lesson", "content": "tool_wizards/lesson_page"}` for an in-activity wizard (see §3.8). |
 | `title` | The name teachers see in the list of wizards. Required. |
 | `heading` | The pop-up's title, e.g. "Add a forum". |
 | `description` | One line under the title in the list. |
@@ -154,13 +154,18 @@ The completion screen always offers "the course's usual setting", "don't track i
 | `number`, `percent` | A number box | `min`, `max` (percent is 0–100 by default) |
 | `date` | Date and time | `optional` (default true: "Enable" checkbox) |
 | `duration` | A length of time | `units`: list of seconds per unit, e.g. `[60, 3600]` |
-| `file` | A file upload | `accept`: `"*"`, `[".pdf", ".pptx"]` or `["web_image"]`; `extensions` rule |
+| `file` | A file upload | `accept`: `"*"`, `[".pdf", ".pptx"]` or `["web_image"]`; `maxfiles` (default 1, `-1` for no limit); `extensions` rule |
 | `editor` | A rich text editor | For page content |
 | `hint` | A line of explanation | `text` only, no answer |
 | `category`, `shortname`, `review` | Course wizards only | course category, short name with suggestions, review screen |
 
 Common properties: `key` (unique in the wizard), `label` (required), `help`, `required`
 (`true` or a condition), `requiredmessage`, `default`, `when`.
+
+Instead of `choices`, a choice question can take its choices from the site with `choicesfrom`:
+`"course:formats"` (the course formats, course wizards only) or `"course:ltitools"` (the external
+tools set up for the site and the course, external tool wizards only; set the answer to the
+field `typeid`).
 
 Defaults may be a value, `"config:plugin/setting"` (the site's own default, e.g.
 `"config:quiz/attempts"`), or `"course:groupmode"`.
@@ -222,6 +227,17 @@ wrong value is refused when the teacher submits. Use **Try it** to see what a wi
 Code that runs after the wizard has created the course or activity. The plugin provides
 `tool_wizards/quiz_first_question`; other plugins can add more. Leave existing actions as
 they are unless asked; do not invent action names.
+
+### 3.8 In-activity wizards
+
+An in-activity wizard adds content to an activity that already exists: a question to a quiz,
+a page to a lesson, a chapter to a book. Teachers find it on the activity's own pages, and
+straight after creating the activity. After each save they can add another.
+
+Its `target` names a **content handler**: code that saves that kind of content through the
+activity's own API. Its questions' `sets` fill in the handler's fields, not a settings form,
+and only the handler's fields are allowed; the file check lists them when one is wrong.
+In-activity wizards have no shared screens.
 
 ## 4. Instructions for the AI
 

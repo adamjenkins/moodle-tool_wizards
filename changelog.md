@@ -3,6 +3,29 @@
 All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Added
+
+- Wizards for every other core activity and resource: assignment, link (URL), folder, book,
+  choice, feedback, database, wiki, lesson, workshop, H5P, SCORM package, IMS content package,
+  external tool, BigBlueButton and subsection. They are installed as defaults on upgrade.
+- In-activity wizards, which add content to an activity that already exists, one item at a
+  time with "Add another": questions for a quiz or a question bank, lesson pages, book chapters,
+  glossary entries, database fields, feedback questions, choice options, and for a workshop its
+  assessment form, the allocation of reviews, example submissions and phase guidance. Teachers
+  find them as "Add with a wizard" on the activity's own pages, and straight after an activity
+  wizard has added the activity. Plugins can add their own through the `collect_extensions` hook
+  (`add_content()`).
+- On the wizard list, each wizard has an on/off switch that saves at once, and the wizards are
+  grouped into course, activity and in-activity wizards, each group (and each activity's
+  in-activity wizards) with a switch for all of them.
+
+### Changed
+
+- The first-content card shows the first eight wizards and keeps the rest behind
+  "More kinds of content", so a new course does not open with every wizard at once.
+
 ## [0.2.0] - 2026-10-09
 
 ### Added

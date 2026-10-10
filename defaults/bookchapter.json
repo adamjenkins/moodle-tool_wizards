@@ -1,0 +1,119 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "bookchapter",
+    "defaultversion": 1,
+    "target": {
+        "type": "content",
+        "modname": "book",
+        "content": "tool_wizards/book_chapter"
+    },
+    "title": {
+        "string": "type_bookchapter"
+    },
+    "heading": {
+        "string": "type_bookchapter_title"
+    },
+    "description": {
+        "string": "type_bookchapter_desc"
+    },
+    "screens": [
+        {
+            "key": "chapter",
+            "title": {
+                "string": "bookchapter_step_chapter"
+            },
+            "question": {
+                "string": "bookchapter_step_chapter_q"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "bookchapter_intro"
+                    }
+                },
+                {
+                    "key": "title",
+                    "kind": "text",
+                    "label": {
+                        "string": "bookchapter_title"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "bookchapter_error_title"
+                    },
+                    "maxlength": 1333,
+                    "sets": {
+                        "field": "title"
+                    }
+                },
+                {
+                    "key": "level",
+                    "kind": "choice",
+                    "label": {
+                        "string": "bookchapter_level"
+                    },
+                    "default": 0,
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "bookchapter_level_chapter"
+                            },
+                            "desc": {
+                                "string": "bookchapter_level_chapter_desc"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "bookchapter_level_sub"
+                            },
+                            "desc": {
+                                "string": "bookchapter_level_sub_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "subchapter",
+                                    "value": 1
+                                }
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "subchapter",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "content",
+            "title": {
+                "string": "bookchapter_step_content"
+            },
+            "question": {
+                "string": "bookchapter_step_content_q"
+            },
+            "items": [
+                {
+                    "key": "content",
+                    "kind": "editor",
+                    "label": {
+                        "string": "bookchapter_content"
+                    },
+                    "help": {
+                        "string": "bookchapter_content_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "bookchapter_error_content"
+                    },
+                    "sets": {
+                        "field": "content"
+                    }
+                }
+            ]
+        }
+    ]
+}

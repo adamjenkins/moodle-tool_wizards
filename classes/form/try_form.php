@@ -46,7 +46,12 @@ class try_form extends \moodleform {
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $course = get_course((int) $data['courseid']);
-        if (!\tool_wizards\local\module_creator::is_available($course, $this->_customdata['modname'])) {
+        $modname = $this->_customdata['modname'];
+        if (str_starts_with($modname, 'content:')) {
+            if (!get_fast_modinfo($course)->get_instances_of(substr($modname, 8))) {
+                $errors['courseid'] = get_string('tryit_noactivity', 'tool_wizards');
+            }
+        } else if (!\tool_wizards\local\module_creator::is_available($course, $modname)) {
             $errors['courseid'] = get_string('error_notavailable', 'tool_wizards');
         }
         return $errors;

@@ -34,7 +34,9 @@ The wizard is offered:
 ### First content
 
 On a new or nearly empty course, anyone who can add content there sees a card: "What would
-you like to add first?" Each option opens a mini-wizard in a pop-up.
+you like to add first?" Each option opens a mini-wizard in a pop-up. The card shows the first
+eight wizards; "More kinds of content" shows the rest. Every core activity and resource has a
+wizard. The external tool wizard is offered only where the site or course has a tool set up.
 
 A mini-wizard asks a few questions at a time, one theme per screen. The first screen asks the
 essentials: a name and, for most kinds, **what it is for**, shown as picture cards. That answer
@@ -51,6 +53,22 @@ remaining screens already hold.
 | A forum | Class discussion / Ask me questions / Answer before you see others / One discussion / Everyone posts once / Class blog | emails, deadline, grading, keeping discussions manageable |
 | A glossary | Course vocabulary / Students build it together / Class FAQ / Collect useful links | approval, look, comments and repeated terms, automatic linking, grading |
 | A quiz | Practice / Graded test / Pre-test / Homework | timing, tries, feedback, what students see afterwards, pass mark, layout, first question |
+| An assignment | A file, such as an essay / Text written in Moodle / Work done outside Moodle / A group project | how work is handed in, dates, drafts and retries, marking, feedback, group work |
+| A link | Read an article or web page / Watch a video / Use a website or tool | a note for students |
+| A folder | Files on their own page / Files right on the course page | download button and how files open |
+| A book | Course reading / Handbook / Collection of readings | chapter numbering, custom chapter headings |
+| A choice | A class vote / A sign-up list / A quick check / Pick all that apply | answering, places, results, timing |
+| A feedback survey | Course evaluation / Class opinion poll / Collecting information / Regular check-in | names, answering again, results, timing |
+| A database | Shared collection / Share, then see others / Checked by you first / One entry each | approval, how many entries, open dates, comments and ratings |
+| A wiki | Whole class together / Each group together / Each student alone | way of writing (editor or wiki markup) |
+| A lesson | Tutorial / Choose your own path / Graded lesson | practice or graded, retakes, wrong answers, progress and page list, timing |
+| A workshop | Feedback on each other's writing / Marking each other's projects / Reviewing classmates and themselves | what is handed in, how students review, marks, handing-in dates, review dates |
+| An H5P activity | Practice / For a grade / Something to explore | tries and looking back, buttons under the activity |
+| A SCORM package | A lesson to work through / A graded test | where it opens, tries, timing |
+| A content package | (one screen: the package and a name) | shared screens only |
+| An external tool | (one screen: one of the tools set up for the site or course, and a name) | shared screens only |
+| A video meeting (BigBlueButton) | Live class with recordings / Live class only / Recordings only | waiting for a teacher and recording, opening times |
+| A subsection | (one screen: a name) | visibility only |
 
 After the activity's own screens come the shared ones, each shown only where it can matter:
 visibility, groups (when the course has groups and does not force a group mode), and completion
@@ -85,6 +103,28 @@ If [Teacher scaffold](https://github.com/adamjenkins/moodle-tool_teacherscaffold
 their next course page, for example "Nice work! You've unlocked new activities: Quiz, Choice,
 Feedback." The message has a button that opens the matching mini-wizard. Wizards does not
 need Teacher scaffold, and works the same without it.
+
+## In-activity wizards
+
+These wizards add content to an activity that already exists, one item at a time, with
+**"Add another"** after each save. Teachers find them as **"Add with a wizard"** (with the wand
+icon) on the activity's own pages, and as buttons on the course page straight after an activity
+wizard has added the activity.
+
+| Wizard | Where | Kinds |
+|---|---|---|
+| Add quiz questions | the quiz's Questions page and question bank | pick one answer, tick all right answers, true/false, short answer, number, match pairs, essay, description |
+| Add questions to the bank | a question bank's page | the same kinds |
+| Add lesson pages | the lesson's Edit page | content page with buttons, the six question kinds, end of a branch; where right and wrong answers lead |
+| Add chapters | the book | chapter or subchapter |
+| Add entries | the glossary | term, definition, other words, linking |
+| Add fields | the database's Fields page | text, long text, number, date, menu, radio buttons, checkboxes, URL, picture, file |
+| Add feedback questions | the feedback's Questions page | multiple choice, short text, longer text, number, information |
+| Add options | the choice | one more option, with its limit |
+| Build the assessment form | the workshop | one criterion at a time, for the workshop's grading strategy |
+| Give out reviews | the workshop | random allocation in plain language |
+| Add example work | the workshop (when it uses examples) | an example submission |
+| Move to the next stage | the workshop | where the workshop is and what happens next |
 
 ## Managing wizards
 

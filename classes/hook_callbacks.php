@@ -53,6 +53,9 @@ class hook_callbacks {
             self::section_links($hook);
             return;
         }
+        if (self::content_link($hook)) {
+            return;
+        }
         if (!get_config('tool_wizards', 'entrylinks') || !self::is_page($page, self::ENTRY_LINK_PAGES)) {
             return;
         }
@@ -82,15 +85,7 @@ class hook_callbacks {
         }
         $wizards = [];
         foreach (local\wizard\repository::for_course($course) as $record) {
-            $doc = local\wizard\repository::definition($record);
-            $wizards[] = [
-                'key' => $record->wizardkey,
-                'title' => local\wizard\text::get($doc['title'] ?? $record->wizardkey),
-                'heading' => local\wizard\text::get($doc['heading'] ?? $doc['title'] ?? ''),
-                'description' => local\wizard\text::get($doc['description'] ?? ''),
-                'icon' => $page->get_renderer('core')->image_url('monologo', 'mod_' . $record->target)->out(false),
-                'purpose' => self::purpose($record->target),
-            ];
+            $wizards[] = self::list_item($page, $record, local\wizard\repository::definition($record));
         }
         if (!$wizards) {
             return;
@@ -103,6 +98,64 @@ class hook_callbacks {
             'data-choose' => get_string('choosewizard', 'tool_wizards'),
         ]));
         $page->requires->js_call_amd('tool_wizards/section_link', 'init', ['#tool_wizards-wizardlist']);
+    }
+
+    /**
+     * "Add with a wizard" on an activity's own pages where its in-activity wizards add content
+     * (the quiz's questions page, the lesson's edit page, ...).
+     *
+     * @param before_footer_html_generation $hook the hook
+     * @return bool whether this was such a page
+     */
+    protected static function content_link(before_footer_html_generation $hook): bool {
+        $page = $hook->renderer->get_page();
+        $cm = $page->cm;
+        // Read through the page's magic getter: empty() on it would always be true (moodle_page has no __isset()).
+        $pagetype = (string) $page->pagetype;
+        if (!$cm instanceof \cm_info || $pagetype === '') {
+            return false;
+        }
+        $wizards = [];
+        foreach (local\wizard\repository::for_cm($cm) as $record) {
+            $doc = local\wizard\repository::definition($record);
+            $handler = local\content_creator::handler($doc);
+            if (!in_array($pagetype, $handler::pagetypes(), true)) {
+                continue;
+            }
+            $wizards[] = self::list_item($page, $record, $doc);
+        }
+        if (!$wizards) {
+            return false;
+        }
+        $list = $hook->renderer->render_from_template('tool_wizards/wizard_list', ['wizards' => $wizards]);
+        $hook->add_html(\html_writer::tag('template', $list, [
+            'id' => 'tool_wizards-contentlist',
+            'data-cmid' => (int) $cm->id,
+            'data-label' => get_string('addwithwizard', 'tool_wizards'),
+            'data-choose' => get_string('choosewizard', 'tool_wizards'),
+        ]));
+        $page->requires->js_call_amd('tool_wizards/content_link', 'init', ['#tool_wizards-contentlist']);
+        return true;
+    }
+
+    /**
+     * One wizard in a list of wizards to choose from.
+     *
+     * @param \moodle_page $page the page
+     * @param \stdClass $record the wizard
+     * @param array $doc its definition
+     * @return array
+     */
+    public static function list_item(\moodle_page $page, \stdClass $record, array $doc): array {
+        $modname = local\wizard\repository::modname_of($record);
+        return [
+            'key' => $record->wizardkey,
+            'title' => local\wizard\text::get($doc['title'] ?? $record->wizardkey),
+            'heading' => local\wizard\text::get($doc['heading'] ?? $doc['title'] ?? ''),
+            'description' => local\wizard\text::get($doc['description'] ?? ''),
+            'icon' => $page->get_renderer('core')->image_url('monologo', 'mod_' . $modname)->out(false),
+            'purpose' => self::purpose($modname),
+        ];
     }
 
     /**
@@ -126,6 +179,10 @@ class hook_callbacks {
             return;
         }
         $record = local\wizard\repository::get_by_key($key);
+        if ($record && local\wizard\repository::is_content($record)) {
+            self::try_content_wizard($page, $record);
+            return;
+        }
         if (
             !$record || $record->target === 'course'
                 || !\tool_wizards\local\module_creator::is_available($page->course, $record->target)
@@ -140,6 +197,30 @@ class hook_callbacks {
                 . local\wizard\text::get($doc['heading'] ?? $doc['title'] ?? ''),
             'preview' => true,
         ]]);
+    }
+
+    /**
+     * "Try it" for an in-activity wizard: open it in preview on the course's first activity it can be used on.
+     *
+     * @param \moodle_page $page the course page
+     * @param \stdClass $record the wizard
+     */
+    protected static function try_content_wizard(\moodle_page $page, \stdClass $record): void {
+        $doc = local\wizard\repository::definition($record);
+        foreach (get_fast_modinfo($page->course)->get_instances_of(local\wizard\repository::modname_of($record)) as $cm) {
+            if ($cm->deletioninprogress || !local\content_creator::may_use($doc, $cm)) {
+                continue;
+            }
+            $page->requires->js_call_amd('tool_wizards/open_wizard', 'openContentWizard', [[
+                'cmid' => (int) $cm->id,
+                'wizard' => $record->wizardkey,
+                'title' => get_string('preview_title', 'tool_wizards') . ': '
+                    . local\wizard\text::get($doc['heading'] ?? $doc['title'] ?? ''),
+                'preview' => true,
+            ]]);
+            return;
+        }
+        \core\notification::warning(get_string('tryit_noactivity', 'tool_wizards'));
     }
 
     /**

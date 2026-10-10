@@ -1,0 +1,437 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "workshopphase",
+    "defaultversion": 1,
+    "target": {
+        "type": "content",
+        "modname": "workshop",
+        "content": "tool_wizards/workshop_phase"
+    },
+    "title": {
+        "string": "type_workshopphase"
+    },
+    "heading": {
+        "string": "type_workshopphase_title"
+    },
+    "description": {
+        "string": "type_workshopphase_desc"
+    },
+    "screens": [
+        {
+            "key": "now",
+            "title": {
+                "string": "workshopphase_step_now"
+            },
+            "question": {
+                "string": "workshopphase_step_now_q"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopphase_now_10"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "phase",
+                            "value": 10
+                        }
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopphase_now_20"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "phase",
+                            "value": 20
+                        }
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopphase_now_30"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "phase",
+                            "value": 30
+                        }
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopphase_now_40"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "phase",
+                            "value": 40
+                        }
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopphase_now_50"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "phase",
+                            "value": 50
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "key": "next",
+            "title": {
+                "string": "workshopphase_step_next"
+            },
+            "question": {
+                "string": "workshopphase_step_next_q"
+            },
+            "items": [
+                {
+                    "key": "move10",
+                    "kind": "cards",
+                    "label": {
+                        "string": "workshopphase_move"
+                    },
+                    "required": true,
+                    "default": 20,
+                    "when": {
+                        "offered": {
+                            "field": "phase",
+                            "value": 10
+                        }
+                    },
+                    "choices": [
+                        {
+                            "value": 20,
+                            "title": {
+                                "string": "workshopphase_to_20"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_20_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_submission"
+                        },
+                        {
+                            "value": 30,
+                            "title": {
+                                "string": "workshopphase_to_30"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_30_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_assessment"
+                        },
+                        {
+                            "value": 40,
+                            "title": {
+                                "string": "workshopphase_to_40"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_40_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_evaluation"
+                        },
+                        {
+                            "value": 50,
+                            "title": {
+                                "string": "workshopphase_to_50"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_50_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_closed"
+                        }
+                    ],
+                    "sets": {
+                        "field": "phase"
+                    }
+                },
+                {
+                    "key": "move20",
+                    "kind": "cards",
+                    "label": {
+                        "string": "workshopphase_move"
+                    },
+                    "required": true,
+                    "default": 30,
+                    "when": {
+                        "offered": {
+                            "field": "phase",
+                            "value": 20
+                        }
+                    },
+                    "choices": [
+                        {
+                            "value": 10,
+                            "title": {
+                                "string": "workshopphase_to_10"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_10_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_setup"
+                        },
+                        {
+                            "value": 30,
+                            "title": {
+                                "string": "workshopphase_to_30"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_30_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_assessment"
+                        },
+                        {
+                            "value": 40,
+                            "title": {
+                                "string": "workshopphase_to_40"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_40_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_evaluation"
+                        },
+                        {
+                            "value": 50,
+                            "title": {
+                                "string": "workshopphase_to_50"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_50_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_closed"
+                        }
+                    ],
+                    "sets": {
+                        "field": "phase"
+                    }
+                },
+                {
+                    "key": "move30",
+                    "kind": "cards",
+                    "label": {
+                        "string": "workshopphase_move"
+                    },
+                    "required": true,
+                    "default": 40,
+                    "when": {
+                        "offered": {
+                            "field": "phase",
+                            "value": 30
+                        }
+                    },
+                    "choices": [
+                        {
+                            "value": 10,
+                            "title": {
+                                "string": "workshopphase_to_10"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_10_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_setup"
+                        },
+                        {
+                            "value": 20,
+                            "title": {
+                                "string": "workshopphase_to_20"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_20_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_submission"
+                        },
+                        {
+                            "value": 40,
+                            "title": {
+                                "string": "workshopphase_to_40"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_40_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_evaluation"
+                        },
+                        {
+                            "value": 50,
+                            "title": {
+                                "string": "workshopphase_to_50"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_50_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_closed"
+                        }
+                    ],
+                    "sets": {
+                        "field": "phase"
+                    }
+                },
+                {
+                    "key": "move40",
+                    "kind": "cards",
+                    "label": {
+                        "string": "workshopphase_move"
+                    },
+                    "required": true,
+                    "default": 50,
+                    "when": {
+                        "offered": {
+                            "field": "phase",
+                            "value": 40
+                        }
+                    },
+                    "choices": [
+                        {
+                            "value": 10,
+                            "title": {
+                                "string": "workshopphase_to_10"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_10_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_setup"
+                        },
+                        {
+                            "value": 20,
+                            "title": {
+                                "string": "workshopphase_to_20"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_20_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_submission"
+                        },
+                        {
+                            "value": 30,
+                            "title": {
+                                "string": "workshopphase_to_30"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_30_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_assessment"
+                        },
+                        {
+                            "value": 50,
+                            "title": {
+                                "string": "workshopphase_to_50"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_50_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_closed"
+                        }
+                    ],
+                    "sets": {
+                        "field": "phase"
+                    }
+                },
+                {
+                    "key": "move50",
+                    "kind": "cards",
+                    "label": {
+                        "string": "workshopphase_move"
+                    },
+                    "required": true,
+                    "default": 40,
+                    "when": {
+                        "offered": {
+                            "field": "phase",
+                            "value": 50
+                        }
+                    },
+                    "choices": [
+                        {
+                            "value": 10,
+                            "title": {
+                                "string": "workshopphase_to_10"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_10_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_setup"
+                        },
+                        {
+                            "value": 20,
+                            "title": {
+                                "string": "workshopphase_to_20"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_20_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_submission"
+                        },
+                        {
+                            "value": 30,
+                            "title": {
+                                "string": "workshopphase_to_30"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_30_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_assessment"
+                        },
+                        {
+                            "value": 40,
+                            "title": {
+                                "string": "workshopphase_to_40"
+                            },
+                            "desc": {
+                                "string": "workshopphase_to_40_desc"
+                            },
+                            "picture": "pix:purpose/workshopphase_evaluation"
+                        }
+                    ],
+                    "sets": {
+                        "field": "phase"
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopphase_allocate_hint"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "phase",
+                            "value": 20
+                        }
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopphase_evaluation_hint"
+                    },
+                    "when": {
+                        "any": [
+                            {
+                                "offered": {
+                                    "field": "phase",
+                                    "value": 30
+                                }
+                            },
+                            {
+                                "offered": {
+                                    "field": "phase",
+                                    "value": 40
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

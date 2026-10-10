@@ -38,6 +38,9 @@ class prompt {
     /** @var int How many next suggestions to show after something is added. */
     const NEXT_SUGGESTIONS = 3;
 
+    /** @var int How many suggestions to show at first; the others wait behind "More kinds of content". */
+    const FIRST_SUGGESTIONS = 8;
+
     /**
      * Remember that the current user has just created this course with the wizard,
      * so its course page opens with "Your course is ready".

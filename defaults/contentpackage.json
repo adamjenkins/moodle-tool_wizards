@@ -1,0 +1,93 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "contentpackage",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "imscp"
+    },
+    "title": {
+        "string": "type_contentpackage"
+    },
+    "heading": {
+        "string": "type_contentpackage_title"
+    },
+    "description": {
+        "string": "type_contentpackage_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "contentpackage_intro"
+                    }
+                },
+                {
+                    "key": "package",
+                    "kind": "file",
+                    "label": {
+                        "string": "contentpackage_package"
+                    },
+                    "help": {
+                        "string": "contentpackage_package_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_nofile"
+                    },
+                    "accept": [
+                        ".zip",
+                        ".imscc"
+                    ],
+                    "sets": {
+                        "field": "package",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "file_name"
+                    },
+                    "help": {
+                        "string": "file_name_hint"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name",
+                        "emptyfrom": {
+                            "filename": "package"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "contentpackage_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

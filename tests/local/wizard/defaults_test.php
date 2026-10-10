@@ -35,7 +35,7 @@ final class defaults_test extends advanced_testcase {
     public function test_installed(): void {
         $this->resetAfterTest();
         $keys = array_values(array_map(fn($r) => $r->wizardkey, repository::all()));
-        $this->assertSame(['course', 'file', 'slides', 'picture', 'page', 'forum', 'glossary', 'quiz'], $keys);
+        $this->assertSame(array_keys(defaults::shipped()), $keys);
         foreach (repository::all() as $record) {
             $this->assertEquals(repository::STATUS_ENABLED, $record->status, $record->wizardkey);
             $this->assertSame(repository::ORIGIN_DEFAULT, $record->origin);

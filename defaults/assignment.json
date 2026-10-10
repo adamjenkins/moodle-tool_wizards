@@ -1,0 +1,815 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "assignment",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "assign"
+    },
+    "title": {
+        "string": "type_assignment"
+    },
+    "heading": {
+        "string": "type_assignment_title"
+    },
+    "description": {
+        "string": "type_assignment_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "assignment_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "assignment_name"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "description",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "assignment_description"
+                    },
+                    "sets": {
+                        "field": "introeditor",
+                        "as": "editor"
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "assignment_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "essay",
+                            "title": {
+                                "string": "assignment_purpose_essay"
+                            },
+                            "desc": {
+                                "string": "assignment_purpose_essay_desc"
+                            },
+                            "picture": "pix:purpose/assignment_essay",
+                            "preset": {
+                                "submittype": "file",
+                                "maxfiles": 3,
+                                "submissiondrafts": 0,
+                                "attempts": "once",
+                                "gradingchoice": "points",
+                                "blindmarking": 0,
+                                "feedbackstyle": "files",
+                                "teamsubmission": 0,
+                                "completion": "submit"
+                            }
+                        },
+                        {
+                            "value": "online",
+                            "title": {
+                                "string": "assignment_purpose_online"
+                            },
+                            "desc": {
+                                "string": "assignment_purpose_online_desc"
+                            },
+                            "picture": "pix:purpose/assignment_online",
+                            "preset": {
+                                "submittype": "text",
+                                "submissiondrafts": 0,
+                                "attempts": "once",
+                                "gradingchoice": "points",
+                                "blindmarking": 0,
+                                "feedbackstyle": "comments",
+                                "teamsubmission": 0,
+                                "completion": "submit"
+                            }
+                        },
+                        {
+                            "value": "paper",
+                            "title": {
+                                "string": "assignment_purpose_paper"
+                            },
+                            "desc": {
+                                "string": "assignment_purpose_paper_desc"
+                            },
+                            "picture": "pix:purpose/assignment_paper",
+                            "preset": {
+                                "submittype": "none",
+                                "submissiondrafts": 0,
+                                "attempts": "once",
+                                "gradingchoice": "points",
+                                "blindmarking": 0,
+                                "feedbackstyle": "comments",
+                                "teamsubmission": 0,
+                                "completion": "graded"
+                            }
+                        },
+                        {
+                            "value": "group",
+                            "title": {
+                                "string": "assignment_purpose_group"
+                            },
+                            "desc": {
+                                "string": "assignment_purpose_group_desc"
+                            },
+                            "picture": "pix:purpose/assignment_group",
+                            "when": {
+                                "course": "hasgroups"
+                            },
+                            "preset": {
+                                "submittype": "file",
+                                "maxfiles": 5,
+                                "submissiondrafts": 0,
+                                "attempts": "once",
+                                "gradingchoice": "points",
+                                "blindmarking": 0,
+                                "feedbackstyle": "files",
+                                "teamsubmission": 1,
+                                "completion": "submit"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "submission",
+            "title": {
+                "string": "assignment_step_submission"
+            },
+            "question": {
+                "string": "assignment_step_submission_q"
+            },
+            "items": [
+                {
+                    "key": "submittype",
+                    "kind": "choice",
+                    "label": {
+                        "string": "assignment_submittype"
+                    },
+                    "default": "file",
+                    "choices": [
+                        {
+                            "value": "file",
+                            "title": {
+                                "string": "assignment_submittype_file"
+                            },
+                            "desc": {
+                                "string": "assignment_submittype_file_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "assignsubmission_file_enabled",
+                                    "value": 1
+                                }
+                            },
+                            "sets": {
+                                "assignsubmission_file_enabled": 1,
+                                "assignsubmission_onlinetext_enabled": 0
+                            }
+                        },
+                        {
+                            "value": "text",
+                            "title": {
+                                "string": "assignment_submittype_text"
+                            },
+                            "desc": {
+                                "string": "assignment_submittype_text_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "assignsubmission_onlinetext_enabled",
+                                    "value": 1
+                                }
+                            },
+                            "sets": {
+                                "assignsubmission_file_enabled": 0,
+                                "assignsubmission_onlinetext_enabled": 1
+                            }
+                        },
+                        {
+                            "value": "both",
+                            "title": {
+                                "string": "assignment_submittype_both"
+                            },
+                            "desc": {
+                                "string": "assignment_submittype_both_desc"
+                            },
+                            "when": {
+                                "all": [
+                                    {
+                                        "offered": {
+                                            "field": "assignsubmission_file_enabled",
+                                            "value": 1
+                                        }
+                                    },
+                                    {
+                                        "offered": {
+                                            "field": "assignsubmission_onlinetext_enabled",
+                                            "value": 1
+                                        }
+                                    }
+                                ]
+                            },
+                            "sets": {
+                                "assignsubmission_file_enabled": 1,
+                                "assignsubmission_onlinetext_enabled": 1
+                            }
+                        },
+                        {
+                            "value": "none",
+                            "title": {
+                                "string": "assignment_submittype_none"
+                            },
+                            "desc": {
+                                "string": "assignment_submittype_none_desc"
+                            },
+                            "sets": {
+                                "assignsubmission_file_enabled": 0,
+                                "assignsubmission_onlinetext_enabled": 0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "maxfiles",
+                    "kind": "select",
+                    "label": {
+                        "string": "assignment_maxfiles"
+                    },
+                    "help": {
+                        "string": "assignment_maxfiles_hint"
+                    },
+                    "default": "config:assignsubmission_file/maxfiles",
+                    "when": {
+                        "answer": "submittype",
+                        "in": [
+                            "file",
+                            "both"
+                        ]
+                    },
+                    "sets": {
+                        "field": "assignsubmission_file_maxfiles"
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": "1",
+                            "when": {
+                                "offered": {
+                                    "field": "assignsubmission_file_maxfiles",
+                                    "value": 1
+                                }
+                            }
+                        },
+                        {
+                            "value": 2,
+                            "title": "2",
+                            "when": {
+                                "offered": {
+                                    "field": "assignsubmission_file_maxfiles",
+                                    "value": 2
+                                }
+                            }
+                        },
+                        {
+                            "value": 3,
+                            "title": "3",
+                            "when": {
+                                "offered": {
+                                    "field": "assignsubmission_file_maxfiles",
+                                    "value": 3
+                                }
+                            }
+                        },
+                        {
+                            "value": 5,
+                            "title": "5",
+                            "when": {
+                                "offered": {
+                                    "field": "assignsubmission_file_maxfiles",
+                                    "value": 5
+                                }
+                            }
+                        },
+                        {
+                            "value": 10,
+                            "title": "10",
+                            "when": {
+                                "offered": {
+                                    "field": "assignsubmission_file_maxfiles",
+                                    "value": 10
+                                }
+                            }
+                        },
+                        {
+                            "value": 20,
+                            "title": "20",
+                            "when": {
+                                "offered": {
+                                    "field": "assignsubmission_file_maxfiles",
+                                    "value": 20
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "dates",
+            "title": {
+                "string": "assignment_step_dates"
+            },
+            "question": {
+                "string": "assignment_step_dates_q"
+            },
+            "items": [
+                {
+                    "key": "allowfrom",
+                    "kind": "date",
+                    "label": {
+                        "string": "assignment_allowfrom"
+                    },
+                    "help": {
+                        "string": "assignment_allowfrom_hint"
+                    },
+                    "sets": {
+                        "field": "allowsubmissionsfromdate"
+                    }
+                },
+                {
+                    "key": "duedate",
+                    "kind": "date",
+                    "label": {
+                        "string": "assignment_duedate"
+                    },
+                    "help": {
+                        "string": "assignment_duedate_hint"
+                    },
+                    "sets": {
+                        "field": "duedate"
+                    }
+                },
+                {
+                    "key": "cutoffdate",
+                    "kind": "date",
+                    "label": {
+                        "string": "assignment_cutoffdate"
+                    },
+                    "help": {
+                        "string": "assignment_cutoffdate_hint"
+                    },
+                    "sets": {
+                        "field": "cutoffdate"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "drafts",
+            "title": {
+                "string": "assignment_step_drafts"
+            },
+            "question": {
+                "string": "assignment_step_drafts_q"
+            },
+            "items": [
+                {
+                    "key": "submissiondrafts",
+                    "kind": "choice",
+                    "label": {
+                        "string": "assignment_drafts"
+                    },
+                    "default": "config:assign/submissiondrafts",
+                    "sets": {
+                        "field": "submissiondrafts",
+                        "as": "int"
+                    },
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "assignment_drafts_no"
+                            },
+                            "desc": {
+                                "string": "assignment_drafts_no_desc"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "assignment_drafts_yes"
+                            },
+                            "desc": {
+                                "string": "assignment_drafts_yes_desc"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "attempts",
+                    "kind": "choice",
+                    "label": {
+                        "string": "assignment_attempts"
+                    },
+                    "default": "once",
+                    "choices": [
+                        {
+                            "value": "once",
+                            "title": {
+                                "string": "assignment_attempts_once"
+                            },
+                            "desc": {
+                                "string": "assignment_attempts_once_desc"
+                            },
+                            "sets": {
+                                "maxattempts": 1
+                            }
+                        },
+                        {
+                            "value": "manual",
+                            "title": {
+                                "string": "assignment_attempts_manual"
+                            },
+                            "desc": {
+                                "string": "assignment_attempts_manual_desc"
+                            },
+                            "sets": {
+                                "maxattempts": -1,
+                                "attemptreopenmethod": "manual"
+                            }
+                        },
+                        {
+                            "value": "automatic",
+                            "title": {
+                                "string": "assignment_attempts_automatic"
+                            },
+                            "desc": {
+                                "string": "assignment_attempts_automatic_desc"
+                            },
+                            "sets": {
+                                "maxattempts": -1,
+                                "attemptreopenmethod": "automatic"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "grading",
+            "title": {
+                "string": "assignment_step_grading"
+            },
+            "question": {
+                "string": "assignment_step_grading_q"
+            },
+            "items": [
+                {
+                    "key": "gradingchoice",
+                    "kind": "choice",
+                    "label": {
+                        "string": "assignment_grading"
+                    },
+                    "default": "points",
+                    "choices": [
+                        {
+                            "value": "points",
+                            "title": {
+                                "string": "assignment_grading_points"
+                            },
+                            "desc": {
+                                "string": "assignment_grading_points_desc"
+                            },
+                            "sets": {
+                                "grade": {
+                                    "modgrade_type": "point",
+                                    "modgrade_point": "{answer:maxgrade}"
+                                }
+                            }
+                        },
+                        {
+                            "value": "none",
+                            "title": {
+                                "string": "assignment_grading_none"
+                            },
+                            "desc": {
+                                "string": "assignment_grading_none_desc"
+                            },
+                            "sets": {
+                                "grade": {
+                                    "modgrade_type": "none"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "maxgrade",
+                    "kind": "number",
+                    "label": {
+                        "string": "maxgrade"
+                    },
+                    "default": "config:core/gradepointdefault",
+                    "min": 1,
+                    "max": 100,
+                    "required": {
+                        "answer": "gradingchoice",
+                        "is": "points"
+                    },
+                    "when": {
+                        "answer": "gradingchoice",
+                        "is": "points"
+                    }
+                },
+                {
+                    "key": "blindmarking",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "assignment_blindmarking"
+                    },
+                    "text": {
+                        "string": "assignment_blindmarking_label"
+                    },
+                    "help": {
+                        "string": "assignment_blindmarking_hint"
+                    },
+                    "default": "config:assign/blindmarking",
+                    "sets": {
+                        "field": "blindmarking",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "feedback",
+            "title": {
+                "string": "assignment_step_feedback"
+            },
+            "question": {
+                "string": "assignment_step_feedback_q"
+            },
+            "items": [
+                {
+                    "key": "feedbackstyle",
+                    "kind": "choice",
+                    "label": {
+                        "string": "assignment_feedback"
+                    },
+                    "default": "comments",
+                    "choices": [
+                        {
+                            "value": "comments",
+                            "title": {
+                                "string": "assignment_feedback_comments"
+                            },
+                            "desc": {
+                                "string": "assignment_feedback_comments_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "assignfeedback_comments_enabled",
+                                    "value": 1
+                                }
+                            },
+                            "sets": {
+                                "assignfeedback_comments_enabled": 1,
+                                "assignfeedback_file_enabled": 0
+                            }
+                        },
+                        {
+                            "value": "files",
+                            "title": {
+                                "string": "assignment_feedback_files"
+                            },
+                            "desc": {
+                                "string": "assignment_feedback_files_desc"
+                            },
+                            "when": {
+                                "all": [
+                                    {
+                                        "offered": {
+                                            "field": "assignfeedback_comments_enabled",
+                                            "value": 1
+                                        }
+                                    },
+                                    {
+                                        "offered": {
+                                            "field": "assignfeedback_file_enabled",
+                                            "value": 1
+                                        }
+                                    }
+                                ]
+                            },
+                            "sets": {
+                                "assignfeedback_comments_enabled": 1,
+                                "assignfeedback_file_enabled": 1
+                            }
+                        },
+                        {
+                            "value": "none",
+                            "title": {
+                                "string": "assignment_feedback_none"
+                            },
+                            "desc": {
+                                "string": "assignment_feedback_none_desc"
+                            },
+                            "when": {
+                                "answer": "gradingchoice",
+                                "is": "points"
+                            },
+                            "sets": {
+                                "assignfeedback_comments_enabled": 0,
+                                "assignfeedback_file_enabled": 0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "notify",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "assignment_notify"
+                    },
+                    "text": {
+                        "string": "assignment_notify_label"
+                    },
+                    "default": "config:assign/sendstudentnotifications",
+                    "sets": {
+                        "field": "sendstudentnotifications",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "gradingduedate",
+                    "kind": "date",
+                    "label": {
+                        "string": "assignment_gradingduedate"
+                    },
+                    "help": {
+                        "string": "assignment_gradingduedate_hint"
+                    },
+                    "sets": {
+                        "field": "gradingduedate"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "group",
+            "title": {
+                "string": "assignment_step_group"
+            },
+            "question": {
+                "string": "assignment_step_group_q"
+            },
+            "items": [
+                {
+                    "key": "teamsubmission",
+                    "kind": "choice",
+                    "label": {
+                        "string": "assignment_team"
+                    },
+                    "default": "config:assign/teamsubmission",
+                    "sets": {
+                        "field": "teamsubmission",
+                        "as": "int"
+                    },
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "assignment_team_no"
+                            },
+                            "desc": {
+                                "string": "assignment_team_no_desc"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "assignment_team_yes"
+                            },
+                            "desc": {
+                                "string": "assignment_team_yes_desc"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "allsubmit",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "assignment_allsubmit"
+                    },
+                    "text": {
+                        "string": "assignment_allsubmit_label"
+                    },
+                    "default": "config:assign/requireallteammemberssubmit",
+                    "when": {
+                        "all": [
+                            {
+                                "answer": "teamsubmission",
+                                "is": 1
+                            },
+                            {
+                                "answer": "submissiondrafts",
+                                "is": 1
+                            }
+                        ]
+                    },
+                    "sets": {
+                        "field": "requireallteammemberssubmit",
+                        "as": "int"
+                    }
+                }
+            ],
+            "when": {
+                "course": "hasgroups"
+            }
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "submit",
+                    "title": {
+                        "string": "assignment_completion_submit"
+                    },
+                    "desc": {
+                        "string": "assignment_completion_submit_desc"
+                    },
+                    "when": {
+                        "answer": "submittype",
+                        "not": "none"
+                    },
+                    "sets": {
+                        "completionsubmit": 1,
+                        "completionview": 0,
+                        "completionusegrade": 0
+                    }
+                },
+                {
+                    "value": "graded",
+                    "title": {
+                        "string": "assignment_completion_graded"
+                    },
+                    "desc": {
+                        "string": "assignment_completion_graded_desc"
+                    },
+                    "when": {
+                        "answer": "gradingchoice",
+                        "is": "points"
+                    },
+                    "sets": {
+                        "completionsubmit": 0,
+                        "completionview": 0,
+                        "completionusegrade": 1,
+                        "completionpassgrade": 0
+                    }
+                },
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "assignment_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1,
+                        "completionsubmit": 0,
+                        "completionusegrade": 0
+                    }
+                }
+            ]
+        }
+    ]
+}

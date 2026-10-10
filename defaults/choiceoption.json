@@ -1,0 +1,70 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "choiceoption",
+    "defaultversion": 1,
+    "target": {
+        "type": "content",
+        "modname": "choice",
+        "content": "tool_wizards/choice_option"
+    },
+    "title": {
+        "string": "type_choiceoption"
+    },
+    "heading": {
+        "string": "type_choiceoption_title"
+    },
+    "description": {
+        "string": "type_choiceoption_desc"
+    },
+    "screens": [
+        {
+            "key": "option",
+            "title": {
+                "string": "choiceoption_step_option"
+            },
+            "question": {
+                "string": "choiceoption_step_option_q"
+            },
+            "items": [
+                {
+                    "key": "text",
+                    "kind": "text",
+                    "label": {
+                        "string": "choiceoption_text"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "choiceoption_error_text"
+                    },
+                    "sets": {
+                        "field": "text"
+                    }
+                },
+                {
+                    "key": "limit",
+                    "kind": "number",
+                    "label": {
+                        "string": "choiceoption_limit"
+                    },
+                    "help": {
+                        "string": "choiceoption_limit_help"
+                    },
+                    "min": 0,
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "choiceoption_error_limit"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "limitanswers",
+                            "value": 1
+                        }
+                    },
+                    "sets": {
+                        "field": "limit"
+                    }
+                }
+            ]
+        }
+    ]
+}

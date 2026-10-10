@@ -1,0 +1,349 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "feedback",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "feedback"
+    },
+    "title": {
+        "string": "type_feedback"
+    },
+    "heading": {
+        "string": "type_feedback_title"
+    },
+    "description": {
+        "string": "type_feedback_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "feedback_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "feedback_name"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "description",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "feedback_description"
+                    },
+                    "sets": {
+                        "field": "introeditor",
+                        "as": "editor"
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "feedback_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "evaluation",
+                            "title": {
+                                "string": "feedback_purpose_evaluation"
+                            },
+                            "desc": {
+                                "string": "feedback_purpose_evaluation_desc"
+                            },
+                            "picture": "pix:purpose/feedback_evaluation",
+                            "preset": {
+                                "anonymous": 1,
+                                "multiple_submit": 0,
+                                "publish_stats": 0,
+                                "completion": "submit"
+                            }
+                        },
+                        {
+                            "value": "opinion",
+                            "title": {
+                                "string": "feedback_purpose_opinion"
+                            },
+                            "desc": {
+                                "string": "feedback_purpose_opinion_desc"
+                            },
+                            "picture": "pix:purpose/feedback_opinion",
+                            "preset": {
+                                "anonymous": 1,
+                                "multiple_submit": 0,
+                                "publish_stats": 1,
+                                "completion": "submit"
+                            }
+                        },
+                        {
+                            "value": "collect",
+                            "title": {
+                                "string": "feedback_purpose_collect"
+                            },
+                            "desc": {
+                                "string": "feedback_purpose_collect_desc"
+                            },
+                            "picture": "pix:purpose/feedback_collect",
+                            "preset": {
+                                "anonymous": 2,
+                                "multiple_submit": 1,
+                                "publish_stats": 0,
+                                "completion": "submit"
+                            }
+                        },
+                        {
+                            "value": "checkin",
+                            "title": {
+                                "string": "feedback_purpose_checkin"
+                            },
+                            "desc": {
+                                "string": "feedback_purpose_checkin_desc"
+                            },
+                            "picture": "pix:purpose/feedback_checkin",
+                            "preset": {
+                                "anonymous": 1,
+                                "multiple_submit": 1,
+                                "publish_stats": 0,
+                                "completion": "default"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "names",
+            "title": {
+                "string": "feedback_step_names"
+            },
+            "question": {
+                "string": "feedback_step_names_q"
+            },
+            "items": [
+                {
+                    "key": "anonymous",
+                    "kind": "choice",
+                    "label": {
+                        "string": "feedback_anonymous"
+                    },
+                    "default": 1,
+                    "sets": {
+                        "field": "anonymous"
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "feedback_anonymous_yes"
+                            },
+                            "desc": {
+                                "string": "feedback_anonymous_yes_desc"
+                            }
+                        },
+                        {
+                            "value": 2,
+                            "title": {
+                                "string": "feedback_anonymous_no"
+                            },
+                            "desc": {
+                                "string": "feedback_anonymous_no_desc"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "repeat",
+            "title": {
+                "string": "feedback_step_repeat"
+            },
+            "question": {
+                "string": "feedback_step_repeat_q"
+            },
+            "items": [
+                {
+                    "key": "multiple_submit",
+                    "kind": "choice",
+                    "label": {
+                        "string": "feedback_multiple"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "multiple_submit"
+                    },
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "feedback_multiple_no"
+                            },
+                            "desc": {
+                                "string": "feedback_multiple_no_desc"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "feedback_multiple_yes"
+                            },
+                            "desc": {
+                                "string": "feedback_multiple_yes_desc"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "results",
+            "title": {
+                "string": "feedback_step_results"
+            },
+            "question": {
+                "string": "feedback_step_results_q"
+            },
+            "items": [
+                {
+                    "key": "publish_stats",
+                    "kind": "choice",
+                    "label": {
+                        "string": "feedback_publish"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "publish_stats"
+                    },
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "feedback_publish_no"
+                            },
+                            "desc": {
+                                "string": "feedback_publish_no_desc"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "feedback_publish_yes"
+                            },
+                            "desc": {
+                                "string": "feedback_publish_yes_desc"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "notify",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "feedback_notify"
+                    },
+                    "text": {
+                        "string": "feedback_notify_label"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "email_notification",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "timing",
+            "title": {
+                "string": "feedback_step_timing"
+            },
+            "question": {
+                "string": "feedback_step_timing_q"
+            },
+            "items": [
+                {
+                    "key": "timeopen",
+                    "kind": "date",
+                    "label": {
+                        "string": "feedback_timeopen"
+                    },
+                    "help": {
+                        "string": "feedback_timeopen_hint"
+                    },
+                    "sets": {
+                        "field": "timeopen"
+                    }
+                },
+                {
+                    "key": "timeclose",
+                    "kind": "date",
+                    "label": {
+                        "string": "feedback_timeclose"
+                    },
+                    "help": {
+                        "string": "feedback_timeclose_hint"
+                    },
+                    "sets": {
+                        "field": "timeclose"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "feedback_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1,
+                        "completionsubmit": 0
+                    }
+                },
+                {
+                    "value": "submit",
+                    "title": {
+                        "string": "feedback_completion_submit"
+                    },
+                    "desc": {
+                        "string": "feedback_completion_submit_desc"
+                    },
+                    "sets": {
+                        "completionview": 0,
+                        "completionsubmit": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

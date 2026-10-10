@@ -1,0 +1,94 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "workshopexample",
+    "defaultversion": 1,
+    "target": {
+        "type": "content",
+        "modname": "workshop",
+        "content": "tool_wizards/workshop_example"
+    },
+    "title": {
+        "string": "type_workshopexample"
+    },
+    "heading": {
+        "string": "type_workshopexample_title"
+    },
+    "description": {
+        "string": "type_workshopexample_desc"
+    },
+    "screens": [
+        {
+            "key": "example",
+            "title": {
+                "string": "workshopexample_step_example"
+            },
+            "question": {
+                "string": "workshopexample_step_example_q"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopexample_intro"
+                    }
+                },
+                {
+                    "key": "title",
+                    "kind": "text",
+                    "label": {
+                        "string": "workshopexample_title"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "title"
+                    }
+                },
+                {
+                    "key": "content",
+                    "kind": "editor",
+                    "label": {
+                        "string": "workshopexample_content"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "text",
+                            "value": 1
+                        }
+                    },
+                    "sets": {
+                        "field": "content"
+                    }
+                },
+                {
+                    "key": "attachment",
+                    "kind": "file",
+                    "label": {
+                        "string": "workshopexample_attachment"
+                    },
+                    "help": {
+                        "string": "workshopexample_attachment_help"
+                    },
+                    "accept": "*",
+                    "maxfiles": 1,
+                    "when": {
+                        "offered": {
+                            "field": "file",
+                            "value": 1
+                        }
+                    },
+                    "sets": {
+                        "field": "attachment",
+                        "as": "int"
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopexample_assess_hint"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,472 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "database",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "data"
+    },
+    "title": {
+        "string": "type_database"
+    },
+    "heading": {
+        "string": "type_database_title"
+    },
+    "description": {
+        "string": "type_database_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "database_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "database_name"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "description",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "database_description"
+                    },
+                    "sets": {
+                        "field": "introeditor",
+                        "as": "editor"
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "database_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "collection",
+                            "title": {
+                                "string": "database_purpose_collection"
+                            },
+                            "desc": {
+                                "string": "database_purpose_collection_desc"
+                            },
+                            "picture": "pix:purpose/database_collection",
+                            "preset": {
+                                "approval": 0,
+                                "comments": 1,
+                                "requiredentriestoview": 0,
+                                "maxentries": 0,
+                                "gradingchoice": "none",
+                                "completion": "entries1"
+                            }
+                        },
+                        {
+                            "value": "showcase",
+                            "title": {
+                                "string": "database_purpose_showcase"
+                            },
+                            "desc": {
+                                "string": "database_purpose_showcase_desc"
+                            },
+                            "picture": "pix:purpose/database_showcase",
+                            "preset": {
+                                "approval": 0,
+                                "comments": 1,
+                                "requiredentriestoview": 1,
+                                "maxentries": 0,
+                                "gradingchoice": "none",
+                                "completion": "entries1"
+                            }
+                        },
+                        {
+                            "value": "checked",
+                            "title": {
+                                "string": "database_purpose_checked"
+                            },
+                            "desc": {
+                                "string": "database_purpose_checked_desc"
+                            },
+                            "picture": "pix:purpose/database_checked",
+                            "preset": {
+                                "approval": 1,
+                                "manageapproved": 0,
+                                "comments": 0,
+                                "requiredentriestoview": 0,
+                                "maxentries": 0,
+                                "gradingchoice": "none",
+                                "completion": "entries1"
+                            }
+                        },
+                        {
+                            "value": "oneeach",
+                            "title": {
+                                "string": "database_purpose_oneeach"
+                            },
+                            "desc": {
+                                "string": "database_purpose_oneeach_desc"
+                            },
+                            "picture": "pix:purpose/database_oneeach",
+                            "preset": {
+                                "approval": 0,
+                                "comments": 0,
+                                "requiredentriestoview": 0,
+                                "maxentries": 1,
+                                "gradingchoice": "none",
+                                "completion": "entries1"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "database_fields_hint"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "approval",
+            "title": {
+                "string": "database_step_approval"
+            },
+            "question": {
+                "string": "database_step_approval_q"
+            },
+            "items": [
+                {
+                    "key": "approval",
+                    "kind": "choice",
+                    "label": {
+                        "string": "database_approval"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "approval",
+                        "as": "int"
+                    },
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "database_approval_auto"
+                            },
+                            "desc": {
+                                "string": "database_approval_auto_desc"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "database_approval_check"
+                            },
+                            "desc": {
+                                "string": "database_approval_check_desc"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "manageapproved",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "database_manageapproved"
+                    },
+                    "text": {
+                        "string": "database_manageapproved_label"
+                    },
+                    "default": 1,
+                    "sets": {
+                        "field": "manageapproved",
+                        "as": "int"
+                    },
+                    "when": {
+                        "answer": "approval",
+                        "is": 1
+                    }
+                }
+            ]
+        },
+        {
+            "key": "amount",
+            "title": {
+                "string": "database_step_amount"
+            },
+            "question": {
+                "string": "database_step_amount_q"
+            },
+            "items": [
+                {
+                    "key": "requiredentriestoview",
+                    "kind": "select",
+                    "label": {
+                        "string": "database_requiredentriestoview"
+                    },
+                    "help": {
+                        "string": "database_requiredentriestoview_help"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "requiredentriestoview",
+                        "as": "int"
+                    },
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "database_requiredentriestoview_none"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": "1"
+                        },
+                        {
+                            "value": 2,
+                            "title": "2"
+                        },
+                        {
+                            "value": 3,
+                            "title": "3"
+                        },
+                        {
+                            "value": 5,
+                            "title": "5"
+                        }
+                    ]
+                },
+                {
+                    "key": "maxentries",
+                    "kind": "select",
+                    "label": {
+                        "string": "database_maxentries"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "maxentries",
+                        "as": "int"
+                    },
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "database_maxentries_none"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": "1"
+                        },
+                        {
+                            "value": 2,
+                            "title": "2"
+                        },
+                        {
+                            "value": 3,
+                            "title": "3"
+                        },
+                        {
+                            "value": 5,
+                            "title": "5"
+                        },
+                        {
+                            "value": 10,
+                            "title": "10"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "dates",
+            "title": {
+                "string": "database_step_dates"
+            },
+            "question": {
+                "string": "database_step_dates_q"
+            },
+            "items": [
+                {
+                    "key": "timeavailablefrom",
+                    "kind": "date",
+                    "label": {
+                        "string": "database_timeavailablefrom"
+                    },
+                    "sets": {
+                        "field": "timeavailablefrom"
+                    }
+                },
+                {
+                    "key": "timeavailableto",
+                    "kind": "date",
+                    "label": {
+                        "string": "database_timeavailableto"
+                    },
+                    "help": {
+                        "string": "database_timeavailableto_hint"
+                    },
+                    "sets": {
+                        "field": "timeavailableto"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "feedback",
+            "title": {
+                "string": "database_step_feedback"
+            },
+            "question": {
+                "string": "database_step_feedback_q"
+            },
+            "items": [
+                {
+                    "key": "comments",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "database_comments"
+                    },
+                    "text": {
+                        "string": "database_comments_label"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "comments",
+                        "as": "int"
+                    },
+                    "when": {
+                        "site": "comments"
+                    }
+                },
+                {
+                    "key": "gradingchoice",
+                    "kind": "choice",
+                    "label": {
+                        "string": "database_grading"
+                    },
+                    "default": "none",
+                    "choices": [
+                        {
+                            "value": "none",
+                            "title": {
+                                "string": "database_grading_none"
+                            },
+                            "desc": {
+                                "string": "database_grading_none_desc"
+                            },
+                            "sets": {
+                                "assessed": 0
+                            }
+                        },
+                        {
+                            "value": "ratings",
+                            "title": {
+                                "string": "database_grading_ratings"
+                            },
+                            "desc": {
+                                "string": "database_grading_ratings_desc"
+                            },
+                            "sets": {
+                                "assessed": 1,
+                                "scale": {
+                                    "modgrade_type": "point",
+                                    "modgrade_point": "{answer:maxgrade}"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "maxgrade",
+                    "kind": "number",
+                    "label": {
+                        "string": "maxgrade"
+                    },
+                    "default": 10,
+                    "min": 1,
+                    "max": 100,
+                    "required": {
+                        "answer": "gradingchoice",
+                        "not": "none"
+                    },
+                    "when": {
+                        "answer": "gradingchoice",
+                        "not": "none"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "database_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1,
+                        "completionentriesenabled": 0
+                    }
+                },
+                {
+                    "value": "entries1",
+                    "title": {
+                        "string": "database_completion_entries1"
+                    },
+                    "desc": {
+                        "string": "database_completion_entries_desc"
+                    },
+                    "sets": {
+                        "completionentriesenabled": 1,
+                        "completionentries": 1,
+                        "completionview": 0
+                    }
+                },
+                {
+                    "value": "entries3",
+                    "title": {
+                        "string": "database_completion_entries3"
+                    },
+                    "desc": {
+                        "string": "database_completion_entries_desc"
+                    },
+                    "sets": {
+                        "completionentriesenabled": 1,
+                        "completionentries": 3,
+                        "completionview": 0
+                    }
+                }
+            ]
+        }
+    ]
+}

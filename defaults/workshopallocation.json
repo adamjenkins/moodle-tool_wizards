@@ -1,0 +1,202 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "workshopallocation",
+    "defaultversion": 1,
+    "target": {
+        "type": "content",
+        "modname": "workshop",
+        "content": "tool_wizards/workshop_allocation"
+    },
+    "title": {
+        "string": "type_workshopallocation"
+    },
+    "heading": {
+        "string": "type_workshopallocation_title"
+    },
+    "description": {
+        "string": "type_workshopallocation_desc"
+    },
+    "screens": [
+        {
+            "key": "reviews",
+            "title": {
+                "string": "workshopallocation_step_reviews"
+            },
+            "question": {
+                "string": "workshopallocation_step_reviews_q"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopallocation_intro"
+                    }
+                },
+                {
+                    "key": "numofreviews",
+                    "kind": "number",
+                    "label": {
+                        "string": "workshopallocation_numofreviews"
+                    },
+                    "required": true,
+                    "min": 1,
+                    "max": 100,
+                    "default": "config:workshopallocation_random/numofreviews",
+                    "sets": {
+                        "field": "numofreviews"
+                    }
+                },
+                {
+                    "key": "numper",
+                    "kind": "cards",
+                    "label": {
+                        "string": "workshopallocation_numper"
+                    },
+                    "required": true,
+                    "default": 1,
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "workshopallocation_numper_submission"
+                            },
+                            "desc": {
+                                "string": "workshopallocation_numper_submission_desc"
+                            },
+                            "picture": "pix:purpose/workshopallocation_submission"
+                        },
+                        {
+                            "value": 2,
+                            "title": {
+                                "string": "workshopallocation_numper_reviewer"
+                            },
+                            "desc": {
+                                "string": "workshopallocation_numper_reviewer_desc"
+                            },
+                            "picture": "pix:purpose/workshopallocation_reviewer"
+                        }
+                    ],
+                    "sets": {
+                        "field": "numper"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "who",
+            "title": {
+                "string": "workshopallocation_step_who"
+            },
+            "question": {
+                "string": "workshopallocation_step_who_q"
+            },
+            "items": [
+                {
+                    "key": "assesswosubmission",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "workshopallocation_assesswosubmission"
+                    },
+                    "text": {
+                        "string": "workshopallocation_assesswosubmission_text"
+                    },
+                    "help": {
+                        "string": "workshopallocation_assesswosubmission_help"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "assesswosubmission"
+                    }
+                },
+                {
+                    "key": "addselfassessment",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "workshopallocation_addselfassessment"
+                    },
+                    "text": {
+                        "string": "workshopallocation_addselfassessment_text"
+                    },
+                    "default": 0,
+                    "when": {
+                        "offered": {
+                            "field": "selfassessment",
+                            "value": 1
+                        }
+                    },
+                    "sets": {
+                        "field": "addselfassessment"
+                    }
+                },
+                {
+                    "key": "excludesamegroup",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "workshopallocation_excludesamegroup"
+                    },
+                    "text": {
+                        "string": "workshopallocation_excludesamegroup_text"
+                    },
+                    "default": 0,
+                    "when": {
+                        "offered": {
+                            "field": "visiblegroups",
+                            "value": 1
+                        }
+                    },
+                    "sets": {
+                        "field": "excludesamegroup"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "current",
+            "title": {
+                "string": "workshopallocation_step_current"
+            },
+            "question": {
+                "string": "workshopallocation_step_current_q"
+            },
+            "items": [
+                {
+                    "key": "removecurrent",
+                    "kind": "choice",
+                    "label": {
+                        "string": "workshopallocation_removecurrent"
+                    },
+                    "default": 0,
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "workshopallocation_removecurrent_keep"
+                            },
+                            "desc": {
+                                "string": "workshopallocation_removecurrent_keep_desc"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "workshopallocation_removecurrent_replace"
+                            },
+                            "desc": {
+                                "string": "workshopallocation_removecurrent_replace_desc"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "removecurrent"
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopallocation_again_hint"
+                    }
+                }
+            ]
+        }
+    ]
+}

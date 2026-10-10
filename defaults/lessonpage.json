@@ -1,0 +1,1011 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "lessonpage",
+    "defaultversion": 1,
+    "target": {
+        "type": "content",
+        "modname": "lesson",
+        "content": "tool_wizards/lesson_page"
+    },
+    "title": {
+        "string": "type_lessonpage"
+    },
+    "heading": {
+        "string": "type_lessonpage_title"
+    },
+    "description": {
+        "string": "type_lessonpage_desc"
+    },
+    "screens": [
+        {
+            "key": "kind",
+            "title": {
+                "string": "lessonpage_step_kind"
+            },
+            "question": {
+                "string": "lessonpage_step_kind_q"
+            },
+            "items": [
+                {
+                    "key": "kind",
+                    "kind": "cards",
+                    "label": {
+                        "string": "lessonpage_kind"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "lessonpage_kind_required"
+                    },
+                    "choices": [
+                        {
+                            "value": "content",
+                            "title": {
+                                "string": "lessonpage_kind_content"
+                            },
+                            "desc": {
+                                "string": "lessonpage_kind_content_desc"
+                            },
+                            "picture": "pix:purpose/lessonpage_content"
+                        },
+                        {
+                            "value": "multichoice",
+                            "title": {
+                                "string": "lessonpage_kind_multichoice"
+                            },
+                            "desc": {
+                                "string": "lessonpage_kind_multichoice_desc"
+                            },
+                            "picture": "pix:purpose/lessonpage_multichoice"
+                        },
+                        {
+                            "value": "truefalse",
+                            "title": {
+                                "string": "lessonpage_kind_truefalse"
+                            },
+                            "desc": {
+                                "string": "lessonpage_kind_truefalse_desc"
+                            },
+                            "picture": "pix:purpose/lessonpage_truefalse"
+                        },
+                        {
+                            "value": "shortanswer",
+                            "title": {
+                                "string": "lessonpage_kind_shortanswer"
+                            },
+                            "desc": {
+                                "string": "lessonpage_kind_shortanswer_desc"
+                            },
+                            "picture": "pix:purpose/lessonpage_shortanswer"
+                        },
+                        {
+                            "value": "numerical",
+                            "title": {
+                                "string": "lessonpage_kind_numerical"
+                            },
+                            "desc": {
+                                "string": "lessonpage_kind_numerical_desc"
+                            },
+                            "picture": "pix:purpose/lessonpage_numerical"
+                        },
+                        {
+                            "value": "matching",
+                            "title": {
+                                "string": "lessonpage_kind_matching"
+                            },
+                            "desc": {
+                                "string": "lessonpage_kind_matching_desc"
+                            },
+                            "picture": "pix:purpose/lessonpage_matching"
+                        },
+                        {
+                            "value": "essay",
+                            "title": {
+                                "string": "lessonpage_kind_essay"
+                            },
+                            "desc": {
+                                "string": "lessonpage_kind_essay_desc"
+                            },
+                            "picture": "pix:purpose/lessonpage_essay"
+                        },
+                        {
+                            "value": "endofbranch",
+                            "title": {
+                                "string": "lessonpage_kind_endofbranch"
+                            },
+                            "desc": {
+                                "string": "lessonpage_kind_endofbranch_desc"
+                            },
+                            "picture": "pix:purpose/lessonpage_endofbranch",
+                            "when": {
+                                "offered": {
+                                    "field": "kind",
+                                    "value": "endofbranch"
+                                }
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "kind"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "page",
+            "title": {
+                "string": "lessonpage_step_page"
+            },
+            "question": {
+                "string": "lessonpage_step_page_q"
+            },
+            "when": {
+                "answer": "kind",
+                "not": "endofbranch"
+            },
+            "items": [
+                {
+                    "key": "title",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_title"
+                    },
+                    "help": {
+                        "string": "lessonpage_title_help"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "title"
+                    }
+                },
+                {
+                    "key": "contents",
+                    "kind": "editor",
+                    "label": {
+                        "string": "lessonpage_contents"
+                    },
+                    "when": {
+                        "answer": "kind",
+                        "is": "content"
+                    },
+                    "sets": {
+                        "field": "contents"
+                    }
+                },
+                {
+                    "key": "question",
+                    "kind": "editor",
+                    "label": {
+                        "string": "lessonpage_question"
+                    },
+                    "required": true,
+                    "when": {
+                        "answer": "kind",
+                        "in": [
+                            "multichoice",
+                            "truefalse",
+                            "shortanswer",
+                            "numerical",
+                            "matching",
+                            "essay"
+                        ]
+                    },
+                    "sets": {
+                        "field": "question"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "buttons",
+            "title": {
+                "string": "lessonpage_step_buttons"
+            },
+            "question": {
+                "string": "lessonpage_step_buttons_q"
+            },
+            "when": {
+                "answer": "kind",
+                "is": "content"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "lessonpage_buttons_hint"
+                    }
+                },
+                {
+                    "key": "button1",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_button1"
+                    },
+                    "required": true,
+                    "maxlength": 200,
+                    "sets": {
+                        "field": "button[1]"
+                    }
+                },
+                {
+                    "key": "goto1",
+                    "kind": "select",
+                    "label": {
+                        "string": "lessonpage_goto"
+                    },
+                    "default": "next",
+                    "choices": [
+                        {
+                            "value": "next",
+                            "title": {
+                                "string": "lessonpage_jump_next"
+                            }
+                        },
+                        {
+                            "value": "previous",
+                            "title": {
+                                "string": "lessonpage_jump_previous"
+                            }
+                        },
+                        {
+                            "value": "end",
+                            "title": {
+                                "string": "lessonpage_jump_end"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "goto[1]"
+                    }
+                },
+                {
+                    "key": "button2",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_button2"
+                    },
+                    "maxlength": 200,
+                    "sets": {
+                        "field": "button[2]"
+                    }
+                },
+                {
+                    "key": "goto2",
+                    "kind": "select",
+                    "label": {
+                        "string": "lessonpage_goto"
+                    },
+                    "default": "next",
+                    "choices": [
+                        {
+                            "value": "next",
+                            "title": {
+                                "string": "lessonpage_jump_next"
+                            }
+                        },
+                        {
+                            "value": "previous",
+                            "title": {
+                                "string": "lessonpage_jump_previous"
+                            }
+                        },
+                        {
+                            "value": "end",
+                            "title": {
+                                "string": "lessonpage_jump_end"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "goto[2]"
+                    },
+                    "when": {
+                        "not": {
+                            "answer": "button2",
+                            "empty": true
+                        }
+                    }
+                },
+                {
+                    "key": "button3",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_button3"
+                    },
+                    "maxlength": 200,
+                    "sets": {
+                        "field": "button[3]"
+                    }
+                },
+                {
+                    "key": "goto3",
+                    "kind": "select",
+                    "label": {
+                        "string": "lessonpage_goto"
+                    },
+                    "default": "next",
+                    "choices": [
+                        {
+                            "value": "next",
+                            "title": {
+                                "string": "lessonpage_jump_next"
+                            }
+                        },
+                        {
+                            "value": "previous",
+                            "title": {
+                                "string": "lessonpage_jump_previous"
+                            }
+                        },
+                        {
+                            "value": "end",
+                            "title": {
+                                "string": "lessonpage_jump_end"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "goto[3]"
+                    },
+                    "when": {
+                        "not": {
+                            "answer": "button3",
+                            "empty": true
+                        }
+                    }
+                },
+                {
+                    "key": "button4",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_button4"
+                    },
+                    "maxlength": 200,
+                    "sets": {
+                        "field": "button[4]"
+                    }
+                },
+                {
+                    "key": "goto4",
+                    "kind": "select",
+                    "label": {
+                        "string": "lessonpage_goto"
+                    },
+                    "default": "next",
+                    "choices": [
+                        {
+                            "value": "next",
+                            "title": {
+                                "string": "lessonpage_jump_next"
+                            }
+                        },
+                        {
+                            "value": "previous",
+                            "title": {
+                                "string": "lessonpage_jump_previous"
+                            }
+                        },
+                        {
+                            "value": "end",
+                            "title": {
+                                "string": "lessonpage_jump_end"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "goto[4]"
+                    },
+                    "when": {
+                        "not": {
+                            "answer": "button4",
+                            "empty": true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "key": "choices",
+            "title": {
+                "string": "lessonpage_step_choices"
+            },
+            "question": {
+                "string": "lessonpage_step_choices_q"
+            },
+            "when": {
+                "answer": "kind",
+                "is": "multichoice"
+            },
+            "items": [
+                {
+                    "key": "choice1",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_choice1"
+                    },
+                    "required": true,
+                    "sets": {
+                        "field": "choice[1]"
+                    }
+                },
+                {
+                    "key": "choice2",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_choice2"
+                    },
+                    "required": true,
+                    "sets": {
+                        "field": "choice[2]"
+                    }
+                },
+                {
+                    "key": "choice3",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_choice3"
+                    },
+                    "sets": {
+                        "field": "choice[3]"
+                    }
+                },
+                {
+                    "key": "choice4",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_choice4"
+                    },
+                    "sets": {
+                        "field": "choice[4]"
+                    }
+                },
+                {
+                    "key": "correct",
+                    "kind": "select",
+                    "label": {
+                        "string": "lessonpage_correct"
+                    },
+                    "default": 1,
+                    "required": true,
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "lessonpage_choice1"
+                            }
+                        },
+                        {
+                            "value": 2,
+                            "title": {
+                                "string": "lessonpage_choice2"
+                            }
+                        },
+                        {
+                            "value": 3,
+                            "title": {
+                                "string": "lessonpage_choice3"
+                            }
+                        },
+                        {
+                            "value": 4,
+                            "title": {
+                                "string": "lessonpage_choice4"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "correct"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "truefalse",
+            "title": {
+                "string": "lessonpage_step_truefalse"
+            },
+            "question": {
+                "string": "lessonpage_step_truefalse_q"
+            },
+            "when": {
+                "answer": "kind",
+                "is": "truefalse"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "lessonpage_truefalse_hint"
+                    }
+                },
+                {
+                    "key": "truefalse",
+                    "kind": "choice",
+                    "label": {
+                        "string": "lessonpage_truefalse"
+                    },
+                    "default": 1,
+                    "required": true,
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "lessonpage_true"
+                            }
+                        },
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "lessonpage_false"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "truefalse"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "accept",
+            "title": {
+                "string": "lessonpage_step_accept"
+            },
+            "question": {
+                "string": "lessonpage_step_accept_q"
+            },
+            "when": {
+                "answer": "kind",
+                "is": "shortanswer"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "lessonpage_accept_hint"
+                    }
+                },
+                {
+                    "key": "accept1",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_accept1"
+                    },
+                    "required": true,
+                    "maxlength": 200,
+                    "sets": {
+                        "field": "accept[1]"
+                    }
+                },
+                {
+                    "key": "accept2",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_accept2"
+                    },
+                    "maxlength": 200,
+                    "sets": {
+                        "field": "accept[2]"
+                    }
+                },
+                {
+                    "key": "accept3",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_accept3"
+                    },
+                    "maxlength": 200,
+                    "sets": {
+                        "field": "accept[3]"
+                    }
+                },
+                {
+                    "key": "accept4",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_accept4"
+                    },
+                    "maxlength": 200,
+                    "sets": {
+                        "field": "accept[4]"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "number",
+            "title": {
+                "string": "lessonpage_step_number"
+            },
+            "question": {
+                "string": "lessonpage_step_number_q"
+            },
+            "when": {
+                "answer": "kind",
+                "is": "numerical"
+            },
+            "items": [
+                {
+                    "key": "number",
+                    "kind": "number",
+                    "label": {
+                        "string": "lessonpage_number"
+                    },
+                    "required": true,
+                    "sets": {
+                        "field": "number"
+                    }
+                },
+                {
+                    "key": "margin",
+                    "kind": "number",
+                    "label": {
+                        "string": "lessonpage_margin"
+                    },
+                    "help": {
+                        "string": "lessonpage_margin_help"
+                    },
+                    "min": 0,
+                    "sets": {
+                        "field": "margin"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "matching",
+            "title": {
+                "string": "lessonpage_step_matching"
+            },
+            "question": {
+                "string": "lessonpage_step_matching_q"
+            },
+            "when": {
+                "answer": "kind",
+                "is": "matching"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "lessonpage_matching_hint"
+                    }
+                },
+                {
+                    "key": "item1",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_item1"
+                    },
+                    "required": true,
+                    "sets": {
+                        "field": "item[1]"
+                    }
+                },
+                {
+                    "key": "match1",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_match1"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "match[1]"
+                    }
+                },
+                {
+                    "key": "item2",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_item2"
+                    },
+                    "required": true,
+                    "sets": {
+                        "field": "item[2]"
+                    }
+                },
+                {
+                    "key": "match2",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_match2"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "match[2]"
+                    }
+                },
+                {
+                    "key": "item3",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_item3"
+                    },
+                    "sets": {
+                        "field": "item[3]"
+                    }
+                },
+                {
+                    "key": "match3",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_match3"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "match[3]"
+                    }
+                },
+                {
+                    "key": "item4",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_item4"
+                    },
+                    "sets": {
+                        "field": "item[4]"
+                    }
+                },
+                {
+                    "key": "match4",
+                    "kind": "text",
+                    "label": {
+                        "string": "lessonpage_match4"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "match[4]"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "right",
+            "title": {
+                "string": "lessonpage_step_right"
+            },
+            "question": {
+                "string": "lessonpage_step_right_q"
+            },
+            "when": {
+                "answer": "kind",
+                "in": [
+                    "multichoice",
+                    "truefalse",
+                    "shortanswer",
+                    "numerical",
+                    "matching"
+                ]
+            },
+            "items": [
+                {
+                    "key": "rightjump",
+                    "kind": "choice",
+                    "label": {
+                        "string": "lessonpage_rightjump"
+                    },
+                    "default": "next",
+                    "required": true,
+                    "choices": [
+                        {
+                            "value": "next",
+                            "title": {
+                                "string": "lessonpage_jump_next"
+                            },
+                            "desc": {
+                                "string": "lessonpage_rightjump_next_desc"
+                            }
+                        },
+                        {
+                            "value": "end",
+                            "title": {
+                                "string": "lessonpage_jump_end"
+                            },
+                            "desc": {
+                                "string": "lessonpage_rightjump_end_desc"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "rightjump"
+                    }
+                },
+                {
+                    "key": "rightfeedback",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "lessonpage_rightfeedback"
+                    },
+                    "help": {
+                        "string": "lessonpage_feedback_help"
+                    },
+                    "sets": {
+                        "field": "rightfeedback",
+                        "as": "editor"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "wrong",
+            "title": {
+                "string": "lessonpage_step_wrong"
+            },
+            "question": {
+                "string": "lessonpage_step_wrong_q"
+            },
+            "when": {
+                "answer": "kind",
+                "in": [
+                    "multichoice",
+                    "truefalse",
+                    "shortanswer",
+                    "numerical",
+                    "matching"
+                ]
+            },
+            "items": [
+                {
+                    "key": "wrongjump",
+                    "kind": "choice",
+                    "label": {
+                        "string": "lessonpage_wrongjump"
+                    },
+                    "default": "this",
+                    "required": true,
+                    "choices": [
+                        {
+                            "value": "this",
+                            "title": {
+                                "string": "lessonpage_jump_this"
+                            },
+                            "desc": {
+                                "string": "lessonpage_wrongjump_this_desc"
+                            }
+                        },
+                        {
+                            "value": "previous",
+                            "title": {
+                                "string": "lessonpage_jump_previous"
+                            },
+                            "desc": {
+                                "string": "lessonpage_wrongjump_previous_desc"
+                            }
+                        },
+                        {
+                            "value": "next",
+                            "title": {
+                                "string": "lessonpage_jump_next"
+                            },
+                            "desc": {
+                                "string": "lessonpage_wrongjump_next_desc"
+                            }
+                        },
+                        {
+                            "value": "end",
+                            "title": {
+                                "string": "lessonpage_jump_end"
+                            },
+                            "desc": {
+                                "string": "lessonpage_wrongjump_end_desc"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "wrongjump"
+                    }
+                },
+                {
+                    "key": "wrongfeedback",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "lessonpage_wrongfeedback"
+                    },
+                    "help": {
+                        "string": "lessonpage_feedback_help"
+                    },
+                    "sets": {
+                        "field": "wrongfeedback",
+                        "as": "editor"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "essay",
+            "title": {
+                "string": "lessonpage_step_essay"
+            },
+            "question": {
+                "string": "lessonpage_step_essay_q"
+            },
+            "when": {
+                "answer": "kind",
+                "is": "essay"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "lessonpage_essay_hint"
+                    }
+                },
+                {
+                    "key": "afterjump",
+                    "kind": "choice",
+                    "label": {
+                        "string": "lessonpage_afterjump"
+                    },
+                    "default": "next",
+                    "required": true,
+                    "choices": [
+                        {
+                            "value": "next",
+                            "title": {
+                                "string": "lessonpage_jump_next"
+                            }
+                        },
+                        {
+                            "value": "end",
+                            "title": {
+                                "string": "lessonpage_jump_end"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "afterjump"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "position",
+            "title": {
+                "string": "lessonpage_step_position"
+            },
+            "question": {
+                "string": "lessonpage_step_position_q"
+            },
+            "when": {
+                "answer": "kind",
+                "not": "endofbranch"
+            },
+            "items": [
+                {
+                    "key": "position",
+                    "kind": "choice",
+                    "label": {
+                        "string": "lessonpage_position"
+                    },
+                    "default": "end",
+                    "required": true,
+                    "choices": [
+                        {
+                            "value": "end",
+                            "title": {
+                                "string": "lessonpage_position_end"
+                            },
+                            "desc": {
+                                "string": "lessonpage_position_end_desc"
+                            }
+                        },
+                        {
+                            "value": "start",
+                            "title": {
+                                "string": "lessonpage_position_start"
+                            },
+                            "desc": {
+                                "string": "lessonpage_position_start_desc"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "position"
+                    }
+                }
+            ]
+        }
+    ]
+}

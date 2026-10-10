@@ -54,6 +54,28 @@
             "modname"
           ],
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "content"
+            },
+            "modname": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            },
+            "content": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*/[a-z][a-z0-9_]*$"
+            }
+          },
+          "required": [
+            "type",
+            "modname",
+            "content"
+          ],
+          "additionalProperties": false
         }
       ]
     },
@@ -455,7 +477,8 @@
         },
         "choicesfrom": {
           "enum": [
-            "course:formats"
+            "course:formats",
+            "course:ltitools"
           ]
         },
         "sets": {
@@ -473,6 +496,14 @@
         },
         "when": {
           "$ref": "#/$defs/condition"
+        },
+        "maxfiles": {
+          "type": "integer",
+          "minimum": -1,
+          "maximum": 100,
+          "not": {
+            "const": 0
+          }
         },
         "accept": {
           "oneOf": [

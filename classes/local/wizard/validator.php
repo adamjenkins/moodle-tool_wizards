@@ -41,8 +41,8 @@ class validator {
     /** @var string[] Kinds only a course wizard may use. */
     const COURSE_KINDS = ['category', 'shortname', 'review'];
 
-    /** @var string[] Choice sources a course wizard may use. */
-    const CHOICE_SOURCES = ['course:formats'];
+    /** @var string[] Choice sources: the source => the wizards that may use it ("course", or an activity's module name). */
+    const CHOICE_SOURCES = ['course:formats' => 'course', 'course:ltitools' => 'lti'];
 
     /** @var string[] Shared screens. */
     const SHARED = ['shared:visibility', 'shared:groups', 'shared:completion'];
@@ -62,7 +62,8 @@ class validator {
 
     /** @var string[] Keys a question may have. */
     const ITEM_KEYS = ['key', 'kind', 'label', 'help', 'text', 'required', 'requiredmessage', 'default', 'min', 'max',
-        'maxlength', 'choices', 'choicesfrom', 'sets', 'when', 'accept', 'extensions', 'units', 'optional', 'suggestfrom',
+        'maxlength', 'choices', 'choicesfrom', 'sets', 'when', 'accept', 'maxfiles', 'extensions', 'units', 'optional',
+        'suggestfrom',
         'placeholder'];
 
     /** @var string[] Keys a choice may have. */
@@ -76,6 +77,12 @@ class validator {
 
     /** @var bool whether the document is a course wizard */
     protected bool $course = false;
+
+    /** @var string What the wizard creates: "course", or the module name. */
+    protected string $target = '';
+
+    /** @var string|null For an in-activity wizard, its content handler class. */
+    protected ?string $content = null;
 
     /**
      * Check a document.
@@ -222,16 +229,18 @@ class validator {
      */
     protected function target($target): void {
         if (!is_array($target)) {
-            $this->error('target', 'must be {"type": "course"} or {"type": "module", "modname": "…"}');
+            $this->error('target', 'must be {"type": "course"}, {"type": "module", "modname": "…"} or '
+                . '{"type": "content", "modname": "…", "content": "…"}');
             return;
         }
-        $this->known_keys($target, ['type', 'modname'], 'target');
+        $this->known_keys($target, ['type', 'modname', 'content'], 'target');
         if (($target['type'] ?? null) === 'course') {
             $this->course = true;
+            $this->target = 'course';
             return;
         }
-        if (($target['type'] ?? null) !== 'module') {
-            $this->error('target.type', 'must be "course" or "module"');
+        if (!in_array($target['type'] ?? null, ['module', 'content'], true)) {
+            $this->error('target.type', 'must be "course", "module" or "content"');
             return;
         }
         $modname = $target['modname'] ?? null;
@@ -239,6 +248,19 @@ class validator {
             $this->error('target.modname', 'must be a module name such as "quiz"');
         } else if (!\core_component::get_component_directory('mod_' . $modname)) {
             $this->error('target.modname', 'module "' . $modname . '" is not installed on this site');
+        }
+        $this->target = is_string($modname) ? $modname : '';
+        if ($target['type'] === 'content') {
+            $class = extensions::contents()[$target['content'] ?? ''] ?? null;
+            if (!$class) {
+                $this->error('target.content', 'must be one of: ' . implode(', ', array_keys(extensions::contents())));
+            } else if ($class::modname() !== $modname) {
+                $this->error('target.content', 'this content belongs to "' . $class::modname() . '"');
+            } else {
+                $this->content = $class;
+            }
+        } else if (isset($target['content'])) {
+            $this->error('target.content', 'only for {"type": "content"}');
         }
     }
 
@@ -331,7 +353,7 @@ class validator {
                 $this->error("$path.use", 'must be one of ' . implode(', ', self::SHARED));
                 return null;
             }
-            if ($this->course) {
+            if ($this->course || $this->content) {
                 $this->error("$path.use", 'shared screens are for activity wizards only');
             }
             if (isset($screen['items'])) {
@@ -432,9 +454,10 @@ class validator {
         }
         if (in_array($kind, self::CHOICE_KINDS, true)) {
             if (isset($item['choicesfrom'])) {
-                if (!$this->course || !in_array($item['choicesfrom'], self::CHOICE_SOURCES, true)) {
-                    $this->error("$path.choicesfrom", 'must be one of ' . implode(', ', self::CHOICE_SOURCES)
-                        . ' (course wizards only)');
+                $for = self::CHOICE_SOURCES[$item['choicesfrom']] ?? null;
+                if ($for === null || $for !== $this->target) {
+                    $this->error("$path.choicesfrom", 'must be course:formats (course wizards) or course:ltitools '
+                        . '(external tool wizards)');
                 }
                 if (isset($item['choices'])) {
                     $this->error("$path.choices", 'give either choices or choicesfrom, not both');
@@ -451,6 +474,12 @@ class validator {
             if ($kind !== 'file' || !$ok) {
                 $this->error("$path.accept", 'file questions only: "*" or a list like [".pdf", ".pptx"] or ["web_image"]');
             }
+        }
+        if (
+            isset($item['maxfiles']) && ($kind !== 'file' || !is_int($item['maxfiles'])
+                || ($item['maxfiles'] !== -1 && ($item['maxfiles'] < 1 || $item['maxfiles'] > 100)))
+        ) {
+            $this->error("$path.maxfiles", 'file questions only: how many files, 1 to 100, or -1 for no limit');
         }
         if (isset($item['extensions'])) {
             $this->extensions($item['extensions'], "$path.extensions", $kind);
@@ -653,6 +682,9 @@ class validator {
         }
         if (!is_string($map['field'] ?? null) || !self::field_name_ok($map['field'])) {
             $this->error("$path.field", 'must be a form field name such as "attempts" or "grade_forum[modgrade_point]"');
+        } else if ($this->content && !array_key_exists(strtok($map['field'], '['), $this->content::fields())) {
+            $this->error("$path.field", 'must be one of this content\'s fields: '
+                . implode(', ', array_keys($this->content::fields())));
         }
         if (isset($map['as']) && !in_array($map['as'], ['editor', 'string', 'int', 'float'], true)) {
             $this->error("$path.as", 'must be editor, string, int or float');

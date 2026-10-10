@@ -26,7 +26,9 @@
     * added - {name, url} of what was just added, or null
     * questionfailed - whether a quiz was added without the first question asked for
     * focus - whether to move focus to the card when the page loads
-    * options - [{type (the wizard key), label, description, modaltitle, iconurl, purpose, modname}]
+    * options - [{type (the wizard key), label, description, modaltitle, iconurl, purpose, modname, more (shown on request)}]
+    * morecount - how many options wait behind "More kinds of content"
+    * nextsteps - after an activity was added: [{type (an in-activity wizard key), cmid, label, modaltitle}]
     * preferencesurl - where the user can switch suggestions back on
 
     Example context (json):
@@ -40,7 +42,9 @@
         "options": [{"type": "forum", "label": "A forum",
             "description": "A place for discussions.", "modaltitle": "Add a forum",
             "iconurl": "https://example.com/theme/image.php/boost/forum/1/monologo", "purpose": "collaboration",
-            "modname": "forum"}],
+            "modname": "forum", "more": false}],
+        "morecount": 0,
+        "nextsteps": [],
         "preferencesurl": "https://example.com/admin/tool/wizards/preferences.php"
     }
 }}
@@ -53,6 +57,15 @@
                 {{#added}}{{#url}}
                 <p class="mb-1"><a href="{{url}}">{{#str}}prompt_open, tool_wizards, {{name}}{{/str}}</a></p>
                 {{/url}}{{/added}}
+                {{#nextsteps.0}}
+                <p class="mb-2">{{#str}}prompt_nextsteps, tool_wizards{{/str}}</p>
+                <p class="d-flex flex-wrap gap-2 mb-3">
+                    {{#nextsteps}}
+                    <button type="button" class="btn btn-primary btn-sm" data-action="content" data-wizard="{{type}}"
+                        data-cmid="{{cmid}}" data-modaltitle="{{modaltitle}}">{{label}}</button>
+                    {{/nextsteps}}
+                </p>
+                {{/nextsteps.0}}
                 {{#questionfailed}}
                 <p class="mb-1">{{#str}}prompt_questionfailed, tool_wizards{{/str}}</p>
                 {{/questionfailed}}
@@ -62,7 +75,7 @@
         </div>
         <ul class="tool_wizards-options list-unstyled row g-2 mb-3">
             {{#options}}
-            <li class="col-12 col-sm-6 col-lg-4">
+            <li class="col-12 col-sm-6 col-lg-4{{#more}} d-none{{/more}}"{{#more}} data-region="tool_wizards-more"{{/more}}>
                 <button type="button" class="tool_wizards-option btn btn-outline-secondary w-100 h-100 text-start d-flex gap-3 align-items-start p-3"
                     data-action="add" data-wizard="{{type}}" data-modaltitle="{{modaltitle}}">
                     <span class="activity-icon activityiconcontainer {{purpose}} flex-shrink-0" aria-hidden="true">
@@ -76,6 +89,11 @@
             </li>
             {{/options}}
         </ul>
+        {{#morecount}}
+        <p class="mb-3">
+            <button type="button" class="btn btn-outline-primary btn-sm" data-action="more" aria-expanded="false">{{#str}}prompt_more, tool_wizards, {{morecount}}{{/str}}</button>
+        </p>
+        {{/morecount}}
         <div class="d-flex flex-wrap gap-3 align-items-center small">
             <button type="button" class="btn btn-link btn-sm p-0" data-action="done">{{#str}}prompt_done, tool_wizards{{/str}}</button>
             <button type="button" class="btn btn-link btn-sm p-0" data-action="dismisscourse">{{#str}}prompt_hidecourse, tool_wizards{{/str}}</button>

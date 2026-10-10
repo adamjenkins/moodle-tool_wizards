@@ -25,7 +25,7 @@
 import Ajax from 'core/ajax';
 import Notification from 'core/notification';
 import Pending from 'core/pending';
-import {openWizard} from 'tool_wizards/open_wizard';
+import {openContentWizard, openWizard} from 'tool_wizards/open_wizard';
 import {add as addToast} from 'core/toast';
 import {getString} from 'core/str';
 import {setUserPreference} from 'core_user/repository';
@@ -60,6 +60,11 @@ export const init = (selector) => {
         } else if (action === 'done') {
             // A one-time message just closes; the suggestions card says it is hidden for now.
             hideCard(card, card.dataset.region === 'tool_wizards-unlock' ? null : 'prompt_hidden_now');
+        } else if (action === 'content') {
+            openContentWizard({cmid: Number(button.dataset.cmid), wizard: button.dataset.wizard,
+                title: button.dataset.modaltitle, gotoactivity: true, returnFocus: button});
+        } else if (action === 'more') {
+            showMore(card, button);
         } else if (action === 'dismisscourse') {
             dismissCourse(card);
         } else if (action === 'dismissall') {
@@ -81,6 +86,19 @@ const openMiniWizard = (card, button) => {
         title: button.dataset.modaltitle,
         returnFocus: button,
     });
+};
+
+/**
+ * Show the rest of the suggestions, and take the reader to the first of them.
+ *
+ * @param {HTMLElement} card the card
+ * @param {HTMLElement} button the "More kinds of content" button
+ */
+const showMore = (card, button) => {
+    const more = card.querySelectorAll('[data-region="tool_wizards-more"]');
+    more.forEach(item => item.classList.remove('d-none'));
+    button.closest('p').remove();
+    more[0]?.querySelector('[data-action="add"]')?.focus();
 };
 
 /**

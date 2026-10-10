@@ -63,7 +63,16 @@ final class validator_test extends advanced_testcase {
     public function test_defaults_are_valid(): void {
         $this->resetAfterTest();
         $shipped = defaults::shipped();
-        $this->assertSame(['course', 'file', 'slides', 'picture', 'page', 'forum', 'glossary', 'quiz'], array_keys($shipped));
+        $this->assertSame(['course', 'file', 'slides', 'picture', 'page', 'forum', 'glossary', 'quiz', 'assignment', 'link',
+            'folder', 'book', 'choice', 'feedback', 'database', 'wiki', 'lesson', 'workshop', 'h5p', 'scorm',
+            'contentpackage', 'externaltool', 'bigbluebutton', 'subsection'], array_slice(array_keys($shipped), 0, 24));
+        // Then the in-activity wizards, one for each built-in content handler.
+        $handlers = [];
+        foreach (array_slice($shipped, 24) as $doc) {
+            $this->assertSame('content', $doc['target']['type']);
+            $handlers[] = $doc['target']['content'];
+        }
+        $this->assertEqualsCanonicalizing(array_keys(extensions::contents()), $handlers);
         foreach ($shipped as $key => $doc) {
             $this->assertSame([], validator::check($doc), $key);
         }
@@ -163,6 +172,37 @@ final class validator_test extends advanced_testcase {
                 $d['screens'][1]['when'] = ['capability' => 'moodle/no:suchthing'];
             }, 'screens[1].when.capability:'],
         ];
+    }
+
+    /**
+     * An in-activity wizard names a registered content handler for its activity, sets only that
+     * handler's fields, and has no shared screens.
+     */
+    public function test_content_target(): void {
+        $this->resetAfterTest();
+        $doc = [
+            'format' => validator::FORMAT,
+            'key' => 'moreoptions',
+            'target' => ['type' => 'content', 'modname' => 'choice', 'content' => 'tool_wizards/choice_option'],
+            'title' => 'More options',
+            'screens' => [['key' => 'basics', 'title' => 'Basics', 'items' => [
+                ['key' => 'x', 'kind' => 'text', 'label' => 'X', 'sets' => ['field' => 'nosuchfield']],
+            ]]],
+        ];
+        $problems = validator::check($doc);
+        $this->assertNotEmpty(array_filter($problems, fn($p) => str_starts_with($p, 'screens[0].items[0].sets.field:')));
+
+        $wrong = $doc;
+        $wrong['target']['modname'] = 'forum';
+        $this->assertNotEmpty(array_filter(validator::check($wrong), fn($p) => str_starts_with($p, 'target.content:')));
+
+        $unknown = $doc;
+        $unknown['target']['content'] = 'tool_wizards/nothing';
+        $this->assertNotEmpty(array_filter(validator::check($unknown), fn($p) => str_starts_with($p, 'target.content:')));
+
+        $shared = $doc;
+        $shared['screens'][] = ['use' => 'shared:visibility'];
+        $this->assertNotEmpty(array_filter(validator::check($shared), fn($p) => str_starts_with($p, 'screens[1].use:')));
     }
 
     /**

@@ -1,0 +1,349 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "scorm",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "scorm"
+    },
+    "title": {
+        "string": "type_scorm"
+    },
+    "heading": {
+        "string": "type_scorm_title"
+    },
+    "description": {
+        "string": "type_scorm_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "scorm_intro"
+                    }
+                },
+                {
+                    "key": "packagefile",
+                    "kind": "file",
+                    "label": {
+                        "string": "scorm_package"
+                    },
+                    "help": {
+                        "string": "scorm_package_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_nofile"
+                    },
+                    "accept": [
+                        ".zip"
+                    ],
+                    "sets": {
+                        "field": "packagefile",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "file_name"
+                    },
+                    "help": {
+                        "string": "file_name_hint"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name",
+                        "emptyfrom": {
+                            "filename": "packagefile"
+                        }
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "scorm_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "learn",
+                            "title": {
+                                "string": "scorm_purpose_learn"
+                            },
+                            "desc": {
+                                "string": "scorm_purpose_learn_desc"
+                            },
+                            "picture": "pix:purpose/scorm_learn",
+                            "sets": {
+                                "scormtype": "local",
+                                "lastattemptlock": 0
+                            },
+                            "preset": {
+                                "maxattempt": 0,
+                                "whatgrade": 0,
+                                "completion": "finished"
+                            }
+                        },
+                        {
+                            "value": "test",
+                            "title": {
+                                "string": "scorm_purpose_test"
+                            },
+                            "desc": {
+                                "string": "scorm_purpose_test_desc"
+                            },
+                            "picture": "pix:purpose/scorm_test",
+                            "sets": {
+                                "scormtype": "local",
+                                "lastattemptlock": 1
+                            },
+                            "preset": {
+                                "maxattempt": 1,
+                                "whatgrade": 0,
+                                "completion": "finished"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "display",
+            "title": {
+                "string": "scorm_step_display"
+            },
+            "question": {
+                "string": "scorm_step_display_q"
+            },
+            "items": [
+                {
+                    "key": "popup",
+                    "kind": "choice",
+                    "label": {
+                        "string": "scorm_popup"
+                    },
+                    "default": "config:scorm/popup",
+                    "sets": {
+                        "field": "popup"
+                    },
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "scorm_popup_same"
+                            },
+                            "desc": {
+                                "string": "scorm_popup_same_desc"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "scorm_popup_new"
+                            },
+                            "desc": {
+                                "string": "scorm_popup_new_desc"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "attempts",
+            "title": {
+                "string": "scorm_step_attempts"
+            },
+            "question": {
+                "string": "scorm_step_attempts_q"
+            },
+            "items": [
+                {
+                    "key": "maxattempt",
+                    "kind": "select",
+                    "label": {
+                        "string": "quiz_attempts"
+                    },
+                    "default": "config:scorm/maxattempt",
+                    "sets": {
+                        "field": "maxattempt"
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": "1"
+                        },
+                        {
+                            "value": 2,
+                            "title": "2"
+                        },
+                        {
+                            "value": 3,
+                            "title": "3"
+                        },
+                        {
+                            "value": 5,
+                            "title": "5"
+                        },
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "quiz_attempts_unlimited"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "whatgrade",
+                    "kind": "choice",
+                    "label": {
+                        "string": "quiz_grademethod"
+                    },
+                    "default": "config:scorm/whatgrade",
+                    "when": {
+                        "answer": "maxattempt",
+                        "not": 1
+                    },
+                    "sets": {
+                        "field": "whatgrade"
+                    },
+                    "choices": [
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "quiz_grademethod_highest"
+                            },
+                            "desc": {
+                                "string": "quiz_grademethod_highest_desc"
+                            }
+                        },
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "quiz_grademethod_average"
+                            },
+                            "desc": {
+                                "string": "quiz_grademethod_average_desc"
+                            }
+                        },
+                        {
+                            "value": 2,
+                            "title": {
+                                "string": "quiz_grademethod_first"
+                            },
+                            "desc": {
+                                "string": "quiz_grademethod_first_desc"
+                            }
+                        },
+                        {
+                            "value": 3,
+                            "title": {
+                                "string": "quiz_grademethod_last"
+                            },
+                            "desc": {
+                                "string": "quiz_grademethod_last_desc"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "timing",
+            "title": {
+                "string": "scorm_step_timing"
+            },
+            "question": {
+                "string": "scorm_step_timing_q"
+            },
+            "items": [
+                {
+                    "key": "timeopen",
+                    "kind": "date",
+                    "label": {
+                        "string": "quiz_timeopen"
+                    },
+                    "sets": {
+                        "field": "timeopen"
+                    }
+                },
+                {
+                    "key": "timeclose",
+                    "kind": "date",
+                    "label": {
+                        "string": "quiz_timeclose"
+                    },
+                    "help": {
+                        "string": "scorm_timeclose_hint"
+                    },
+                    "sets": {
+                        "field": "timeclose"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "finished",
+                    "title": {
+                        "string": "scorm_completion_finished"
+                    },
+                    "desc": {
+                        "string": "scorm_completion_finished_desc"
+                    },
+                    "sets": {
+                        "completionstatusrequired[2]": 1,
+                        "completionstatusrequired[4]": 1
+                    }
+                },
+                {
+                    "value": "passed",
+                    "title": {
+                        "string": "scorm_completion_passed"
+                    },
+                    "desc": {
+                        "string": "scorm_completion_passed_desc"
+                    },
+                    "sets": {
+                        "completionstatusrequired[2]": 1,
+                        "completionstatusrequired[4]": 0
+                    }
+                },
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "scorm_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1,
+                        "completionstatusrequired[2]": 0,
+                        "completionstatusrequired[4]": 0
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -41,6 +41,9 @@ final class collect_extensions {
     /** @var array name => transform class */
     protected array $transforms = [];
 
+    /** @var array name => content handler class */
+    protected array $contents = [];
+
     /**
      * Add an action.
      *
@@ -67,6 +70,29 @@ final class collect_extensions {
         } else {
             debugging("tool_wizards: ignored transform $name ($classname)", DEBUG_DEVELOPER);
         }
+    }
+
+    /**
+     * Add a content handler, for in-activity wizards.
+     *
+     * @param string $name "<component>/<name>"
+     * @param string $classname a subclass of \tool_wizards\local\wizard\content
+     */
+    public function add_content(string $name, string $classname): void {
+        if (self::name_ok($name) && is_subclass_of($classname, \tool_wizards\local\wizard\content::class)) {
+            $this->contents[$name] = $classname;
+        } else {
+            debugging("tool_wizards: ignored content handler $name ($classname)", DEBUG_DEVELOPER);
+        }
+    }
+
+    /**
+     * The content handlers added.
+     *
+     * @return array name => class
+     */
+    public function get_contents(): array {
+        return $this->contents;
     }
 
     /**

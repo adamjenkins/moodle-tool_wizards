@@ -1,0 +1,572 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "workshop",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "workshop"
+    },
+    "title": {
+        "string": "type_workshop"
+    },
+    "heading": {
+        "string": "type_workshop_title"
+    },
+    "description": {
+        "string": "type_workshop_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshop_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "workshop_name"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "description",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "workshop_description"
+                    },
+                    "sets": {
+                        "field": "introeditor",
+                        "as": "editor"
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "workshop_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "writing",
+                            "title": {
+                                "string": "workshop_purpose_writing"
+                            },
+                            "desc": {
+                                "string": "workshop_purpose_writing_desc"
+                            },
+                            "picture": "pix:purpose/workshop_writing",
+                            "preset": {
+                                "submittype": "text",
+                                "strategy": "comments",
+                                "useselfassessment": 0,
+                                "latesubmissions": 0,
+                                "completion": "view"
+                            }
+                        },
+                        {
+                            "value": "projects",
+                            "title": {
+                                "string": "workshop_purpose_projects"
+                            },
+                            "desc": {
+                                "string": "workshop_purpose_projects_desc"
+                            },
+                            "picture": "pix:purpose/workshop_projects",
+                            "preset": {
+                                "submittype": "file",
+                                "nattachments": 3,
+                                "strategy": "rubric",
+                                "useselfassessment": 0,
+                                "latesubmissions": 0,
+                                "completion": "submission"
+                            }
+                        },
+                        {
+                            "value": "self",
+                            "title": {
+                                "string": "workshop_purpose_self"
+                            },
+                            "desc": {
+                                "string": "workshop_purpose_self_desc"
+                            },
+                            "picture": "pix:purpose/workshop_self",
+                            "preset": {
+                                "submittype": "either",
+                                "nattachments": 1,
+                                "strategy": "accumulative",
+                                "useselfassessment": 1,
+                                "latesubmissions": 0,
+                                "completion": "submission"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "submit",
+            "title": {
+                "string": "workshop_step_submit"
+            },
+            "question": {
+                "string": "workshop_step_submit_q"
+            },
+            "items": [
+                {
+                    "key": "submittype",
+                    "kind": "choice",
+                    "label": {
+                        "string": "workshop_submittype"
+                    },
+                    "default": "either",
+                    "choices": [
+                        {
+                            "value": "text",
+                            "title": {
+                                "string": "workshop_submittype_text"
+                            },
+                            "desc": {
+                                "string": "workshop_submittype_text_desc"
+                            },
+                            "sets": {
+                                "submissiontypetextavailable": 1,
+                                "submissiontypetextrequired": 1,
+                                "submissiontypefileavailable": 0,
+                                "submissiontypefilerequired": 0
+                            }
+                        },
+                        {
+                            "value": "file",
+                            "title": {
+                                "string": "workshop_submittype_file"
+                            },
+                            "desc": {
+                                "string": "workshop_submittype_file_desc"
+                            },
+                            "sets": {
+                                "submissiontypetextavailable": 1,
+                                "submissiontypetextrequired": 0,
+                                "submissiontypefileavailable": 1,
+                                "submissiontypefilerequired": 1
+                            }
+                        },
+                        {
+                            "value": "either",
+                            "title": {
+                                "string": "workshop_submittype_either"
+                            },
+                            "desc": {
+                                "string": "workshop_submittype_either_desc"
+                            },
+                            "sets": {
+                                "submissiontypetextavailable": 1,
+                                "submissiontypetextrequired": 0,
+                                "submissiontypefileavailable": 1,
+                                "submissiontypefilerequired": 0
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "nattachments",
+                    "kind": "select",
+                    "label": {
+                        "string": "workshop_nattachments"
+                    },
+                    "default": 1,
+                    "when": {
+                        "answer": "submittype",
+                        "in": [
+                            "file",
+                            "either"
+                        ]
+                    },
+                    "sets": {
+                        "field": "nattachments"
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": "1"
+                        },
+                        {
+                            "value": 2,
+                            "title": "2"
+                        },
+                        {
+                            "value": 3,
+                            "title": "3"
+                        },
+                        {
+                            "value": 5,
+                            "title": "5"
+                        },
+                        {
+                            "value": 7,
+                            "title": "7"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "strategy",
+            "title": {
+                "string": "workshop_step_strategy"
+            },
+            "question": {
+                "string": "workshop_step_strategy_q"
+            },
+            "items": [
+                {
+                    "key": "strategy",
+                    "kind": "choice",
+                    "label": {
+                        "string": "workshop_strategy"
+                    },
+                    "default": "config:workshop/strategy",
+                    "sets": {
+                        "field": "strategy"
+                    },
+                    "choices": [
+                        {
+                            "value": "comments",
+                            "title": {
+                                "string": "workshop_strategy_comments"
+                            },
+                            "desc": {
+                                "string": "workshop_strategy_comments_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "strategy",
+                                    "value": "comments"
+                                }
+                            }
+                        },
+                        {
+                            "value": "accumulative",
+                            "title": {
+                                "string": "workshop_strategy_accumulative"
+                            },
+                            "desc": {
+                                "string": "workshop_strategy_accumulative_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "strategy",
+                                    "value": "accumulative"
+                                }
+                            }
+                        },
+                        {
+                            "value": "numerrors",
+                            "title": {
+                                "string": "workshop_strategy_numerrors"
+                            },
+                            "desc": {
+                                "string": "workshop_strategy_numerrors_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "strategy",
+                                    "value": "numerrors"
+                                }
+                            }
+                        },
+                        {
+                            "value": "rubric",
+                            "title": {
+                                "string": "workshop_strategy_rubric"
+                            },
+                            "desc": {
+                                "string": "workshop_strategy_rubric_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "strategy",
+                                    "value": "rubric"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "useselfassessment",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "workshop_useselfassessment"
+                    },
+                    "text": {
+                        "string": "workshop_useselfassessment_label"
+                    },
+                    "sets": {
+                        "field": "useselfassessment",
+                        "as": "int"
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshop_strategy_hint"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "marks",
+            "title": {
+                "string": "workshop_step_marks"
+            },
+            "question": {
+                "string": "workshop_step_marks_q"
+            },
+            "items": [
+                {
+                    "key": "grade",
+                    "kind": "select",
+                    "label": {
+                        "string": "workshop_grade"
+                    },
+                    "help": {
+                        "string": "workshop_grade_hint"
+                    },
+                    "default": "config:workshop/grade",
+                    "sets": {
+                        "field": "grade"
+                    },
+                    "choices": [
+                        {
+                            "value": 100,
+                            "title": "100"
+                        },
+                        {
+                            "value": 80,
+                            "title": "80"
+                        },
+                        {
+                            "value": 50,
+                            "title": "50"
+                        },
+                        {
+                            "value": 20,
+                            "title": "20"
+                        },
+                        {
+                            "value": 10,
+                            "title": "10"
+                        }
+                    ]
+                },
+                {
+                    "key": "gradinggrade",
+                    "kind": "select",
+                    "label": {
+                        "string": "workshop_gradinggrade"
+                    },
+                    "help": {
+                        "string": "workshop_gradinggrade_hint"
+                    },
+                    "default": "config:workshop/gradinggrade",
+                    "sets": {
+                        "field": "gradinggrade"
+                    },
+                    "choices": [
+                        {
+                            "value": 100,
+                            "title": "100"
+                        },
+                        {
+                            "value": 80,
+                            "title": "80"
+                        },
+                        {
+                            "value": 50,
+                            "title": "50"
+                        },
+                        {
+                            "value": 20,
+                            "title": "20"
+                        },
+                        {
+                            "value": 10,
+                            "title": "10"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "submitdates",
+            "title": {
+                "string": "workshop_step_submitdates"
+            },
+            "question": {
+                "string": "workshop_step_submitdates_q"
+            },
+            "items": [
+                {
+                    "key": "submissionstart",
+                    "kind": "date",
+                    "label": {
+                        "string": "workshop_submissionstart"
+                    },
+                    "help": {
+                        "string": "workshop_submissionstart_hint"
+                    },
+                    "sets": {
+                        "field": "submissionstart"
+                    }
+                },
+                {
+                    "key": "submissionend",
+                    "kind": "date",
+                    "label": {
+                        "string": "workshop_submissionend"
+                    },
+                    "sets": {
+                        "field": "submissionend"
+                    }
+                },
+                {
+                    "key": "latesubmissions",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "workshop_latesubmissions"
+                    },
+                    "text": {
+                        "string": "workshop_latesubmissions_label"
+                    },
+                    "sets": {
+                        "field": "latesubmissions",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "reviewdates",
+            "title": {
+                "string": "workshop_step_reviewdates"
+            },
+            "question": {
+                "string": "workshop_step_reviewdates_q"
+            },
+            "items": [
+                {
+                    "key": "phaseswitch",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "workshop_phaseswitch"
+                    },
+                    "text": {
+                        "string": "workshop_phaseswitch_label"
+                    },
+                    "help": {
+                        "string": "workshop_phaseswitch_hint"
+                    },
+                    "sets": {
+                        "field": "phaseswitchassessment",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "assessmentstart",
+                    "kind": "date",
+                    "label": {
+                        "string": "workshop_assessmentstart"
+                    },
+                    "sets": {
+                        "field": "assessmentstart"
+                    }
+                },
+                {
+                    "key": "assessmentend",
+                    "kind": "date",
+                    "label": {
+                        "string": "workshop_assessmentend"
+                    },
+                    "sets": {
+                        "field": "assessmentend"
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshop_reviewdates_hint"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "workshop_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1,
+                        "completionusegrade": 0
+                    }
+                },
+                {
+                    "value": "submission",
+                    "title": {
+                        "string": "workshop_completion_submission"
+                    },
+                    "desc": {
+                        "string": "workshop_completion_submission_desc"
+                    },
+                    "sets": {
+                        "completionview": 0,
+                        "completionusegrade": 1,
+                        "completiongradeitemnumber": 0,
+                        "completionpassgrade": 0
+                    }
+                },
+                {
+                    "value": "assessment",
+                    "title": {
+                        "string": "workshop_completion_assessment"
+                    },
+                    "desc": {
+                        "string": "workshop_completion_assessment_desc"
+                    },
+                    "sets": {
+                        "completionview": 0,
+                        "completionusegrade": 1,
+                        "completiongradeitemnumber": 1,
+                        "completionpassgrade": 0
+                    }
+                }
+            ]
+        }
+    ]
+}

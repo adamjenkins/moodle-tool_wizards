@@ -140,6 +140,60 @@ class repository {
     }
 
     /**
+     * What a definition's wizard is for, as stored: "course", the module name for an activity
+     * wizard, or "content:<module name>" for an in-activity wizard.
+     *
+     * @param array $doc the definition
+     * @return string
+     */
+    public static function target_of(array $doc): string {
+        return match ($doc['target']['type'] ?? '') {
+            'course' => 'course',
+            'content' => 'content:' . ($doc['target']['modname'] ?? ''),
+            default => (string) ($doc['target']['modname'] ?? ''),
+        };
+    }
+
+    /**
+     * Whether a record is an in-activity wizard.
+     *
+     * @param \stdClass $record the wizard
+     * @return bool
+     */
+    public static function is_content(\stdClass $record): bool {
+        return str_starts_with($record->target, 'content:');
+    }
+
+    /**
+     * The module a record's wizard creates or adds to ('' for a course wizard).
+     *
+     * @param \stdClass $record the wizard
+     * @return string
+     */
+    public static function modname_of(\stdClass $record): string {
+        return $record->target === 'course' ? '' : preg_replace('/^content:/', '', $record->target);
+    }
+
+    /**
+     * The enabled in-activity wizards a user may use on an activity, in order.
+     *
+     * @param \cm_info $cm the activity
+     * @return \stdClass[]
+     */
+    public static function for_cm(\cm_info $cm): array {
+        $out = [];
+        foreach (self::all() as $record) {
+            if (
+                (int) $record->status === self::STATUS_ENABLED && $record->target === 'content:' . $cm->modname
+                    && \tool_wizards\local\content_creator::may_use(self::definition($record), $cm)
+            ) {
+                $out[] = $record;
+            }
+        }
+        return $out;
+    }
+
+    /**
      * Whether a user may run a wizard: enabled, or a draft and the user manages wizards.
      *
      * @param \stdClass $record the wizard
@@ -192,7 +246,7 @@ class repository {
         }
         $record = (object) $extra;
         $record->wizardkey = $doc['key'];
-        $record->target = $doc['target']['type'] === 'course' ? 'course' : $doc['target']['modname'];
+        $record->target = self::target_of($doc);
         $record->definition = self::encode($doc);
         $record->timemodified = time();
         if ($id) {

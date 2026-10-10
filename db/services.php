@@ -37,6 +37,13 @@ $functions = [
         'type' => 'read',
         'ajax' => true,
     ],
+    'tool_wizards_set_status' => [
+        'classname' => \tool_wizards\external\set_status::class,
+        'description' => 'Switch wizards on or off.',
+        'type' => 'write',
+        'ajax' => true,
+        'capabilities' => 'tool/wizards:managewizards',
+    ],
     'tool_wizards_dismiss_course' => [
         'classname' => \tool_wizards\external\dismiss_course::class,
         'description' => 'Hide the first-content suggestions on one course for the current user.',

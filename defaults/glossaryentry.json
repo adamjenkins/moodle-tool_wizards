@@ -1,0 +1,166 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "glossaryentry",
+    "defaultversion": 1,
+    "target": {
+        "type": "content",
+        "modname": "glossary",
+        "content": "tool_wizards/glossary_entry"
+    },
+    "title": {
+        "string": "type_glossaryentry"
+    },
+    "heading": {
+        "string": "type_glossaryentry_title"
+    },
+    "description": {
+        "string": "type_glossaryentry_desc"
+    },
+    "screens": [
+        {
+            "key": "term",
+            "title": {
+                "string": "glossaryentry_step_term"
+            },
+            "question": {
+                "string": "glossaryentry_step_term_q"
+            },
+            "items": [
+                {
+                    "key": "concept",
+                    "kind": "text",
+                    "label": {
+                        "string": "glossaryentry_concept"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "glossaryentry_error_concept"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "concept"
+                    }
+                },
+                {
+                    "key": "definition",
+                    "kind": "editor",
+                    "label": {
+                        "string": "glossaryentry_definition"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "glossaryentry_error_definition"
+                    },
+                    "sets": {
+                        "field": "definition"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "keywords",
+            "title": {
+                "string": "glossaryentry_step_keywords"
+            },
+            "question": {
+                "string": "glossaryentry_step_keywords_q"
+            },
+            "items": [
+                {
+                    "key": "aliases",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "glossaryentry_aliases"
+                    },
+                    "help": {
+                        "string": "glossaryentry_aliases_help"
+                    },
+                    "sets": {
+                        "field": "aliases"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "linking",
+            "title": {
+                "string": "glossaryentry_step_linking"
+            },
+            "question": {
+                "string": "glossaryentry_step_linking_q"
+            },
+            "when": {
+                "all": [
+                    {
+                        "offered": {
+                            "field": "usedynalink",
+                            "value": 1
+                        }
+                    },
+                    {
+                        "site": "filter",
+                        "name": "glossary"
+                    }
+                ]
+            },
+            "items": [
+                {
+                    "key": "usedynalink",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "glossaryentry_usedynalink"
+                    },
+                    "text": {
+                        "string": "glossaryentry_usedynalink_text"
+                    },
+                    "help": {
+                        "string": "glossaryentry_usedynalink_help"
+                    },
+                    "default": "config:core/glossary_linkentries",
+                    "sets": {
+                        "field": "usedynalink",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "casesensitive",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "glossaryentry_casesensitive"
+                    },
+                    "text": {
+                        "string": "glossaryentry_casesensitive_text"
+                    },
+                    "default": "config:core/glossary_casesensitive",
+                    "when": {
+                        "answer": "usedynalink",
+                        "is": 1
+                    },
+                    "sets": {
+                        "field": "casesensitive",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "fullmatch",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "glossaryentry_fullmatch"
+                    },
+                    "text": {
+                        "string": "glossaryentry_fullmatch_text"
+                    },
+                    "default": "config:core/glossary_fullmatch",
+                    "when": {
+                        "answer": "usedynalink",
+                        "is": 1
+                    },
+                    "sets": {
+                        "field": "fullmatch",
+                        "as": "int"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,329 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "databasefield",
+    "defaultversion": 1,
+    "target": {
+        "type": "content",
+        "modname": "data",
+        "content": "tool_wizards/data_field"
+    },
+    "title": {
+        "string": "type_databasefield"
+    },
+    "heading": {
+        "string": "type_databasefield_title"
+    },
+    "description": {
+        "string": "type_databasefield_desc"
+    },
+    "screens": [
+        {
+            "key": "kind",
+            "title": {
+                "string": "databasefield_step_kind"
+            },
+            "question": {
+                "string": "databasefield_step_kind_q"
+            },
+            "items": [
+                {
+                    "key": "fieldtype",
+                    "kind": "cards",
+                    "label": {
+                        "string": "databasefield_type"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "databasefield_error_type"
+                    },
+                    "choices": [
+                        {
+                            "value": "text",
+                            "title": {
+                                "string": "databasefield_type_text"
+                            },
+                            "desc": {
+                                "string": "databasefield_type_text_desc"
+                            },
+                            "picture": "pix:purpose/databasefield_text",
+                            "when": {
+                                "offered": {
+                                    "field": "type",
+                                    "value": "text"
+                                }
+                            },
+                            "sets": {
+                                "type": "text"
+                            }
+                        },
+                        {
+                            "value": "textarea",
+                            "title": {
+                                "string": "databasefield_type_textarea"
+                            },
+                            "desc": {
+                                "string": "databasefield_type_textarea_desc"
+                            },
+                            "picture": "pix:purpose/databasefield_textarea",
+                            "when": {
+                                "offered": {
+                                    "field": "type",
+                                    "value": "textarea"
+                                }
+                            },
+                            "sets": {
+                                "type": "textarea"
+                            }
+                        },
+                        {
+                            "value": "number",
+                            "title": {
+                                "string": "databasefield_type_number"
+                            },
+                            "desc": {
+                                "string": "databasefield_type_number_desc"
+                            },
+                            "picture": "pix:purpose/databasefield_number",
+                            "when": {
+                                "offered": {
+                                    "field": "type",
+                                    "value": "number"
+                                }
+                            },
+                            "sets": {
+                                "type": "number"
+                            }
+                        },
+                        {
+                            "value": "date",
+                            "title": {
+                                "string": "databasefield_type_date"
+                            },
+                            "desc": {
+                                "string": "databasefield_type_date_desc"
+                            },
+                            "picture": "pix:purpose/databasefield_date",
+                            "when": {
+                                "offered": {
+                                    "field": "type",
+                                    "value": "date"
+                                }
+                            },
+                            "sets": {
+                                "type": "date"
+                            }
+                        },
+                        {
+                            "value": "menu",
+                            "title": {
+                                "string": "databasefield_type_menu"
+                            },
+                            "desc": {
+                                "string": "databasefield_type_menu_desc"
+                            },
+                            "picture": "pix:purpose/databasefield_menu",
+                            "when": {
+                                "offered": {
+                                    "field": "type",
+                                    "value": "menu"
+                                }
+                            },
+                            "sets": {
+                                "type": "menu"
+                            }
+                        },
+                        {
+                            "value": "radiobutton",
+                            "title": {
+                                "string": "databasefield_type_radiobutton"
+                            },
+                            "desc": {
+                                "string": "databasefield_type_radiobutton_desc"
+                            },
+                            "picture": "pix:purpose/databasefield_radiobutton",
+                            "when": {
+                                "offered": {
+                                    "field": "type",
+                                    "value": "radiobutton"
+                                }
+                            },
+                            "sets": {
+                                "type": "radiobutton"
+                            }
+                        },
+                        {
+                            "value": "checkbox",
+                            "title": {
+                                "string": "databasefield_type_checkbox"
+                            },
+                            "desc": {
+                                "string": "databasefield_type_checkbox_desc"
+                            },
+                            "picture": "pix:purpose/databasefield_checkbox",
+                            "when": {
+                                "offered": {
+                                    "field": "type",
+                                    "value": "checkbox"
+                                }
+                            },
+                            "sets": {
+                                "type": "checkbox"
+                            }
+                        },
+                        {
+                            "value": "url",
+                            "title": {
+                                "string": "databasefield_type_url"
+                            },
+                            "desc": {
+                                "string": "databasefield_type_url_desc"
+                            },
+                            "picture": "pix:purpose/databasefield_url",
+                            "when": {
+                                "offered": {
+                                    "field": "type",
+                                    "value": "url"
+                                }
+                            },
+                            "sets": {
+                                "type": "url"
+                            }
+                        },
+                        {
+                            "value": "picture",
+                            "title": {
+                                "string": "databasefield_type_picture"
+                            },
+                            "desc": {
+                                "string": "databasefield_type_picture_desc"
+                            },
+                            "picture": "pix:purpose/databasefield_picture",
+                            "when": {
+                                "offered": {
+                                    "field": "type",
+                                    "value": "picture"
+                                }
+                            },
+                            "sets": {
+                                "type": "picture"
+                            }
+                        },
+                        {
+                            "value": "file",
+                            "title": {
+                                "string": "databasefield_type_file"
+                            },
+                            "desc": {
+                                "string": "databasefield_type_file_desc"
+                            },
+                            "picture": "pix:purpose/databasefield_file",
+                            "when": {
+                                "offered": {
+                                    "field": "type",
+                                    "value": "file"
+                                }
+                            },
+                            "sets": {
+                                "type": "file"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "about",
+            "title": {
+                "string": "databasefield_step_about"
+            },
+            "question": {
+                "string": "databasefield_step_about_q"
+            },
+            "items": [
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "databasefield_name"
+                    },
+                    "help": {
+                        "string": "databasefield_name_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "databasefield_error_name"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "description",
+                    "kind": "text",
+                    "label": {
+                        "string": "databasefield_description"
+                    },
+                    "help": {
+                        "string": "databasefield_description_help"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "description"
+                    }
+                },
+                {
+                    "key": "required",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "databasefield_required"
+                    },
+                    "text": {
+                        "string": "databasefield_required_text"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "required",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "options",
+            "title": {
+                "string": "databasefield_step_options"
+            },
+            "question": {
+                "string": "databasefield_step_options_q"
+            },
+            "when": {
+                "answer": "fieldtype",
+                "in": [
+                    "menu",
+                    "radiobutton",
+                    "checkbox"
+                ]
+            },
+            "items": [
+                {
+                    "key": "options",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "databasefield_options"
+                    },
+                    "help": {
+                        "string": "databasefield_options_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "databasefield_error_options"
+                    },
+                    "sets": {
+                        "field": "options"
+                    }
+                }
+            ]
+        }
+    ]
+}

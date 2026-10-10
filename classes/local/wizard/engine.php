@@ -54,6 +54,9 @@ class engine {
     /** @var array|null field => offered values in the target form, once read */
     protected ?array $offered = null;
 
+    /** @var \cm_info|null the activity, for an in-activity wizard */
+    protected ?\cm_info $cm = null;
+
     /**
      * Constructor.
      *
@@ -67,6 +70,38 @@ class engine {
         $this->wizardid = $wizardid;
         $this->course = $course;
         $this->categoryid = $categoryid;
+    }
+
+    /**
+     * Run an in-activity wizard on this activity (its course becomes the wizard's course).
+     *
+     * @param \cm_info $cm the activity
+     * @return self
+     */
+    public function set_cm(\cm_info $cm): self {
+        $this->cm = $cm;
+        $this->course = get_course($cm->course);
+        $this->offered = null;
+        $this->screens = null;
+        return $this;
+    }
+
+    /**
+     * The activity an in-activity wizard adds to.
+     *
+     * @return \cm_info|null
+     */
+    public function cm(): ?\cm_info {
+        return $this->cm;
+    }
+
+    /**
+     * Whether this is an in-activity wizard.
+     *
+     * @return bool
+     */
+    public function is_content_wizard(): bool {
+        return ($this->doc['target']['type'] ?? '') === 'content';
     }
 
     /**
@@ -111,6 +146,9 @@ class engine {
      * @return \context
      */
     public function context(): \context {
+        if ($this->cm) {
+            return $this->cm->context;
+        }
         if ($this->course) {
             return \core\context\course::instance($this->course->id);
         }
@@ -215,6 +253,14 @@ class engine {
                 }
                 $choices[] = ['value' => $format['name'], 'title' => $format['label'], 'desc' => $format['description'],
                     'flags' => $flags, 'cond' => null];
+            }
+            return $choices;
+        }
+        if (($item['choicesfrom'] ?? '') === 'course:ltitools') {
+            $choices = [];
+            foreach (module_creator::lti_tools($this->course) as $tool) {
+                $choices[] = ['value' => (int) $tool->id, 'title' => format_string($tool->name),
+                    'desc' => shorten_text(format_string($tool->description ?? ''), 150), 'cond' => null];
             }
             return $choices;
         }
@@ -338,7 +384,8 @@ class engine {
      * @return bool
      */
     public function module_supports(string $feature, $default = false): bool {
-        return !$this->is_course_wizard() && (bool) plugin_supports('mod', $this->modname(), $feature, $default);
+        return !$this->is_course_wizard() && !$this->is_content_wizard()
+            && (bool) plugin_supports('mod', $this->modname(), $feature, $default);
     }
 
     /**
@@ -349,7 +396,12 @@ class engine {
     public function offered(): array {
         if ($this->offered === null) {
             $this->offered = [];
-            if (!$this->is_course_wizard() && $this->course) {
+            if ($this->is_content_wizard()) {
+                $class = extensions::content_for($this->doc);
+                if ($class && $this->cm) {
+                    $this->offered = $class::offered($this->cm);
+                }
+            } else if (!$this->is_course_wizard() && $this->course) {
                 $form = module_creator::form($this->course, $this->modname());
                 $this->offered = \tool_wizards\local\form_submission::offered_values($form);
             }

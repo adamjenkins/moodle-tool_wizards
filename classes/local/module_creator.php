@@ -71,7 +71,22 @@ class module_creator {
         }
         $context = \core\context\course::instance($course->id);
         return has_capability('moodle/course:manageactivities', $context, $user)
-            && course_allowed_module($course, $modname, $user);
+            && course_allowed_module($course, $modname, $user)
+            // Since Moodle 4.3 an external tool is always one of the tools set up for the site or course.
+            && ($modname !== 'lti' || self::lti_tools($course, $user));
+    }
+
+    /**
+     * The external tools a user may add to a course: the site's and the course's own preconfigured tools.
+     *
+     * @param stdClass $course the course
+     * @param stdClass|null $user the user, default the current one
+     * @return stdClass[] tool types
+     */
+    public static function lti_tools(stdClass $course, ?stdClass $user = null): array {
+        global $CFG, $USER;
+        require_once($CFG->dirroot . '/mod/lti/locallib.php');
+        return array_values(\mod_lti\local\types_helper::get_lti_types_by_course((int) $course->id, (int) ($user ?? $USER)->id));
     }
 
     /**
@@ -133,7 +148,7 @@ class module_creator {
      * @return array [\moodleform $mform, \stdClass|null $fromform, array $errors]
      */
     protected static function submit(stdClass $course, string $modname, array $answers, ?int $sectionnum = null): array {
-        $factory = self::factory($course, $modname, $sectionnum);
+        $factory = self::factory($course, $modname, $sectionnum, (int) ($answers['typeid'] ?? 0));
         $values = form_submission::browser_values($factory(), $answers);
         return form_submission::submit($factory, $values);
     }
@@ -144,9 +159,10 @@ class module_creator {
      * @param stdClass $course the course
      * @param string $modname the module
      * @param int|null $sectionnum the section, default {@see default_section()}
+     * @param int $typeid for an external tool, the chosen tool
      * @return callable
      */
-    protected static function factory(stdClass $course, string $modname, ?int $sectionnum = null): callable {
+    protected static function factory(stdClass $course, string $modname, ?int $sectionnum = null, int $typeid = 0): callable {
         global $CFG, $PAGE;
         require_once($CFG->dirroot . '/course/modlib.php');
         require_once($CFG->libdir . '/formslib.php');
@@ -178,8 +194,27 @@ class module_creator {
         $data->add = $modname;
         require_once($CFG->dirroot . '/mod/' . $modname . '/mod_form.php');
         $classname = 'mod_' . $modname . '_mod_form';
-        return function () use ($classname, $data, $cw, $cm, $course) {
-            $form = new $classname(clone $data, $cw->section, $cm, $course);
+        if ($modname === 'lti' && $typeid) {
+            // As the activity chooser does: the tool comes in the request, which the external tool's form reads.
+            if (!in_array($typeid, array_map(fn($tool) => (int) $tool->id, self::lti_tools($course)), true)) {
+                throw new \moodle_exception('error_notavailable', 'tool_wizards');
+            }
+            $data->typeid = $typeid;
+        }
+        return function () use ($classname, $data, $cw, $cm, $course, $typeid) {
+            $saved = $_GET['typeid'] ?? null;
+            if ($typeid) {
+                $_GET['typeid'] = $typeid;
+            }
+            try {
+                $form = new $classname(clone $data, $cw->section, $cm, $course);
+            } finally {
+                if ($saved === null) {
+                    unset($_GET['typeid']);
+                } else {
+                    $_GET['typeid'] = $saved;
+                }
+            }
             $form->set_data(clone $data);
             return $form;
         };

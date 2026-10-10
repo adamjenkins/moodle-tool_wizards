@@ -1,0 +1,243 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "book",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "book"
+    },
+    "title": {
+        "string": "type_book"
+    },
+    "heading": {
+        "string": "type_book_title"
+    },
+    "description": {
+        "string": "type_book_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "book_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "book_name"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "description",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "book_description"
+                    },
+                    "sets": {
+                        "field": "introeditor",
+                        "as": "editor"
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "book_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "textbook",
+                            "title": {
+                                "string": "book_purpose_textbook"
+                            },
+                            "desc": {
+                                "string": "book_purpose_textbook_desc"
+                            },
+                            "picture": "pix:purpose/book_textbook",
+                            "preset": {
+                                "numbering": 1,
+                                "customtitles": 0,
+                                "completion": "view"
+                            }
+                        },
+                        {
+                            "value": "handbook",
+                            "title": {
+                                "string": "book_purpose_handbook"
+                            },
+                            "desc": {
+                                "string": "book_purpose_handbook_desc"
+                            },
+                            "picture": "pix:purpose/book_handbook",
+                            "preset": {
+                                "numbering": 3,
+                                "customtitles": 0,
+                                "completion": "default"
+                            }
+                        },
+                        {
+                            "value": "collection",
+                            "title": {
+                                "string": "book_purpose_collection"
+                            },
+                            "desc": {
+                                "string": "book_purpose_collection_desc"
+                            },
+                            "picture": "pix:purpose/book_collection",
+                            "preset": {
+                                "numbering": 2,
+                                "customtitles": 0,
+                                "completion": "view"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "book_chapters_hint"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "chapters",
+            "title": {
+                "string": "book_step_chapters"
+            },
+            "question": {
+                "string": "book_step_chapters_q"
+            },
+            "items": [
+                {
+                    "key": "numbering",
+                    "kind": "choice",
+                    "label": {
+                        "string": "book_numbering"
+                    },
+                    "default": "config:book/numbering",
+                    "sets": {
+                        "field": "numbering"
+                    },
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "book_numbering_numbers"
+                            },
+                            "desc": {
+                                "string": "book_numbering_numbers_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "numbering",
+                                    "value": 1
+                                }
+                            }
+                        },
+                        {
+                            "value": 3,
+                            "title": {
+                                "string": "book_numbering_indented"
+                            },
+                            "desc": {
+                                "string": "book_numbering_indented_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "numbering",
+                                    "value": 3
+                                }
+                            }
+                        },
+                        {
+                            "value": 2,
+                            "title": {
+                                "string": "book_numbering_bullets"
+                            },
+                            "desc": {
+                                "string": "book_numbering_bullets_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "numbering",
+                                    "value": 2
+                                }
+                            }
+                        },
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "book_numbering_none"
+                            },
+                            "desc": {
+                                "string": "book_numbering_none_desc"
+                            },
+                            "when": {
+                                "offered": {
+                                    "field": "numbering",
+                                    "value": 0
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "customtitles",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "book_customtitles"
+                    },
+                    "help": {
+                        "string": "book_customtitles_help"
+                    },
+                    "text": {
+                        "string": "book_customtitles_label"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "customtitles",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "book_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

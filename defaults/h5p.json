@@ -1,0 +1,350 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "h5p",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "h5pactivity"
+    },
+    "title": {
+        "string": "type_h5p"
+    },
+    "heading": {
+        "string": "type_h5p_title"
+    },
+    "description": {
+        "string": "type_h5p_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "h5p_intro"
+                    }
+                },
+                {
+                    "key": "packagefile",
+                    "kind": "file",
+                    "label": {
+                        "string": "h5p_upload"
+                    },
+                    "help": {
+                        "string": "h5p_upload_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_nofile"
+                    },
+                    "accept": [
+                        ".h5p"
+                    ],
+                    "sets": {
+                        "field": "packagefile",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "file_name"
+                    },
+                    "help": {
+                        "string": "file_name_hint"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name",
+                        "emptyfrom": {
+                            "filename": "packagefile"
+                        }
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "h5p_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "practice",
+                            "title": {
+                                "string": "h5p_purpose_practice"
+                            },
+                            "desc": {
+                                "string": "h5p_purpose_practice_desc"
+                            },
+                            "picture": "pix:purpose/h5p_practice",
+                            "sets": {
+                                "enabletracking": 1,
+                                "grade": {
+                                    "modgrade_type": "none"
+                                }
+                            },
+                            "preset": {
+                                "reviewmode": 1,
+                                "completion": "view"
+                            }
+                        },
+                        {
+                            "value": "graded",
+                            "title": {
+                                "string": "h5p_purpose_graded"
+                            },
+                            "desc": {
+                                "string": "h5p_purpose_graded_desc"
+                            },
+                            "picture": "pix:purpose/h5p_graded",
+                            "sets": {
+                                "enabletracking": 1,
+                                "grade": {
+                                    "modgrade_type": "point"
+                                }
+                            },
+                            "preset": {
+                                "grademethod": 1,
+                                "reviewmode": 1,
+                                "completion": "graded"
+                            }
+                        },
+                        {
+                            "value": "explore",
+                            "title": {
+                                "string": "h5p_purpose_explore"
+                            },
+                            "desc": {
+                                "string": "h5p_purpose_explore_desc"
+                            },
+                            "picture": "pix:purpose/h5p_explore",
+                            "sets": {
+                                "enabletracking": 0,
+                                "grade": {
+                                    "modgrade_type": "none"
+                                }
+                            },
+                            "preset": {
+                                "completion": "view"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "key": "tries",
+            "title": {
+                "string": "h5p_step_tries"
+            },
+            "question": {
+                "string": "h5p_step_tries_q"
+            },
+            "when": {
+                "answer": "purpose",
+                "in": [
+                    "practice",
+                    "graded"
+                ]
+            },
+            "items": [
+                {
+                    "key": "grademethod",
+                    "kind": "choice",
+                    "label": {
+                        "string": "h5p_grademethod"
+                    },
+                    "when": {
+                        "answer": "purpose",
+                        "is": "graded"
+                    },
+                    "default": 1,
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "h5p_grademethod_highest"
+                            },
+                            "desc": {
+                                "string": "h5p_grademethod_highest_desc"
+                            }
+                        },
+                        {
+                            "value": 3,
+                            "title": {
+                                "string": "h5p_grademethod_last"
+                            },
+                            "desc": {
+                                "string": "h5p_grademethod_last_desc"
+                            }
+                        },
+                        {
+                            "value": 4,
+                            "title": {
+                                "string": "h5p_grademethod_first"
+                            },
+                            "desc": {
+                                "string": "h5p_grademethod_first_desc"
+                            }
+                        },
+                        {
+                            "value": 2,
+                            "title": {
+                                "string": "h5p_grademethod_average"
+                            },
+                            "desc": {
+                                "string": "h5p_grademethod_average_desc"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "grademethod",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "reviewmode",
+                    "kind": "choice",
+                    "label": {
+                        "string": "h5p_reviewmode"
+                    },
+                    "default": 1,
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "h5p_review_yes"
+                            },
+                            "desc": {
+                                "string": "h5p_review_yes_desc"
+                            }
+                        },
+                        {
+                            "value": 0,
+                            "title": {
+                                "string": "h5p_review_no"
+                            },
+                            "desc": {
+                                "string": "h5p_review_no_desc"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "reviewmode",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "buttons",
+            "title": {
+                "string": "h5p_step_buttons"
+            },
+            "question": {
+                "string": "h5p_step_buttons_q"
+            },
+            "items": [
+                {
+                    "key": "buttons",
+                    "kind": "choice",
+                    "label": {
+                        "string": "h5p_step_buttons"
+                    },
+                    "default": "site",
+                    "choices": [
+                        {
+                            "value": "site",
+                            "title": {
+                                "string": "h5p_buttons_site"
+                            },
+                            "desc": {
+                                "string": "h5p_buttons_site_desc"
+                            }
+                        },
+                        {
+                            "value": "share",
+                            "title": {
+                                "string": "h5p_buttons_share"
+                            },
+                            "desc": {
+                                "string": "h5p_buttons_share_desc"
+                            },
+                            "sets": {
+                                "displayopt": {
+                                    "export": 1,
+                                    "copyright": 1
+                                }
+                            }
+                        },
+                        {
+                            "value": "none",
+                            "title": {
+                                "string": "h5p_buttons_none"
+                            },
+                            "desc": {
+                                "string": "h5p_buttons_none_desc"
+                            },
+                            "sets": {
+                                "displayopt": {
+                                    "export": 0,
+                                    "embed": 0,
+                                    "copyright": 0
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "h5p_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1
+                    }
+                },
+                {
+                    "value": "graded",
+                    "title": {
+                        "string": "h5p_completion_graded"
+                    },
+                    "desc": {
+                        "string": "h5p_completion_graded_desc"
+                    },
+                    "when": {
+                        "answer": "purpose",
+                        "is": "graded"
+                    },
+                    "sets": {
+                        "completionusegrade": 1,
+                        "completionpassgrade": 0
+                    }
+                }
+            ]
+        }
+    ]
+}

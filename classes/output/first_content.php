@@ -77,6 +77,7 @@ class first_content implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): array {
         $added = null;
+        $nextsteps = [];
         $types = $this->types;
         if ($this->justadded) {
             $modinfo = get_fast_modinfo($this->course);
@@ -87,6 +88,16 @@ class first_content implements renderable, templatable {
                     'name' => format_string($cm->name, true, ['context' => $cm->context, 'escape' => false]),
                     'url' => $cm->url ? $cm->url->out(false) : '',
                 ];
+                // Straight on to its content: "Add questions", "Add pages", ...
+                foreach (repository::for_cm($cm) as $record) {
+                    $doc = repository::definition($record);
+                    $nextsteps[] = [
+                        'type' => $record->wizardkey,
+                        'cmid' => (int) $cm->id,
+                        'label' => text::get($doc['title'] ?? $record->wizardkey),
+                        'modaltitle' => text::get($doc['heading'] ?? $doc['title'] ?? ''),
+                    ];
+                }
                 // Suggest something different next.
                 $others = array_values(array_filter($types, fn($t) => $t->target !== $cm->modname));
                 $types = array_slice($others ?: $types, 0, prompt::NEXT_SUGGESTIONS);
@@ -94,7 +105,7 @@ class first_content implements renderable, templatable {
         }
 
         $options = [];
-        foreach ($types as $record) {
+        foreach (array_values($types) as $i => $record) {
             $doc = repository::definition($record);
             $title = text::get($doc['title'] ?? $record->wizardkey);
             $options[] = [
@@ -105,6 +116,8 @@ class first_content implements renderable, templatable {
                 'iconurl' => $output->image_url('monologo', 'mod_' . $record->target)->out(false),
                 'purpose' => \tool_wizards\hook_callbacks::purpose($record->target),
                 'modname' => $record->target,
+                // Beyond the first few, shown on request, so a new teacher is not faced with every wizard at once.
+                'more' => $i >= prompt::FIRST_SUGGESTIONS,
             ];
         }
 
@@ -127,6 +140,8 @@ class first_content implements renderable, templatable {
             'questionfailed' => $this->questionfailed,
             'focus' => $this->justcreated || $added !== null,
             'options' => $options,
+            'nextsteps' => $nextsteps,
+            'morecount' => max(0, count($options) - prompt::FIRST_SUGGESTIONS),
             'preferencesurl' => (new \moodle_url('/admin/tool/wizards/preferences.php'))->out(false),
         ];
     }

@@ -1,0 +1,481 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "workshopform",
+    "defaultversion": 1,
+    "target": {
+        "type": "content",
+        "modname": "workshop",
+        "content": "tool_wizards/workshop_form"
+    },
+    "title": {
+        "string": "type_workshopform"
+    },
+    "heading": {
+        "string": "type_workshopform_title"
+    },
+    "description": {
+        "string": "type_workshopform_desc"
+    },
+    "screens": [
+        {
+            "key": "point",
+            "title": {
+                "string": "workshopform_step_point"
+            },
+            "question": {
+                "string": "workshopform_step_point_q"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopform_intro_comments"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "strategy",
+                            "value": "comments"
+                        }
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopform_intro_accumulative"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "strategy",
+                            "value": "accumulative"
+                        }
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopform_intro_numerrors"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "strategy",
+                            "value": "numerrors"
+                        }
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopform_intro_rubric"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "strategy",
+                            "value": "rubric"
+                        }
+                    }
+                },
+                {
+                    "key": "aspect",
+                    "kind": "editor",
+                    "label": {
+                        "string": "workshopform_aspect"
+                    },
+                    "help": {
+                        "string": "workshopform_aspect_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "workshopform_error_description"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "strategy",
+                            "value": "comments"
+                        }
+                    },
+                    "sets": {
+                        "field": "description"
+                    }
+                },
+                {
+                    "key": "criterion",
+                    "kind": "editor",
+                    "label": {
+                        "string": "workshopform_criterion"
+                    },
+                    "help": {
+                        "string": "workshopform_criterion_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "workshopform_error_description"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "strategy",
+                            "value": "accumulative"
+                        }
+                    },
+                    "sets": {
+                        "field": "description"
+                    }
+                },
+                {
+                    "key": "assertion",
+                    "kind": "editor",
+                    "label": {
+                        "string": "workshopform_assertion"
+                    },
+                    "help": {
+                        "string": "workshopform_assertion_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "workshopform_error_description"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "strategy",
+                            "value": "numerrors"
+                        }
+                    },
+                    "sets": {
+                        "field": "description"
+                    }
+                },
+                {
+                    "key": "rubriccriterion",
+                    "kind": "editor",
+                    "label": {
+                        "string": "workshopform_rubriccriterion"
+                    },
+                    "help": {
+                        "string": "workshopform_rubriccriterion_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "workshopform_error_description"
+                    },
+                    "when": {
+                        "offered": {
+                            "field": "strategy",
+                            "value": "rubric"
+                        }
+                    },
+                    "sets": {
+                        "field": "description"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "points",
+            "title": {
+                "string": "workshopform_step_points"
+            },
+            "question": {
+                "string": "workshopform_step_points_q"
+            },
+            "when": {
+                "offered": {
+                    "field": "strategy",
+                    "value": "accumulative"
+                }
+            },
+            "items": [
+                {
+                    "key": "maxpoints",
+                    "kind": "number",
+                    "label": {
+                        "string": "workshopform_points"
+                    },
+                    "help": {
+                        "string": "workshopform_points_help"
+                    },
+                    "required": true,
+                    "min": 1,
+                    "max": 100,
+                    "default": 10,
+                    "sets": {
+                        "field": "points"
+                    }
+                },
+                {
+                    "key": "weight",
+                    "kind": "choice",
+                    "label": {
+                        "string": "workshopform_weight"
+                    },
+                    "help": {
+                        "string": "workshopform_weight_help"
+                    },
+                    "default": 1,
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "workshopform_weight_1"
+                            },
+                            "desc": {
+                                "string": "workshopform_weight_1_desc"
+                            }
+                        },
+                        {
+                            "value": 2,
+                            "title": {
+                                "string": "workshopform_weight_2"
+                            },
+                            "desc": {
+                                "string": "workshopform_weight_2_desc"
+                            }
+                        },
+                        {
+                            "value": 3,
+                            "title": {
+                                "string": "workshopform_weight_3"
+                            },
+                            "desc": {
+                                "string": "workshopform_weight_3_desc"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "weight"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "answers",
+            "title": {
+                "string": "workshopform_step_answers"
+            },
+            "question": {
+                "string": "workshopform_step_answers_q"
+            },
+            "when": {
+                "offered": {
+                    "field": "strategy",
+                    "value": "numerrors"
+                }
+            },
+            "items": [
+                {
+                    "key": "wordyes",
+                    "kind": "text",
+                    "label": {
+                        "string": "workshopform_wordyes"
+                    },
+                    "help": {
+                        "string": "workshopform_wordyes_help"
+                    },
+                    "required": true,
+                    "maxlength": 50,
+                    "default": "config:workshopform_numerrors/grade1",
+                    "sets": {
+                        "field": "wordyes"
+                    }
+                },
+                {
+                    "key": "wordno",
+                    "kind": "text",
+                    "label": {
+                        "string": "workshopform_wordno"
+                    },
+                    "required": true,
+                    "maxlength": 50,
+                    "default": "config:workshopform_numerrors/grade0",
+                    "sets": {
+                        "field": "wordno"
+                    }
+                },
+                {
+                    "key": "errorweight",
+                    "kind": "choice",
+                    "label": {
+                        "string": "workshopform_weight"
+                    },
+                    "help": {
+                        "string": "workshopform_weight_help"
+                    },
+                    "default": 1,
+                    "choices": [
+                        {
+                            "value": 1,
+                            "title": {
+                                "string": "workshopform_weight_1"
+                            },
+                            "desc": {
+                                "string": "workshopform_weight_1_desc"
+                            }
+                        },
+                        {
+                            "value": 2,
+                            "title": {
+                                "string": "workshopform_weight_2"
+                            },
+                            "desc": {
+                                "string": "workshopform_weight_2_desc"
+                            }
+                        },
+                        {
+                            "value": 3,
+                            "title": {
+                                "string": "workshopform_weight_3"
+                            },
+                            "desc": {
+                                "string": "workshopform_weight_3_desc"
+                            }
+                        }
+                    ],
+                    "sets": {
+                        "field": "weight"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "levels",
+            "title": {
+                "string": "workshopform_step_levels"
+            },
+            "question": {
+                "string": "workshopform_step_levels_q"
+            },
+            "when": {
+                "offered": {
+                    "field": "strategy",
+                    "value": "rubric"
+                }
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "workshopform_levels_hint"
+                    }
+                },
+                {
+                    "key": "level1",
+                    "kind": "text",
+                    "label": {
+                        "string": "workshopform_level1"
+                    },
+                    "maxlength": 1000,
+                    "sets": {
+                        "field": "leveldefinition[1]"
+                    },
+                    "help": {
+                        "string": "workshopform_level1_help"
+                    },
+                    "required": true
+                },
+                {
+                    "key": "level1points",
+                    "kind": "number",
+                    "label": {
+                        "string": "workshopform_levelpoints"
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "default": 0,
+                    "sets": {
+                        "field": "levelpoints[1]"
+                    },
+                    "required": true
+                },
+                {
+                    "key": "level2",
+                    "kind": "text",
+                    "label": {
+                        "string": "workshopform_level2"
+                    },
+                    "maxlength": 1000,
+                    "sets": {
+                        "field": "leveldefinition[2]"
+                    },
+                    "required": true
+                },
+                {
+                    "key": "level2points",
+                    "kind": "number",
+                    "label": {
+                        "string": "workshopform_levelpoints"
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "default": 1,
+                    "sets": {
+                        "field": "levelpoints[2]"
+                    },
+                    "required": true
+                }
+            ]
+        },
+        {
+            "key": "morelevels",
+            "title": {
+                "string": "workshopform_step_morelevels"
+            },
+            "question": {
+                "string": "workshopform_step_morelevels_q"
+            },
+            "when": {
+                "offered": {
+                    "field": "strategy",
+                    "value": "rubric"
+                }
+            },
+            "items": [
+                {
+                    "key": "level3",
+                    "kind": "text",
+                    "label": {
+                        "string": "workshopform_level3"
+                    },
+                    "maxlength": 1000,
+                    "sets": {
+                        "field": "leveldefinition[3]"
+                    }
+                },
+                {
+                    "key": "level3points",
+                    "kind": "number",
+                    "label": {
+                        "string": "workshopform_levelpoints"
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "default": 2,
+                    "sets": {
+                        "field": "levelpoints[3]"
+                    }
+                },
+                {
+                    "key": "level4",
+                    "kind": "text",
+                    "label": {
+                        "string": "workshopform_level4"
+                    },
+                    "maxlength": 1000,
+                    "sets": {
+                        "field": "leveldefinition[4]"
+                    }
+                },
+                {
+                    "key": "level4points",
+                    "kind": "number",
+                    "label": {
+                        "string": "workshopform_levelpoints"
+                    },
+                    "min": 0,
+                    "max": 100,
+                    "default": 3,
+                    "sets": {
+                        "field": "levelpoints[4]"
+                    }
+                }
+            ]
+        }
+    ]
+}

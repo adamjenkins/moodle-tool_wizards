@@ -1,0 +1,241 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "wiki",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "wiki"
+    },
+    "title": {
+        "string": "type_wiki"
+    },
+    "heading": {
+        "string": "type_wiki_title"
+    },
+    "description": {
+        "string": "type_wiki_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "wiki_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "wiki_name"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "description",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "wiki_description"
+                    },
+                    "sets": {
+                        "field": "introeditor",
+                        "as": "editor"
+                    }
+                },
+                {
+                    "key": "purpose",
+                    "kind": "cards",
+                    "label": {
+                        "string": "wiki_purpose"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "class",
+                            "title": {
+                                "string": "wiki_purpose_class"
+                            },
+                            "desc": {
+                                "string": "wiki_purpose_class_desc"
+                            },
+                            "picture": "pix:purpose/wiki_class",
+                            "sets": {
+                                "wikimode": "collaborative"
+                            },
+                            "preset": {
+                                "defaultformat": "html",
+                                "forceformat": 1,
+                                "completion": "view"
+                            }
+                        },
+                        {
+                            "value": "groups",
+                            "title": {
+                                "string": "wiki_purpose_groups"
+                            },
+                            "desc": {
+                                "string": "wiki_purpose_groups_desc"
+                            },
+                            "picture": "pix:purpose/wiki_groups",
+                            "when": {
+                                "course": "hasgroups"
+                            },
+                            "sets": {
+                                "wikimode": "collaborative"
+                            },
+                            "preset": {
+                                "defaultformat": "html",
+                                "forceformat": 1,
+                                "groupmode": 1,
+                                "completion": "view"
+                            }
+                        },
+                        {
+                            "value": "individual",
+                            "title": {
+                                "string": "wiki_purpose_individual"
+                            },
+                            "desc": {
+                                "string": "wiki_purpose_individual_desc"
+                            },
+                            "picture": "pix:purpose/wiki_individual",
+                            "sets": {
+                                "wikimode": "individual"
+                            },
+                            "preset": {
+                                "defaultformat": "html",
+                                "forceformat": 1,
+                                "completion": "view"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "wiki_mode_hint"
+                    }
+                },
+                {
+                    "key": "firstpagetitle",
+                    "kind": "text",
+                    "label": {
+                        "string": "wiki_firstpagetitle"
+                    },
+                    "help": {
+                        "string": "wiki_firstpagetitle_help"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "wiki_error_firstpagetitle"
+                    },
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "firstpagetitle"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "writing",
+            "title": {
+                "string": "wiki_step_writing"
+            },
+            "question": {
+                "string": "wiki_step_writing_q"
+            },
+            "items": [
+                {
+                    "key": "defaultformat",
+                    "kind": "choice",
+                    "label": {
+                        "string": "wiki_defaultformat"
+                    },
+                    "default": "html",
+                    "sets": {
+                        "field": "defaultformat"
+                    },
+                    "choices": [
+                        {
+                            "value": "html",
+                            "title": {
+                                "string": "wiki_format_html"
+                            },
+                            "desc": {
+                                "string": "wiki_format_html_desc"
+                            }
+                        },
+                        {
+                            "value": "creole",
+                            "title": {
+                                "string": "wiki_format_creole"
+                            },
+                            "desc": {
+                                "string": "wiki_format_creole_desc"
+                            }
+                        },
+                        {
+                            "value": "nwiki",
+                            "title": {
+                                "string": "wiki_format_nwiki"
+                            },
+                            "desc": {
+                                "string": "wiki_format_nwiki_desc"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "forceformat",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "wiki_forceformat"
+                    },
+                    "text": {
+                        "string": "wiki_forceformat_label"
+                    },
+                    "default": 1,
+                    "sets": {
+                        "field": "forceformat",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "use": "shared:visibility"
+        },
+        {
+            "use": "shared:groups"
+        },
+        {
+            "use": "shared:completion",
+            "choices": [
+                {
+                    "value": "view",
+                    "title": {
+                        "string": "completion_view"
+                    },
+                    "desc": {
+                        "string": "wiki_completion_view_desc"
+                    },
+                    "sets": {
+                        "completionview": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

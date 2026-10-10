@@ -27,6 +27,22 @@ use tool_wizards\hook\collect_extensions;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class extensions {
+    /** @var array The plugin's own content handlers: name => class. */
+    const BUILTIN_CONTENTS = [
+        'quiz_question' => content\quiz_question::class,
+        'qbank_question' => content\qbank_question::class,
+        'lesson_page' => content\lesson_page::class,
+        'book_chapter' => content\book_chapter::class,
+        'glossary_entry' => content\glossary_entry::class,
+        'data_field' => content\data_field::class,
+        'feedback_item' => content\feedback_item::class,
+        'choice_option' => content\choice_option::class,
+        'workshop_form' => content\workshop_form::class,
+        'workshop_allocation' => content\workshop_allocation::class,
+        'workshop_example' => content\workshop_example::class,
+        'workshop_phase' => content\workshop_phase::class,
+    ];
+
     /** @var collect_extensions|null the hook, once dispatched in this request */
     protected static ?collect_extensions $hook = null;
 
@@ -40,6 +56,9 @@ class extensions {
             $hook = new collect_extensions();
             $hook->add_action('tool_wizards/quiz_first_question', action\quiz_first_question::class);
             $hook->add_transform('tool_wizards/picture_label', transform\picture_label::class);
+            foreach (self::BUILTIN_CONTENTS as $name => $class) {
+                $hook->add_content('tool_wizards/' . $name, $class);
+            }
             \core\di::get(\core\hook\manager::class)->dispatch($hook);
             self::$hook = $hook;
         }
@@ -62,6 +81,28 @@ class extensions {
      */
     public static function transforms(): array {
         return self::hook()->get_transforms();
+    }
+
+    /**
+     * The content handlers.
+     *
+     * @return array name => class
+     */
+    public static function contents(): array {
+        return self::hook()->get_contents();
+    }
+
+    /**
+     * The content handler a wizard definition targets, if it is an in-activity wizard.
+     *
+     * @param array $doc the definition
+     * @return string|null the handler class
+     */
+    public static function content_for(array $doc): ?string {
+        if (($doc['target']['type'] ?? '') !== 'content') {
+            return null;
+        }
+        return self::contents()[$doc['target']['content'] ?? ''] ?? null;
     }
 
     /**

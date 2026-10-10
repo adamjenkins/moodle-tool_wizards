@@ -186,7 +186,7 @@ class form_builder {
             case 'file':
                 global $CFG;
                 $accept = $item['accept'] ?? '*';
-                $mform->addElement('filemanager', $key, $label, null, ['maxfiles' => 1, 'subdirs' => 0,
+                $mform->addElement('filemanager', $key, $label, null, ['maxfiles' => $item['maxfiles'] ?? 1, 'subdirs' => 0,
                     'maxbytes' => $CFG->maxbytes, 'accepted_types' => $accept]);
                 break;
             case 'editor':
