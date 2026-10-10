@@ -67,9 +67,14 @@ export const openWizard = ({courseid, wizard, title, section, preview, returnFoc
             await showPreview(e.detail.lines || []);
             return;
         }
-        // Reload so the new content appears in the course, with the confirmation on top.
+        // Reload so the new content appears in the course, with the confirmation on top; an activity that is
+        // not on the course page (a question bank) opens instead.
         const pending = new Pending('tool_wizards/open_wizard:reload');
-        window.location.reload();
+        if (e.detail && e.detail.url) {
+            window.location.href = e.detail.url;
+        } else {
+            window.location.reload();
+        }
         pending.resolve();
     });
     form.show();

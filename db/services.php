@@ -49,5 +49,6 @@ $functions = [
         'description' => 'Hide the first-content suggestions on one course for the current user.',
         'type' => 'write',
         'ajax' => true,
+        'capabilities' => 'moodle/course:manageactivities',
     ],
 ];

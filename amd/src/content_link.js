@@ -15,8 +15,8 @@
 
 /**
  * "Add with a wizard" at the top of an activity's own page where its in-activity wizards add
- * content (the quiz's questions, the lesson's pages, ...). One wizard opens straight away;
- * several are offered in a list first.
+ * content (the quiz's questions, the lesson's pages, ...), or of a course's question banks page
+ * for the question bank wizard. One wizard opens straight away; several are offered in a list first.
  *
  * The list comes rendered from the server (template tool_wizards/wizard_list) in a hidden
  * template element.
@@ -28,7 +28,7 @@
 
 import Modal from 'core/modal';
 import Templates from 'core/templates';
-import {openContentWizard} from 'tool_wizards/open_wizard';
+import {openContentWizard, openWizard} from 'tool_wizards/open_wizard';
 
 /**
  * Place the button.
@@ -43,6 +43,11 @@ export const init = async(selector) => {
         return;
     }
     const cmid = Number(source.dataset.cmid);
+    // On a course page (the question banks page) the wizards add an activity to the course instead.
+    const courseid = Number(source.dataset.courseid || 0);
+    const open = (wizard, title, returnFocus) => (courseid
+        ? openWizard({courseid, wizard, title, returnFocus})
+        : openContentWizard({cmid, wizard, title, returnFocus}));
     const icon = await Templates.renderPix('wand', 'tool_wizards', '');
     const button = document.createElement('button');
     button.type = 'button';
@@ -59,8 +64,7 @@ export const init = async(selector) => {
     button.addEventListener('click', async(e) => {
         e.preventDefault();
         if (wizards.length === 1) {
-            openContentWizard({cmid, wizard: wizards[0].dataset.wizard, title: wizards[0].dataset.heading,
-                returnFocus: button});
+            open(wizards[0].dataset.wizard, wizards[0].dataset.heading, button);
             return;
         }
         const title = document.createElement('span');
@@ -74,7 +78,7 @@ export const init = async(selector) => {
                 return;
             }
             modal.destroy();
-            openContentWizard({cmid, wizard: item.dataset.wizard, title: item.dataset.heading, returnFocus: button});
+            open(item.dataset.wizard, item.dataset.heading, button);
         });
     });
 };

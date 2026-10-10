@@ -63,12 +63,15 @@ final class validator_test extends advanced_testcase {
     public function test_defaults_are_valid(): void {
         $this->resetAfterTest();
         $shipped = defaults::shipped();
-        $this->assertSame(['course', 'file', 'slides', 'picture', 'page', 'forum', 'glossary', 'quiz', 'assignment', 'link',
+        $this->assertSame(
+            ['course', 'file', 'slides', 'picture', 'page', 'forum', 'glossary', 'quiz', 'assignment', 'link',
             'folder', 'book', 'choice', 'feedback', 'database', 'wiki', 'lesson', 'workshop', 'h5p', 'scorm',
-            'contentpackage', 'externaltool', 'bigbluebutton', 'subsection'], array_slice(array_keys($shipped), 0, 24));
+            'contentpackage', 'externaltool', 'bigbluebutton', 'subsection', 'questionbank'],
+            array_slice(array_keys($shipped), 0, 25)
+        );
         // Then the in-activity wizards, one for each built-in content handler.
         $handlers = [];
-        foreach (array_slice($shipped, 24) as $doc) {
+        foreach (array_slice($shipped, 25) as $doc) {
             $this->assertSame('content', $doc['target']['type']);
             $handlers[] = $doc['target']['content'];
         }

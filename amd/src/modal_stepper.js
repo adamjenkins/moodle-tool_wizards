@@ -357,8 +357,14 @@ class Stepper {
             const conds = data(step, 'itemwhen', {});
             Object.entries(conds).forEach(([key, cond]) => {
                 const container = this.container(key);
+                const shown = this.holds(cond);
                 if (container) {
-                    container.hidden = !this.holds(cond);
+                    container.hidden = !shown;
+                }
+                // Its help line is a row of its own (form_builder marks it with data-wizard-help).
+                const help = this.form.querySelector(`[data-wizard-help="${CSS.escape(key)}"]`)?.closest('.fitem');
+                if (help) {
+                    help.hidden = !shown;
                 }
             });
         });

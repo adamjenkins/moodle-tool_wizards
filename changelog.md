@@ -17,6 +17,14 @@ All notable changes to this plugin are documented here. The format follows
   find them as "Add with a wizard" on the activity's own pages, and straight after an activity
   wizard has added the activity. Plugins can add their own through the `collect_extensions` hook
   (`add_content()`).
+- A question bank wizard, offered as "Add with a wizard" on the course's Question banks page; it
+  opens the new bank when done.
+- A "Set up categories" wizard for question banks: divide the bank by textbook chapter, unit,
+  week, lesson, a list of topics, or a numbered word of your own (e.g. chapters 7 to 12), with
+  the same subcategories in each (vocabulary, grammar, reading, listening, writing, speaking, or
+  your own). Categories already there are reused, not doubled.
+- The bank question wizard asks which category the question goes in, from the bank's own
+  categories.
 - Import takes one JSON file holding many wizards (a list of wizards, or
   `{"format": "tool_wizards/wizards@1", "wizards": [...]}`), and "Export as one JSON file"
   writes the selected wizards that way; `cli/validate.php` checks such files too.
@@ -28,6 +36,14 @@ All notable changes to this plugin are documented here. The format follows
 
 - The H5P and SCORM wizards refused an uploaded package as "Required": those activities read the
   package's draft area from the request, which a wizard's web service call did not carry.
+- A multiple-choice question with more than five answers (in the quiz and question bank wizards)
+  failed with "Error writing to database": the question form builds its answer slots from the
+  request, so the extra answers arrived half filled in.
+- A question hidden by its condition left its help line showing.
+- A course with only a question bank (which never shows on the course page) no longer counts as
+  having content, so the first-content card still appears.
+- "Bring back the course wizards" and "Hide for this course" now also check that the user can add
+  content to the course, like every other way into the wizards.
 - In the file, slides and folder wizards, "Add" in the file box opened no file picker: reading the
   activity form's options used up the file picker templates Moodle sends once a request.
 

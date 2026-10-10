@@ -1,0 +1,66 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "questionbank",
+    "defaultversion": 1,
+    "target": {
+        "type": "module",
+        "modname": "qbank"
+    },
+    "title": {
+        "string": "type_questionbank"
+    },
+    "heading": {
+        "string": "type_questionbank_title"
+    },
+    "description": {
+        "string": "type_questionbank_desc"
+    },
+    "screens": [
+        {
+            "key": "basics",
+            "title": {
+                "string": "step_essentials"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "questionbank_intro"
+                    }
+                },
+                {
+                    "key": "name",
+                    "kind": "text",
+                    "label": {
+                        "string": "questionbank_name"
+                    },
+                    "help": {
+                        "string": "questionbank_name_help"
+                    },
+                    "required": true,
+                    "maxlength": 255,
+                    "sets": {
+                        "field": "name"
+                    }
+                },
+                {
+                    "key": "description",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "questionbank_description"
+                    },
+                    "sets": {
+                        "field": "introeditor",
+                        "as": "editor"
+                    }
+                },
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "questionbank_next"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,7 +1,7 @@
 {
     "format": "tool_wizards/wizard@1",
     "key": "qbankquestion",
-    "defaultversion": 1,
+    "defaultversion": 2,
     "target": {
         "type": "content",
         "modname": "qbank",
@@ -1071,6 +1071,32 @@
                     },
                     "sets": {
                         "field": "graderinfo"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "place",
+            "title": {
+                "string": "qbankquestion_step_place"
+            },
+            "question": {
+                "string": "qbankquestion_step_place_q"
+            },
+            "items": [
+                {
+                    "key": "category",
+                    "kind": "select",
+                    "label": {
+                        "string": "qbankquestion_category"
+                    },
+                    "help": {
+                        "string": "qbankquestion_category_help"
+                    },
+                    "choicesfrom": "cm:questioncategories",
+                    "sets": {
+                        "field": "category",
+                        "as": "int"
                     }
                 }
             ]

@@ -168,7 +168,9 @@ Common properties: `key` (unique in the wizard), `label` (required), `help`, `re
 Instead of `choices`, a choice question can take its choices from the site with `choicesfrom`:
 `"course:formats"` (the course formats, course wizards only) or `"course:ltitools"` (the external
 tools set up for the site and the course, external tool wizards only; set the answer to the
-field `typeid`).
+field `typeid`). In-activity wizards of a question bank or a quiz can use `"cm:questioncategories"`
+(the bank's categories, for where a question goes) or `"cm:questioncategoryparents"` (the same with
+the bank's top level first, for where new categories go).
 
 Defaults may be a value, `"config:plugin/setting"` (the site's own default, e.g.
 `"config:quiz/attempts"`), or `"course:groupmode"`.

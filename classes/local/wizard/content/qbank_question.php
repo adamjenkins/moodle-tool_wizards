@@ -100,7 +100,7 @@ class qbank_question extends content {
         global $DB;
         $errors = question_creator::check_fields($fields);
         $categoryid = (int) ($fields['category'] ?? 0);
-        if ($categoryid && !$DB->record_exists('question_categories', ['id' => $categoryid, 'contextid' => $cm->context->id])) {
+        if ($categoryid && !\tool_wizards\local\question_categories::belongs($cm->context, $categoryid)) {
             $errors['category'] = get_string('question_error_category', 'tool_wizards');
         }
         return $errors;

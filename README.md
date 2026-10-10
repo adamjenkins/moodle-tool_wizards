@@ -69,6 +69,7 @@ remaining screens already hold.
 | An external tool | (one screen: one of the tools set up for the site or course, and a name) | shared screens only |
 | A video meeting (BigBlueButton) | Live class with recordings / Live class only / Recordings only | waiting for a teacher and recording, opening times |
 | A subsection | (one screen: a name) | visibility only |
+| A question bank (on the course's Question banks page) | (one screen: a name and what it is for) | then opens the bank |
 
 After the activity's own screens come the shared ones, each shown only where it can matter:
 visibility, groups (when the course has groups and does not force a group mode), and completion
@@ -114,7 +115,8 @@ wizard has added the activity.
 | Wizard | Where | Kinds |
 |---|---|---|
 | Add quiz questions | the quiz's Questions page and question bank | pick one answer, tick all right answers, true/false, short answer, number, match pairs, essay, description |
-| Add questions to the bank | a question bank's page | the same kinds |
+| Add questions to the bank | a question bank's page | the same kinds, and which category |
+| Set up categories | a question bank's page and its Categories page | by chapter, unit, week, lesson, topics or your own word, from–to, with common subcategories |
 | Add lesson pages | the lesson's Edit page | content page with buttons, the six question kinds, end of a branch; where right and wrong answers lead |
 | Add chapters | the book | chapter or subchapter |
 | Add entries | the glossary | term, definition, other words, linking |

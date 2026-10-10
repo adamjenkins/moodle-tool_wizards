@@ -256,6 +256,16 @@ class engine {
             }
             return $choices;
         }
+        if (in_array($item['choicesfrom'] ?? '', ['cm:questioncategories', 'cm:questioncategoryparents'], true)) {
+            $choices = [];
+            if ($this->cm) {
+                $withtop = $item['choicesfrom'] === 'cm:questioncategoryparents';
+                foreach (\tool_wizards\local\question_categories::tree($this->cm->context, $withtop) as $category) {
+                    $choices[] = ['value' => $category['id'], 'title' => $category['name'], 'cond' => null];
+                }
+            }
+            return $choices;
+        }
         if (($item['choicesfrom'] ?? '') === 'course:ltitools') {
             $choices = [];
             foreach (module_creator::lti_tools($this->course) as $tool) {

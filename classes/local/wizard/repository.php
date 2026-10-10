@@ -120,11 +120,25 @@ class repository {
             if (
                 (int) $record->status === self::STATUS_ENABLED && $record->target !== 'course'
                     && module_creator::is_available($course, $record->target, $user)
+                    && plugin_supports('mod', $record->target, FEATURE_CAN_DISPLAY, true)
             ) {
                 $out[] = $record;
             }
         }
         return $out;
+    }
+
+    /**
+     * The enabled wizards for activities that never show on the course page (question banks), which
+     * a user may use in a course; offered on those activities' own course page instead.
+     *
+     * @param \stdClass $course the course
+     * @param string $modname the module
+     * @return \stdClass[]
+     */
+    public static function for_hidden_module(\stdClass $course, string $modname): array {
+        return array_values(array_filter(self::all(), fn($record) => (int) $record->status === self::STATUS_ENABLED
+            && $record->target === $modname && module_creator::is_available($course, $modname)));
     }
 
     /**

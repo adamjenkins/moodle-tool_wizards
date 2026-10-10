@@ -201,7 +201,8 @@ class form_builder {
         if (!empty($item['help'])) {
             $mform->addElement('static', $key . '_help', '', \html_writer::span(
                 s(text::get($item['help'])),
-                'small text-body-secondary'
+                'small text-body-secondary',
+                ['data-wizard-help' => $key]
             ));
         }
         $default = $this->engine->default_for($item);

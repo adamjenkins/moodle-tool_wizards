@@ -70,6 +70,8 @@ final class prompt_test extends advanced_testcase {
         $this->assertSame(0, prompt::count_content($this->course));
         $this->getDataGenerator()->create_module('forum', ['course' => $this->course->id]);
         $this->assertSame(1, prompt::count_content($this->course));
+        $this->getDataGenerator()->create_module('qbank', ['course' => $this->course->id]);
+        $this->assertSame(1, prompt::count_content($this->course), 'A question bank is not on the course page.');
     }
 
     /**

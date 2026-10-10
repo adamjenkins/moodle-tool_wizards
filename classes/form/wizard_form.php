@@ -232,7 +232,14 @@ class wizard_form extends dynamic_form {
         foreach ($engine->actions($answers) as [$class, $config]) {
             $class::run($config, $answers, $cm);
         }
-        prompt::mark_just_added($course->id, $cm->id);
-        return ['preview' => false, 'cmid' => $cm->id, 'name' => $cm->get_formatted_name()];
+        $url = '';
+        if (!plugin_supports('mod', $cm->modname, FEATURE_CAN_DISPLAY, true)) {
+            // Not on the course page: go to it. A question bank opens on its questions page.
+            $url = $cm->modname === 'qbank' ? (new \moodle_url('/question/edit.php', ['cmid' => $cm->id]))->out(false)
+                : ($cm->url ? $cm->url->out(false) : '');
+        } else {
+            prompt::mark_just_added($course->id, $cm->id);
+        }
+        return ['preview' => false, 'cmid' => $cm->id, 'name' => $cm->get_formatted_name(), 'url' => $url];
     }
 }

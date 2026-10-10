@@ -41,8 +41,14 @@ class validator {
     /** @var string[] Kinds only a course wizard may use. */
     const COURSE_KINDS = ['category', 'shortname', 'review'];
 
-    /** @var string[] Choice sources: the source => the wizards that may use it ("course", or an activity's module name). */
-    const CHOICE_SOURCES = ['course:formats' => 'course', 'course:ltitools' => 'lti'];
+    /** @var array Choice sources: the source => the wizards that may use it ("course", or module names). */
+    const CHOICE_SOURCES = [
+        'course:formats' => ['course'],
+        'course:ltitools' => ['lti'],
+        // The categories of the question bank an in-activity wizard is working in (with or without its top level).
+        'cm:questioncategories' => ['qbank', 'quiz'],
+        'cm:questioncategoryparents' => ['qbank', 'quiz'],
+    ];
 
     /** @var string[] Shared screens. */
     const SHARED = ['shared:visibility', 'shared:groups', 'shared:completion'];
@@ -454,10 +460,12 @@ class validator {
         }
         if (in_array($kind, self::CHOICE_KINDS, true)) {
             if (isset($item['choicesfrom'])) {
-                $for = self::CHOICE_SOURCES[$item['choicesfrom']] ?? null;
-                if ($for === null || $for !== $this->target) {
-                    $this->error("$path.choicesfrom", 'must be course:formats (course wizards) or course:ltitools '
-                        . '(external tool wizards)');
+                $for = self::CHOICE_SOURCES[$item['choicesfrom']] ?? [];
+                $content = str_starts_with($item['choicesfrom'], 'cm:');
+                if (!in_array($this->target, $for, true) || $content !== ($this->content !== null)) {
+                    $this->error("$path.choicesfrom", 'must be course:formats (course wizards), course:ltitools '
+                        . '(external tool wizards), or cm:questioncategories / cm:questioncategoryparents '
+                        . '(in-activity wizards of a question bank or quiz)');
                 }
                 if (isset($item['choices'])) {
                     $this->error("$path.choices", 'give either choices or choicesfrom, not both');

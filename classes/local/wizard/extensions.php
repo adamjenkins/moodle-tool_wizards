@@ -31,6 +31,7 @@ class extensions {
     const BUILTIN_CONTENTS = [
         'quiz_question' => content\quiz_question::class,
         'qbank_question' => content\qbank_question::class,
+        'qbank_category' => content\qbank_category::class,
         'lesson_page' => content\lesson_page::class,
         'book_chapter' => content\book_chapter::class,
         'glossary_entry' => content\glossary_entry::class,

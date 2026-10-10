@@ -1,0 +1,344 @@
+{
+    "format": "tool_wizards/wizard@1",
+    "key": "qbankcategory",
+    "defaultversion": 1,
+    "target": {
+        "type": "content",
+        "modname": "qbank",
+        "content": "tool_wizards/qbank_category"
+    },
+    "title": {
+        "string": "type_qbankcategory"
+    },
+    "heading": {
+        "string": "type_qbankcategory_title"
+    },
+    "description": {
+        "string": "type_qbankcategory_desc"
+    },
+    "screens": [
+        {
+            "key": "divide",
+            "title": {
+                "string": "qbankcategory_step_divide"
+            },
+            "question": {
+                "string": "qbankcategory_step_divide_q"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "qbankcategory_intro"
+                    }
+                },
+                {
+                    "key": "scheme",
+                    "kind": "cards",
+                    "label": {
+                        "string": "qbankcategory_scheme"
+                    },
+                    "required": true,
+                    "requiredmessage": {
+                        "string": "error_purpose"
+                    },
+                    "choices": [
+                        {
+                            "value": "chapter",
+                            "title": {
+                                "string": "qbankcategory_scheme_chapter"
+                            },
+                            "desc": {
+                                "string": "qbankcategory_scheme_chapter_desc"
+                            },
+                            "picture": "pix:purpose/qbankcategory_chapter"
+                        },
+                        {
+                            "value": "unit",
+                            "title": {
+                                "string": "qbankcategory_scheme_unit"
+                            },
+                            "desc": {
+                                "string": "qbankcategory_scheme_unit_desc"
+                            },
+                            "picture": "pix:purpose/qbankcategory_unit"
+                        },
+                        {
+                            "value": "week",
+                            "title": {
+                                "string": "qbankcategory_scheme_week"
+                            },
+                            "desc": {
+                                "string": "qbankcategory_scheme_week_desc"
+                            },
+                            "picture": "pix:purpose/qbankcategory_week"
+                        },
+                        {
+                            "value": "lesson",
+                            "title": {
+                                "string": "qbankcategory_scheme_lesson"
+                            },
+                            "desc": {
+                                "string": "qbankcategory_scheme_lesson_desc"
+                            },
+                            "picture": "pix:purpose/qbankcategory_lesson"
+                        },
+                        {
+                            "value": "topics",
+                            "title": {
+                                "string": "qbankcategory_scheme_topics"
+                            },
+                            "desc": {
+                                "string": "qbankcategory_scheme_topics_desc"
+                            },
+                            "picture": "pix:purpose/qbankcategory_topics"
+                        },
+                        {
+                            "value": "custom",
+                            "title": {
+                                "string": "qbankcategory_scheme_custom"
+                            },
+                            "desc": {
+                                "string": "qbankcategory_scheme_custom_desc"
+                            },
+                            "picture": "pix:purpose/qbankcategory_custom"
+                        }
+                    ],
+                    "sets": {
+                        "field": "scheme"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "range",
+            "title": {
+                "string": "qbankcategory_step_range"
+            },
+            "question": {
+                "string": "qbankcategory_step_range_q"
+            },
+            "when": {
+                "answer": "scheme",
+                "not": "topics"
+            },
+            "items": [
+                {
+                    "key": "label",
+                    "kind": "text",
+                    "label": {
+                        "string": "qbankcategory_label"
+                    },
+                    "help": {
+                        "string": "qbankcategory_label_help"
+                    },
+                    "maxlength": 100,
+                    "required": {
+                        "answer": "scheme",
+                        "is": "custom"
+                    },
+                    "when": {
+                        "answer": "scheme",
+                        "is": "custom"
+                    },
+                    "sets": {
+                        "field": "label"
+                    }
+                },
+                {
+                    "key": "from",
+                    "kind": "number",
+                    "label": {
+                        "string": "qbankcategory_from"
+                    },
+                    "required": true,
+                    "min": 0,
+                    "max": 999,
+                    "default": 1,
+                    "sets": {
+                        "field": "from",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "to",
+                    "kind": "number",
+                    "label": {
+                        "string": "qbankcategory_to"
+                    },
+                    "help": {
+                        "string": "qbankcategory_to_help"
+                    },
+                    "required": true,
+                    "min": 0,
+                    "max": 999,
+                    "default": 10,
+                    "sets": {
+                        "field": "to",
+                        "as": "int"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "topics",
+            "title": {
+                "string": "qbankcategory_step_topics"
+            },
+            "question": {
+                "string": "qbankcategory_step_topics_q"
+            },
+            "when": {
+                "answer": "scheme",
+                "is": "topics"
+            },
+            "items": [
+                {
+                    "key": "topics",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "qbankcategory_topics"
+                    },
+                    "help": {
+                        "string": "qbankcategory_topics_help"
+                    },
+                    "required": true,
+                    "placeholder": {
+                        "string": "qbankcategory_topics_placeholder"
+                    },
+                    "sets": {
+                        "field": "topics"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "subs",
+            "title": {
+                "string": "qbankcategory_step_subs"
+            },
+            "question": {
+                "string": "qbankcategory_step_subs_q"
+            },
+            "items": [
+                {
+                    "kind": "hint",
+                    "text": {
+                        "string": "qbankcategory_subs_intro"
+                    }
+                },
+                {
+                    "key": "common_vocabulary",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "qbankcategory_common_vocabulary"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "common[vocabulary]",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "common_grammar",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "qbankcategory_common_grammar"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "common[grammar]",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "common_reading",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "qbankcategory_common_reading"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "common[reading]",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "common_listening",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "qbankcategory_common_listening"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "common[listening]",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "common_writing",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "qbankcategory_common_writing"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "common[writing]",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "common_speaking",
+                    "kind": "yesno",
+                    "label": {
+                        "string": "qbankcategory_common_speaking"
+                    },
+                    "default": 0,
+                    "sets": {
+                        "field": "common[speaking]",
+                        "as": "int"
+                    }
+                },
+                {
+                    "key": "others",
+                    "kind": "textarea",
+                    "label": {
+                        "string": "qbankcategory_others"
+                    },
+                    "help": {
+                        "string": "qbankcategory_others_help"
+                    },
+                    "sets": {
+                        "field": "others"
+                    }
+                }
+            ]
+        },
+        {
+            "key": "where",
+            "title": {
+                "string": "qbankcategory_step_where"
+            },
+            "question": {
+                "string": "qbankcategory_step_where_q"
+            },
+            "items": [
+                {
+                    "key": "parent",
+                    "kind": "select",
+                    "label": {
+                        "string": "qbankcategory_parent"
+                    },
+                    "help": {
+                        "string": "qbankcategory_parent_help"
+                    },
+                    "choicesfrom": "cm:questioncategoryparents",
+                    "sets": {
+                        "field": "parent",
+                        "as": "int"
+                    }
+                }
+            ]
+        }
+    ]
+}

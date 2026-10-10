@@ -202,6 +202,30 @@ final class question_test extends \advanced_testcase {
     }
 
     /**
+     * All six answer slots, with feedback: more answers than the question form shows at first (it builds them
+     * from the request's "noanswers", as when a teacher asks for more blanks).
+     */
+    public function test_six_answers_with_feedback(): void {
+        global $DB;
+        $cm = $this->make_quiz();
+        $doc = defaults::shipped()['quizquestion'];
+        $choices = [];
+        foreach (range(1, 6) as $n) {
+            $choices[$n] = "Answer $n";
+        }
+        content_creator::save($doc, $cm, ['qtype' => 'multichoice', 'single' => 1, 'name' => 'Six answers',
+            'questiontext' => 'Pick the fourth.', 'choice' => $choices, 'rightchoice' => 4,
+            'feedbackright' => 'Yes', 'feedbackwrong' => 'No', 'mark' => '1']);
+        $q = $this->question('Six answers');
+        $answers = $DB->get_records('question_answers', ['question' => $q->id], 'id');
+        $this->assertCount(6, $answers);
+        $this->assertSame(['Answer 4'], array_values(array_map(
+            fn($a) => strip_tags($a->answer),
+            array_filter($answers, fn($a) => (float) $a->fraction === 1.0)
+        )));
+    }
+
+    /**
      * The wizard's answers become the handler's fields, and they save.
      */
     public function test_quiz_through_engine(): void {

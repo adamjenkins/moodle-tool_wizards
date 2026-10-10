@@ -214,7 +214,8 @@ class module_creator {
         if (!self::is_available($course, $modname)) {
             throw new \moodle_exception('error_notavailable', 'tool_wizards');
         }
-        $sectionnum ??= self::default_section($course);
+        // Activities that never show on the course page (question banks) go in section 0, as core adds them.
+        $sectionnum ??= plugin_supports('mod', $modname, FEATURE_CAN_DISPLAY, true) ? self::default_section($course) : 0;
         if (!get_fast_modinfo($course)->get_section_info($sectionnum)) {
             throw new \moodle_exception('error_nosection', 'tool_wizards');
         }

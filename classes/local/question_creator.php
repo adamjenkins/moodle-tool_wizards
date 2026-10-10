@@ -259,8 +259,24 @@ class question_creator {
         $customfieldhandler = \qbank_customfields\customfield\question_handler::create();
         $customfieldhandler->instance_form_before_set_data($toform);
 
-        $factory = function () use ($qtypeobj, $question, $category, $contexts, $toform) {
-            $form = $qtypeobj->create_editing_form('question.php', clone $question, $category, $contexts, true);
+        // The form builds as many answer slots as the request's "noanswers" says (moodleform::repeat_elements()
+        // reads it with optional_param(), which falls back to $_POST), as when a teacher presses "Blanks for more
+        // choices". Without it, answers beyond the form's first few would arrive half filled in.
+        $noanswers = isset($answers['noanswers']) ? (int) $answers['noanswers'] : null;
+        $factory = function () use ($qtypeobj, $question, $category, $contexts, $toform, $noanswers) {
+            $saved = $_POST['noanswers'] ?? null;
+            if ($noanswers !== null) {
+                $_POST['noanswers'] = $noanswers;
+            }
+            try {
+                $form = $qtypeobj->create_editing_form('question.php', clone $question, $category, $contexts, true);
+            } finally {
+                if ($saved === null) {
+                    unset($_POST['noanswers']);
+                } else {
+                    $_POST['noanswers'] = $saved;
+                }
+            }
             $form->set_data(clone $toform);
             return $form;
         };

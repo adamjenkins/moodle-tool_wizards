@@ -49,8 +49,9 @@ class dismiss_course extends external_api {
     public static function execute(int $courseid): array {
         ['courseid' => $courseid] = self::validate_parameters(self::execute_parameters(), ['courseid' => $courseid]);
         $context = \core\context\course::instance($courseid);
-        // The user must be able to see the course; there is nothing to hide otherwise.
+        // The user must be able to see the course and add content there, the only people the suggestions are for.
         self::validate_context($context);
+        require_capability('moodle/course:manageactivities', $context);
         \tool_wizards\local\prompt::dismiss_course($courseid);
         return ['dismissed' => true];
     }

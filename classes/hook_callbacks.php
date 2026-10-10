@@ -53,7 +53,7 @@ class hook_callbacks {
             self::section_links($hook);
             return;
         }
-        if (self::content_link($hook)) {
+        if (self::content_link($hook) || self::bank_link($hook)) {
             return;
         }
         if (!get_config('tool_wizards', 'entrylinks') || !self::is_page($page, self::ENTRY_LINK_PAGES)) {
@@ -131,6 +131,36 @@ class hook_callbacks {
         $hook->add_html(\html_writer::tag('template', $list, [
             'id' => 'tool_wizards-contentlist',
             'data-cmid' => (int) $cm->id,
+            'data-label' => get_string('addwithwizard', 'tool_wizards'),
+            'data-choose' => get_string('choosewizard', 'tool_wizards'),
+        ]));
+        $page->requires->js_call_amd('tool_wizards/content_link', 'init', ['#tool_wizards-contentlist']);
+        return true;
+    }
+
+    /**
+     * "Add with a wizard" on a course's question banks page, for the question bank wizards.
+     *
+     * @param before_footer_html_generation $hook the hook
+     * @return bool whether this was that page and there was a wizard to offer
+     */
+    protected static function bank_link(before_footer_html_generation $hook): bool {
+        $page = $hook->renderer->get_page();
+        $course = $page->course;
+        if (empty($course->id) || $course->id == SITEID || !self::is_page($page, ['/question/banks.php'])) {
+            return false;
+        }
+        $wizards = [];
+        foreach (local\wizard\repository::for_hidden_module($course, 'qbank') as $record) {
+            $wizards[] = self::list_item($page, $record, local\wizard\repository::definition($record));
+        }
+        if (!$wizards) {
+            return false;
+        }
+        $list = $hook->renderer->render_from_template('tool_wizards/wizard_list', ['wizards' => $wizards]);
+        $hook->add_html(\html_writer::tag('template', $list, [
+            'id' => 'tool_wizards-contentlist',
+            'data-courseid' => (int) $course->id,
             'data-label' => get_string('addwithwizard', 'tool_wizards'),
             'data-choose' => get_string('choosewizard', 'tool_wizards'),
         ]));

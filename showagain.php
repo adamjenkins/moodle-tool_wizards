@@ -31,6 +31,8 @@ $course = get_course($courseid);
 
 require_login($course, false);
 require_sesskey();
+// Only for people who can add content here, the only people the wizards are offered to.
+require_capability('moodle/course:manageactivities', \core\context\course::instance($course->id));
 
 \tool_wizards\local\prompt::bring_back($course->id);
 

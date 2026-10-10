@@ -128,7 +128,9 @@ class prompt {
      */
     public static function count_content(stdClass $course): int {
         global $DB;
-        $cms = array_filter(get_fast_modinfo($course)->get_cms(), fn(\cm_info $cm) => !$cm->deletioninprogress);
+        // Only what shows on the course page: a question bank, for one, never does.
+        $cms = array_filter(get_fast_modinfo($course)->get_cms(), fn(\cm_info $cm) => !$cm->deletioninprogress
+            && plugin_supports('mod', $cm->modname, FEATURE_CAN_DISPLAY, true));
         $forums = array_filter($cms, fn(\cm_info $cm) => $cm->modname === 'forum');
         if ($forums) {
             // Found with a query: forum_get_course_forum() would create the forum if missing.
