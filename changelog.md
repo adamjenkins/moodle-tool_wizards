@@ -3,6 +3,28 @@
 All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.3.1] - 2026-10-10
+
+### Security
+
+- A wizard's title is now always shown as plain text in the pop-up that opens the wizard
+  (`amd/src/open_wizard.js`). Core's modal sets its title as HTML, and HTML in a title (which
+  only holders of `tool/wizards:managewizards` can write) was shown as HTML there. Found by an
+  MDL Shield review of 0.3.0 (grade A, rated low).
+
+### Fixed
+
+- The example work wizard's "Added so far" list showed an "&" in a title as "&amp;".
+
+### Changed
+
+- `tests/local/core_internals_test.php` checks the core form internals the wizards read, so a
+  Moodle release that changes one fails by name.
+- README: the capability, the permissions each kind of wizard needs, and the count of shipped
+  wizards (38) are corrected.
+- camp listing: the first-content card and the admin list of wizards screenshots show the current
+  interface, and the question bank categories wizard replaces the forum purpose screenshot.
+
 ## [0.3.0] - 2026-10-10
 
 ### Added

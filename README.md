@@ -130,13 +130,15 @@ wizard has added the activity.
 
 ## Managing wizards
 
-Every wizard, including the course wizard and the seven content wizards that come with the
-plugin, is a **definition**: a JSON document that says what it creates, which screens and
+Every wizard, including the 38 that come with the plugin (the course wizard, 24 activity
+wizards and 13 in-activity wizards), is a **definition**: a JSON document that says what it creates, which screens and
 questions it has, how answers turn into settings, and what each purpose pre-fills. Site
 administrators (capability `tool/wizards:managewizards`) manage them in
 *Site administration > Courses > Wizards > Manage wizards*:
 
-- **Enable, disable and order** the wizards teachers see. Teachers also find them under
+- **Enable, disable and order** the wizards teachers see. The list is grouped into course,
+  activity and in-activity wizards, with an on/off switch per wizard, per group and per activity
+  that saves without reloading the page. Teachers also find the activity wizards under
   **"Add with a wizard"** in each course section's add menu, in edit mode.
 - **Edit** a wizard's wording in every installed language, the order of its screens, and its
   pictures (shipped ones, or your own PNG, JPEG, WebP, SVG or GIF uploads).
@@ -179,10 +181,17 @@ Site administration > Courses > Wizards:
   many activities or fewer (default 1). The Announcements forum is not counted.
 - **Show wizard links next to "Add a new course"**.
 
-The plugin adds no capabilities. Each wizard needs the permission its action needs anyway:
-`moodle/course:create` in the category for the course wizard, and
-`moodle/course:manageactivities` plus the activity's own `mod/…:addinstance` for the first
-content.
+The plugin adds one capability, `tool/wizards:managewizards` (manage the wizards; site
+administrators only by default). Using a wizard needs the permissions its action needs anyway:
+
+- the course wizard: `moodle/course:create` in the category;
+- an activity wizard: `moodle/course:manageactivities` plus the activity's own
+  `mod/…:addinstance`;
+- an in-activity wizard: `moodle/course:manageactivities` plus what adding that content needs,
+  for example `moodle/question:add` for questions or `moodle/question:managecategory` for
+  question bank categories.
+
+So students and non-editing teachers never see the wizards.
 
 ## Requirements
 

@@ -44,8 +44,8 @@ screenshots:
     caption: 'Every answer can be checked and changed before the course is created.'
   - path: .camp/screenshots/03-first-content-card.png
     caption: 'A new course asks: "What would you like to add first?"'
-  - path: .camp/screenshots/04-forum-wizard-purpose.png
-    caption: 'Each wizard starts with what the activity is for, as picture cards.'
+  - path: .camp/screenshots/04-question-bank-categories.png
+    caption: 'Set up a question bank in one go: one category per chapter, each with the same subcategories.'
   - path: .camp/screenshots/05-quiz-wizard-afterwards.png
     caption: 'Confusing settings become a few plain choices, pre-filled to suit the purpose.'
   - path: .camp/screenshots/06-add-with-a-wizard-menu.png
@@ -53,7 +53,7 @@ screenshots:
   - path: .camp/screenshots/07-add-with-a-wizard-list.png
     caption: 'Teachers pick a wizard from a visual list.'
   - path: .camp/screenshots/08-manage-wizards.png
-    caption: 'Administrators switch, order, export and import wizards, like User tours.'
+    caption: 'Administrators switch wizards on and off per wizard or per group, reorder, try and export them.'
   - path: .camp/screenshots/09-edit-wizard-ai.png
     caption: 'Wizards can be reworded and translated, or improved with Moodle''s AI.'
   - path: .camp/screenshots/10-wizard-builder.png

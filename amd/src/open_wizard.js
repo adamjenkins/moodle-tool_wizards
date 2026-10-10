@@ -37,6 +37,19 @@ const FORM_CLASS = 'tool_wizards\\form\\wizard_form';
 const CONTENT_FORM_CLASS = 'tool_wizards\\form\\content_wizard_form';
 
 /**
+ * A wizard's title as HTML that shows it as plain text. Core's modal sets its title as HTML, and a title comes
+ * from an admin-authored wizard definition (read back from a data attribute, which decodes it), so it is escaped here.
+ *
+ * @param {string} title the title, as plain text
+ * @returns {string} HTML
+ */
+const asText = (title) => {
+    const span = document.createElement('span');
+    span.textContent = title || '';
+    return span.innerHTML;
+};
+
+/**
  * Open a wizard.
  *
  * @param {Object} options
@@ -58,7 +71,7 @@ export const openWizard = ({courseid, wizard, title, section, preview, returnFoc
     const form = new ModalForm({
         formClass: FORM_CLASS,
         args,
-        modalConfig: {title},
+        modalConfig: {title: asText(title)},
         saveButtonText: getString('add', 'core'),
         returnFocus,
     });
@@ -101,7 +114,7 @@ export const openContentWizard = ({cmid, wizard, title, preview, gotoactivity, r
     const form = new ModalForm({
         formClass: CONTENT_FORM_CLASS,
         args,
-        modalConfig: {title},
+        modalConfig: {title: asText(title)},
         saveButtonText: getString('add', 'core'),
         returnFocus,
     });

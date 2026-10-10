@@ -231,7 +231,8 @@ class workshop_example extends content {
         }
         $DB->update_record('workshop_submissions', $formdata);
 
-        return get_string('workshopexample_added', 'tool_wizards', format_string($data['title']));
+        $title = format_string($data['title'], true, ['context' => $cm->context, 'escape' => false]);
+        return get_string('workshopexample_added', 'tool_wizards', $title);
     }
 
     /**
