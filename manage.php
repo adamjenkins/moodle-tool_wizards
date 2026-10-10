@@ -109,6 +109,9 @@ if ($bulk !== '' && data_submitted() && confirm_sesskey()) {
             $path = packager::export($ids);
             send_file($path, 'wizards-' . date('Y-m-d') . '.zip', 0, 0, false, true, 'application/zip');
             die();
+        case 'exportjson':
+            send_file(packager::export_json($ids), 'wizards-' . date('Y-m-d') . '.json', 0, 0, true, true, 'application/json');
+            die();
         case 'delete':
             if (!optional_param('confirm', 0, PARAM_BOOL)) {
                 echo $OUTPUT->header();
@@ -372,6 +375,7 @@ $bulkoptions = [
     'enable' => get_string('bulk_enable', 'tool_wizards'),
     'disable' => get_string('bulk_disable', 'tool_wizards'),
     'export' => get_string('bulk_export', 'tool_wizards'),
+    'exportjson' => get_string('bulk_exportjson', 'tool_wizards'),
     'delete' => get_string('bulk_delete', 'tool_wizards'),
 ];
 echo html_writer::div(

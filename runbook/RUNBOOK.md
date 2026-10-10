@@ -11,12 +11,15 @@ It is written for two readers: **you**, the site administrator, and **the AI** y
 1. In Moodle, go to *Site administration › Courses › Wizards › Manage wizards*.
 2. Tick the wizards you want to work on, choose **Export selected**, and download the zip.
    (Or use **Export** on one wizard.) The zip contains each wizard's `wizard.json`, its
-   pictures, this runbook, and `wizard.schema.json`.
+   pictures, this runbook, and `wizard.schema.json`. **Export as one JSON file** gives the
+   same wizards in a single file instead (without uploaded pictures):
+   `{"format": "tool_wizards/wizards@1", "wizards": [ … ]}`.
 3. Give the AI the zip (or the `wizard.json` files), this runbook, and what you want changed.
    Good requests are concrete: *"Add Japanese to every text"*, *"Add a screen to the quiz
    wizard about timing for exams, with plain-language choices"*, *"Make the forum wizard's
    cards shorter and friendlier for primary school teachers"*.
-4. Ask the AI to return the changed `wizard.json` files (or a zip in the same layout).
+4. Ask the AI to return the changed `wizard.json` files, one JSON file holding them all (the
+   format above, or simply a JSON list of wizards), or a zip in the same layout.
 5. In Moodle, **Import wizards**, upload the file, and choose what to do with wizards that
    already exist: *import as a copy* (safest), *replace*, or *skip*.
 6. Imported wizards arrive as **drafts**. Use **Try it** to walk through them: nothing is

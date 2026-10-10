@@ -139,10 +139,21 @@ class form_submission {
      * The values a form offers for each choice control: select options, radio values,
      * checkbox values. Disabled controls are left out.
      *
+     * The form is rendered only to read these, so its file pickers and editors are taken out first:
+     * rendering one sends the file picker's templates, which Moodle sends only once a request, and
+     * the wizard's own file questions in the same request would then open no file picker. The form
+     * must be one built for this call alone.
+     *
      * @param \moodleform $form the form
      * @return array control name (without "[]") => string[]
      */
     public static function offered_values(\moodleform $form): array {
+        $quickform = self::quickform($form);
+        foreach ($quickform->_elements as $element) {
+            if (in_array($element->getType(), ['filemanager', 'filepicker', 'editor'], true)) {
+                $quickform->removeElement($element->getName());
+            }
+        }
         $dom = new \DOMDocument();
         $previous = libxml_use_internal_errors(true);
         $dom->loadHTML('<?xml encoding="utf-8"?>' . $form->render());

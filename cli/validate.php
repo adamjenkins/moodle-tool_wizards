@@ -17,7 +17,7 @@
 /**
  * Check wizard definition files before importing them.
  *
- * Usage: php admin/tool/wizards/cli/validate.php <wizard.json | wizards.zip> [...]
+ * Usage: php admin/tool/wizards/cli/validate.php <wizard.json | wizards.json | wizards.zip> [...]
  * Exit code 0 when every wizard is valid, 1 otherwise.
  *
  * @package    tool_wizards
@@ -38,7 +38,7 @@ use tool_wizards\local\wizard\validator;
 [$options, $paths] = cli_get_params(['help' => false], ['h' => 'help']);
 if ($options['help'] || !$paths) {
     cli_writeln("Check wizard definition files.\n\n"
-        . "Usage: php admin/tool/wizards/cli/validate.php <wizard.json | wizards.zip> [...]");
+        . "Usage: php admin/tool/wizards/cli/validate.php <wizard.json | wizards.json | wizards.zip> [...]");
     exit($options['help'] ? 0 : 2);
 }
 
@@ -72,8 +72,12 @@ foreach ($paths as $path) {
     } else {
         $files[$path] = $path;
     }
+    $documents = [];
     foreach ($files as $label => $file) {
-        $problems = validator::check_json((string) file_get_contents($file));
+        $documents += \tool_wizards\local\wizard\packager::split((string) file_get_contents($file), $label);
+    }
+    foreach ($documents as $label => $json) {
+        $problems = validator::check_json($json);
         if ($problems) {
             $failed = true;
             cli_writeln("$label: " . count($problems) . " problem(s)");

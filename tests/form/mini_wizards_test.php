@@ -200,6 +200,40 @@ final class mini_wizards_test extends advanced_testcase {
     }
 
     /**
+     * The wizards that upload a package pass it on to the activity's own file field.
+     *
+     * @param string $wizard the wizard key
+     * @param string $modname the module it creates
+     * @param string $fixture the package, relative to $CFG->dirroot
+     * @param array $answers the other answers
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('package_provider')]
+    public function test_package_wizards(string $wizard, string $modname, string $fixture, array $answers): void {
+        global $CFG, $DB, $USER;
+        $draftid = file_get_unused_draft_itemid();
+        get_file_storage()->create_file_from_pathname([
+            'contextid' => \core\context\user::instance($USER->id)->id, 'component' => 'user', 'filearea' => 'draft',
+            'itemid' => $draftid, 'filepath' => '/', 'filename' => basename($fixture),
+        ], $CFG->dirroot . '/' . $fixture);
+        $result = $this->submit($wizard, $answers + ['name' => 'Package', 'packagefile' => $draftid, 'package' => $draftid]);
+        $this->assertTrue($result['submitted'], $wizard . ': ' . strip_tags($result['html'] ?? ''));
+        $this->assertTrue($DB->record_exists($modname, ['course' => $this->course->id, 'name' => 'Package']));
+    }
+
+    /**
+     * The package wizards.
+     *
+     * @return array
+     */
+    public static function package_provider(): array {
+        return [
+            'h5p' => ['h5p', 'h5pactivity', 'h5p/tests/fixtures/filltheblanks.h5p', ['purpose' => 'practice']],
+            'scorm' => ['scorm', 'scorm', 'mod/scorm/tests/packages/singlescobasic.zip', ['purpose' => 'learn']],
+            'content package' => ['contentpackage', 'imscp', 'mod/imscp/tests/packages/singlescobasic.zip', []],
+        ];
+    }
+
+    /**
      * The external tool wizard offers the tools set up for the course, and is not offered where there are none.
      */
     public function test_external_tool(): void {

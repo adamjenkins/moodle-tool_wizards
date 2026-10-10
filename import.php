@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Import wizards from a zip (one or many) or a single wizard JSON file.
+ * Import wizards from a zip (one or many) or a JSON file holding one wizard or many.
  *
  * @package    tool_wizards
  * @copyright  2026 Adam Jenkins <adam@wisecat.net>

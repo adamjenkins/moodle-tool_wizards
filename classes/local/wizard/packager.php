@@ -28,6 +28,9 @@ namespace tool_wizards\local\wizard;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class packager {
+    /** @var string The format of a JSON file holding several wizards. */
+    const COLLECTION_FORMAT = 'tool_wizards/wizards@1';
+
     /** @var string Import: replace a wizard with the same key. */
     const REPLACE = 'replace';
 
@@ -83,7 +86,50 @@ class packager {
     }
 
     /**
-     * Import wizards from a zip or a single wizard.json.
+     * Write one JSON file holding several wizards (a collection), without their uploaded pictures.
+     *
+     * @param int[] $ids the wizards
+     * @return string the JSON
+     */
+    public static function export_json(array $ids): string {
+        $wizards = [];
+        foreach ($ids as $id) {
+            $record = repository::get((int) $id);
+            if ($record) {
+                $wizards[] = repository::definition($record);
+            }
+        }
+        return json_encode(
+            ['format' => self::COLLECTION_FORMAT, 'wizards' => $wizards],
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+        ) . "\n";
+    }
+
+    /**
+     * The wizard definitions in one JSON file: a single wizard, a list of wizards, or a collection
+     * ({"format": "tool_wizards/wizards@1", "wizards": [...]}).
+     *
+     * @param string $json the file's contents
+     * @param string $label where it came from, for reports
+     * @return array label => one wizard's JSON (a file that is not valid JSON is returned as it is, to be reported)
+     */
+    public static function split(string $json, string $label): array {
+        $data = json_decode($json, true);
+        if (is_array($data) && ($data['format'] ?? null) === self::COLLECTION_FORMAT && is_array($data['wizards'] ?? null)) {
+            $data = $data['wizards'];
+        } else if (!is_array($data) || !array_is_list($data) || !$data) {
+            return [$label => $json];
+        }
+        $out = [];
+        foreach (array_values($data) as $i => $doc) {
+            $key = is_array($doc) && is_string($doc['key'] ?? null) ? $doc['key'] : '#' . ($i + 1);
+            $out[$label . ' › ' . $key] = json_encode($doc, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }
+        return $out;
+    }
+
+    /**
+     * Import wizards from a zip, or from a JSON file holding one wizard or several.
      *
      * Every wizard is validated before anything is written for it; a bad one is reported and skipped.
      *
@@ -94,7 +140,11 @@ class packager {
      */
     public static function import(string $path, string $filename, string $mode): array {
         if (strtolower(pathinfo($filename, PATHINFO_EXTENSION)) === 'json') {
-            return [self::import_one((string) file_get_contents($path), [], $mode, $filename)];
+            $results = [];
+            foreach (self::split((string) file_get_contents($path), $filename) as $label => $json) {
+                $results[] = self::import_one($json, [], $mode, $label);
+            }
+            return $results;
         }
         $dir = make_request_directory();
         $extracted = (new \zip_packer())->extract_to_pathname($path, $dir);
@@ -115,7 +165,9 @@ class packager {
                 }
             }
             $label = substr($jsonpath, strlen($dir) + 1);
-            $results[] = self::import_one((string) file_get_contents($jsonpath), $pictures, $mode, $label);
+            foreach (self::split((string) file_get_contents($jsonpath), $label) as $onelabel => $json) {
+                $results[] = self::import_one($json, $pictures, $mode, $onelabel);
+            }
         }
         if (!$found) {
             $problem = get_string('import_nowizards', 'tool_wizards');

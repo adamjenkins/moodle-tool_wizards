@@ -75,6 +75,30 @@ final class packager_test extends advanced_testcase {
     }
 
     /**
+     * Several wizards come in one JSON file, as a collection or as a plain list; a bad one in it is
+     * reported and the others are imported.
+     */
+    public function test_one_file_many_wizards(): void {
+        $this->resetAfterTest();
+        $ids = [(int) repository::get_by_key('forum')->id, (int) repository::get_by_key('quiz')->id];
+        $collection = json_decode(packager::export_json($ids), true);
+        $this->assertSame(packager::COLLECTION_FORMAT, $collection['format']);
+        $this->assertSame(['forum', 'quiz'], array_column($collection['wizards'], 'key'));
+
+        $path = make_request_directory() . '/wizards.json';
+        file_put_contents($path, json_encode($collection));
+        $results = packager::import($path, 'wizards.json', packager::COPY);
+        $this->assertSame(['copied', 'copied'], array_column($results, 'result'));
+        $this->assertNotEmpty(repository::get_by_key($results[0]['key']));
+
+        $list = $collection['wizards'];
+        $list[1]['key'] = 'Bad Key';
+        file_put_contents($path, json_encode($list));
+        $results = packager::import($path, 'wizards.json', packager::SKIP);
+        $this->assertSame(['skipped', 'invalid'], array_column($results, 'result'));
+    }
+
+    /**
      * A bad wizard is reported with its problems and nothing is saved for it.
      */
     public function test_invalid_not_imported(): void {

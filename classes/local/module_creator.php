@@ -101,15 +101,17 @@ class module_creator {
      * @throws \moodle_exception when the user may not add it, or the module's form refuses the answers
      */
     public static function create(stdClass $course, string $modname, array $answers, ?int $sectionnum = null): \cm_info {
-        [$mform, $fromform, $errors] = self::submit($course, $modname, $answers, $sectionnum);
-        if (!$fromform) {
-            throw new \moodle_exception('error_moduleform', 'tool_wizards', '', null, json_encode($errors));
-        }
+        return self::as_posted($answers, function () use ($course, $modname, $answers, $sectionnum) {
+            [$mform, $fromform, $errors] = self::submit($course, $modname, $answers, $sectionnum);
+            if (!$fromform) {
+                throw new \moodle_exception('error_moduleform', 'tool_wizards', '', null, json_encode($errors));
+            }
 
-        // As course/modedit.php does: a large regrade is queued rather than run in this request.
-        $fromform->frontend = true;
-        $result = add_moduleinfo($fromform, $course, $mform);
-        return get_fast_modinfo($course->id)->get_cm($result->coursemodule);
+            // As course/modedit.php does: a large regrade is queued rather than run in this request.
+            $fromform->frontend = true;
+            $result = add_moduleinfo($fromform, $course, $mform);
+            return get_fast_modinfo($course->id)->get_cm($result->coursemodule);
+        });
     }
 
     /**
@@ -122,8 +124,48 @@ class module_creator {
      * @return array field => error message; empty when the form accepts them
      */
     public static function check(stdClass $course, string $modname, array $answers, ?int $sectionnum = null): array {
-        [, , $errors] = self::submit($course, $modname, $answers, $sectionnum);
-        return $errors;
+        return self::as_posted($answers, function () use ($course, $modname, $answers, $sectionnum) {
+            [, , $errors] = self::submit($course, $modname, $answers, $sectionnum);
+            return $errors;
+        });
+    }
+
+    /**
+     * Run something with the answers' draft file areas in the request, as a browser posts them.
+     *
+     * Some activity forms read an uploaded file's draft area from the request rather than from the
+     * submitted data (file_get_submitted_draft_itemid() reads $_REQUEST, e.g. the H5P and SCORM
+     * package checks in their validation()). A wizard's answers come in a web service call, so the
+     * ones that are the current user's draft areas are put in $_POST and $_REQUEST for the time
+     * being, and taken out again afterwards.
+     *
+     * @param array $answers field => value for the module's own form
+     * @param callable $fn what to run
+     * @return mixed what it returns
+     */
+    protected static function as_posted(array $answers, callable $fn) {
+        global $DB, $USER;
+        $saved = [];
+        $usercontext = \core\context\user::instance($USER->id)->id;
+        foreach ($answers as $field => $value) {
+            // Only the user's own draft areas: nothing else from the answers goes into the request.
+            if (
+                is_int($value) && $value > 0 && !array_key_exists($field, $_POST) && !array_key_exists($field, $_REQUEST)
+                    && $DB->record_exists('files', ['contextid' => $usercontext, 'component' => 'user',
+                        'filearea' => 'draft', 'itemid' => $value])
+            ) {
+                $saved[] = $field;
+                $_POST[$field] = $value;
+                $_REQUEST[$field] = $value;
+            }
+        }
+        try {
+            return $fn();
+        } finally {
+            foreach ($saved as $field) {
+                unset($_POST[$field], $_REQUEST[$field]);
+            }
+        }
     }
 
     /**

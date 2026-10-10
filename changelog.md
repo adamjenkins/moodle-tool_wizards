@@ -17,9 +17,19 @@ All notable changes to this plugin are documented here. The format follows
   find them as "Add with a wizard" on the activity's own pages, and straight after an activity
   wizard has added the activity. Plugins can add their own through the `collect_extensions` hook
   (`add_content()`).
+- Import takes one JSON file holding many wizards (a list of wizards, or
+  `{"format": "tool_wizards/wizards@1", "wizards": [...]}`), and "Export as one JSON file"
+  writes the selected wizards that way; `cli/validate.php` checks such files too.
 - On the wizard list, each wizard has an on/off switch that saves at once, and the wizards are
   grouped into course, activity and in-activity wizards, each group (and each activity's
   in-activity wizards) with a switch for all of them.
+
+### Fixed
+
+- The H5P and SCORM wizards refused an uploaded package as "Required": those activities read the
+  package's draft area from the request, which a wizard's web service call did not carry.
+- In the file, slides and folder wizards, "Add" in the file box opened no file picker: reading the
+  activity form's options used up the file picker templates Moodle sends once a request.
 
 ### Changed
 
