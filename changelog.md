@@ -3,6 +3,19 @@
 All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+### Added
+
+- "Add with a wizard" in the menu of the "+" between two activities too, adding the new
+  activity at that place ([#1](https://github.com/adamjenkins/moodle-tool_wizards/issues/1)). The
+  entries are now added through core's `before_activitychooserbutton_exported` hook instead of
+  being placed by a script.
+- A setting, "Suggest first content only in edit mode" (default off), that keeps the
+  first-content card off the course page while editing is off
+  ([#2](https://github.com/adamjenkins/moodle-tool_wizards/issues/2)).
+- A plugin icon on the plugins overview page.
+
 ## [0.3.1] - 2026-10-10
 
 ### Security

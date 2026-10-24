@@ -108,6 +108,32 @@ final class prompt_test extends advanced_testcase {
     }
 
     /**
+     * With "only in edit mode" on, the card waits for edit mode, except straight after the
+     * teacher's own action (the course wizard, a wizard adding something, bringing it back).
+     */
+    public function test_edit_mode_only(): void {
+        global $USER;
+        $USER->editing = 0;
+        $this->assertStringContainsString('tool_wizards-firstcontent', $this->render_prompt(), 'Off by default.');
+
+        set_config('cardeditonly', 1, 'tool_wizards');
+        $this->assertSame('', $this->render_prompt());
+
+        $USER->editing = 1;
+        $this->assertStringContainsString('tool_wizards-firstcontent', $this->render_prompt());
+
+        $USER->editing = 0;
+        prompt::mark_just_created($this->course->id);
+        $this->assertStringContainsString(get_string('prompt_ready', 'tool_wizards'), $this->render_prompt());
+        $cm = $this->getDataGenerator()->create_module('page', ['course' => $this->course->id, 'name' => 'Reading list']);
+        prompt::mark_just_added($this->course->id, $cm->cmid);
+        $this->assertStringContainsString(get_string('prompt_added', 'tool_wizards', 'Reading list'), $this->render_prompt());
+        prompt::bring_back($this->course->id);
+        $this->assertStringContainsString('tool_wizards-firstcontent', $this->render_prompt());
+        $this->assertSame('', $this->render_prompt(), 'Each exception lasts one view.');
+    }
+
+    /**
      * Hidden for a course, or for good, or for people who cannot add content.
      */
     public function test_dismissal_and_access(): void {

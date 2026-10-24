@@ -236,6 +236,13 @@ class prompt {
         if (!$justcreated && !$justadded && !$showonce && self::count_content($course) > $threshold) {
             return $html;
         }
+        // Optionally only in edit mode, unless the teacher's own last action brought them here.
+        if (
+            !$justcreated && !$justadded && !$showonce && get_config('tool_wizards', 'cardeditonly')
+                && !$page->user_is_editing()
+        ) {
+            return $html;
+        }
 
         $questionfailed = !empty($SESSION->tool_wizards_questionfailed) && $justadded;
         unset($SESSION->tool_wizards_questionfailed);

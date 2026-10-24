@@ -139,7 +139,8 @@ administrators (capability `tool/wizards:managewizards`) manage them in
 - **Enable, disable and order** the wizards teachers see. The list is grouped into course,
   activity and in-activity wizards, with an on/off switch per wizard, per group and per activity
   that saves without reloading the page. Teachers also find the activity wizards under
-  **"Add with a wizard"** in each course section's add menu, in edit mode.
+  **"Add with a wizard"** in every add menu on the course page in edit mode: each section's own,
+  and the "+" between two activities, which adds the new one at that place.
 - **Edit** a wizard's wording in every installed language, the order of its screens, and its
   pictures (shipped ones, or your own PNG, JPEG, WebP, SVG or GIF uploads).
 - **Try it**: walk any wizard in a real course and see exactly which settings it would set,
@@ -179,6 +180,9 @@ Site administration > Courses > Wizards:
 - **Enable the wizards**: switches everything on or off for the whole site.
 - **Suggest first content up to this many activities**: the card appears on courses with this
   many activities or fewer (default 1). The Announcements forum is not counted.
+- **Suggest first content only in edit mode** (default off): keeps the card off the course page
+  while it is shown to a class or to students. It still appears straight after the course wizard,
+  after a wizard adds something, and after "Bring back the course wizards".
 - **Show wizard links next to "Add a new course"**.
 
 The plugin adds one capability, `tool/wizards:managewizards` (manage the wizards; site

@@ -35,6 +35,15 @@ Feature: Add first content with a mini-wizard
     And I should see "What would you like to add next?"
     And I should see "Week 1 discussion" in the "region-main" "region"
 
+  Scenario: The suggestions can wait for edit mode
+    Given the following config values are set as admin:
+      | cardeditonly | 1 | tool_wizards |
+    And I log in as "teacher1"
+    When I am on "Course 1" course homepage
+    Then I should not see "What would you like to add first?"
+    When I am on "Course 1" course homepage with editing mode on
+    Then I should see "What would you like to add first?"
+
   Scenario: Students never see the suggestions
     Given I log in as "student1"
     When I am on "Course 1" course homepage

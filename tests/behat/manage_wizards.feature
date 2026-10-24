@@ -108,7 +108,7 @@ Feature: Manage the wizards
     And I am on "Course 1" course homepage with editing mode on
     Then I should not see "What would you like to add first?"
     When I click on "[data-action='open-addingcontent']:not([data-beforemod])" "css_element" in the "#section-2" "css_element"
-    And I click on "Add with a wizard" "button" in the "#section-2" "css_element"
+    And I click on "Add with a wizard" "link" in the "#section-2" "css_element"
     And I click on "A forum" "button" in the ".modal-dialog" "css_element"
     And I wait until the page is ready
     And I set the field "Forum name" to "Questions for week 2"
@@ -117,6 +117,27 @@ Feature: Manage the wizards
     And I click on "[data-wizard='go']" "css_element"
     And I wait until the page is ready
     Then I should see "Questions for week 2" in the "#section-2" "css_element"
+
+  @javascript
+  Scenario: Teachers add with a wizard between two activities
+    Given the following "activities" exist:
+      | activity | course | name   | section |
+      | page     | C1     | Page 1 | 1       |
+      | page     | C1     | Page 2 | 1       |
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage with editing mode on
+    When I hover "Insert content before 'Page 2'" "button"
+    And I press "Insert content before 'Page 2'"
+    And I click on "Add with a wizard" "link" in the "Page 2" "activity"
+    And I click on "A forum" "button" in the ".modal-dialog" "css_element"
+    And I wait until the page is ready
+    And I set the field "Forum name" to "Between the pages"
+    And I click on "input[name='purpose'][value='questions']" "css_element"
+    And I click on "Next" "button" in the ".modal-dialog" "css_element"
+    And I click on "[data-wizard='go']" "css_element"
+    And I wait until the page is ready
+    Then "Page 1" "text" should appear before "Between the pages" "text"
+    And "Between the pages" "text" should appear before "Page 2" "text"
 
   @javascript
   Scenario: A whole group of wizards is switched off at once

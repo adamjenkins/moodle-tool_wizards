@@ -57,13 +57,17 @@ const asText = (title) => {
  * @param {string} options.wizard the wizard key
  * @param {string} options.title the modal title
  * @param {number} [options.section] the section to add to
+ * @param {number} [options.beforemod] the activity to add it before (default: at the end of the section)
  * @param {boolean} [options.preview] "Try it": show what would be set instead of creating
  * @param {HTMLElement} [options.returnFocus] where focus goes back to
  */
-export const openWizard = ({courseid, wizard, title, section, preview, returnFocus}) => {
+export const openWizard = ({courseid, wizard, title, section, beforemod, preview, returnFocus}) => {
     const args = {courseid, wizard};
     if (section !== undefined && section !== null && section !== '') {
         args.section = Number(section);
+    }
+    if (Number(beforemod) > 0) {
+        args.beforemod = Number(beforemod);
     }
     if (preview) {
         args.preview = 1;

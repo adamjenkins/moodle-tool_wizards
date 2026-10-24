@@ -66,6 +66,13 @@ if ($hassiteconfig) {
         ));
 
         $settings->add(new admin_setting_configcheckbox(
+            'tool_wizards/cardeditonly',
+            new lang_string('cardeditonly', 'tool_wizards'),
+            new lang_string('cardeditonly_desc', 'tool_wizards'),
+            0
+        ));
+
+        $settings->add(new admin_setting_configcheckbox(
             'tool_wizards/entrylinks',
             new lang_string('entrylinks', 'tool_wizards'),
             new lang_string('entrylinks_desc', 'tool_wizards'),

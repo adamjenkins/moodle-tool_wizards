@@ -106,6 +106,30 @@ final class module_creator_test extends advanced_testcase {
     }
 
     /**
+     * Added between two activities, it goes before the second one; an activity of another
+     * section or course is not a place, and the new one goes at the end.
+     */
+    public function test_before_activity(): void {
+        $generator = $this->getDataGenerator();
+        $first = $generator->create_module('page', ['course' => $this->course->id, 'section' => 1]);
+        $second = $generator->create_module('page', ['course' => $this->course->id, 'section' => 1]);
+        $elsewhere = $generator->create_module('page', ['course' => $this->course->id, 'section' => 2]);
+        $other = $generator->create_module('page', ['course' => $generator->create_course()->id, 'section' => 1]);
+        $answers = ['name' => 'Talk', 'introeditor' => ['text' => '', 'format' => FORMAT_HTML]];
+        $sequence = fn() => array_map('intval', explode(',', get_fast_modinfo($this->course->id)->get_section_info(1)->sequence));
+
+        $between = module_creator::create($this->course, 'forum', $answers, 1, $second->cmid);
+        $this->assertSame([(int) $first->cmid, (int) $between->id, (int) $second->cmid], $sequence());
+
+        $notthere = module_creator::create($this->course, 'forum', $answers, 1, $elsewhere->cmid);
+        $notours = module_creator::create($this->course, 'forum', $answers, 1, $other->cmid);
+        $this->assertSame(
+            [(int) $first->cmid, (int) $between->id, (int) $second->cmid, (int) $notthere->id, (int) $notours->id],
+            $sequence()
+        );
+    }
+
+    /**
      * A file, stored as the resource's main file.
      */
     public function test_file(): void {

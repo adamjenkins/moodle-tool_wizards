@@ -97,14 +97,28 @@ class module_creator {
      * @param array $answers submitted field => value for the module's own form, for example
      *                       'name' => 'Week 1', 'introeditor' => ['text' => '<p>Hi</p>', 'format' => 1]
      * @param int|null $sectionnum the section, default {@see default_section()}
+     * @param int|null $beforemod the course module to put it before, in that section; default at the end
      * @return \cm_info the new course module
      * @throws \moodle_exception when the user may not add it, or the module's form refuses the answers
      */
-    public static function create(stdClass $course, string $modname, array $answers, ?int $sectionnum = null): \cm_info {
-        return self::as_posted($answers, function () use ($course, $modname, $answers, $sectionnum) {
+    public static function create(
+        stdClass $course,
+        string $modname,
+        array $answers,
+        ?int $sectionnum = null,
+        ?int $beforemod = null
+    ): \cm_info {
+        return self::as_posted($answers, function () use ($course, $modname, $answers, $sectionnum, $beforemod) {
             [$mform, $fromform, $errors] = self::submit($course, $modname, $answers, $sectionnum);
             if (!$fromform) {
                 throw new \moodle_exception('error_moduleform', 'tool_wizards', '', null, json_encode($errors));
+            }
+
+            // As course/modedit.php posts it (the form's hidden beforemod), once it is known to be an
+            // activity of this course in the same section; anything else adds at the end.
+            $before = $beforemod ? (get_fast_modinfo($course)->cms[$beforemod] ?? null) : null;
+            if ($before && !$before->deletioninprogress && (int) $before->sectionnum === (int) $fromform->section) {
+                $fromform->beforemod = $before->id;
             }
 
             // As course/modedit.php does: a large regrade is queued rather than run in this request.

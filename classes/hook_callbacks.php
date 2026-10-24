@@ -19,15 +19,20 @@ namespace tool_wizards;
 use core\hook\output\after_http_headers;
 use core\hook\output\before_footer_html_generation;
 use core\hook\output\before_standard_footer_html_generation;
+use core_course\hook\before_activitychooserbutton_exported;
 use tool_wizards\local\course_creator;
 
 /**
- * Output hook callbacks: the wizard links next to "Add a new course", the
- * first-content suggestions on course pages, and the footer link that brings them back.
+ * Output hook callbacks: the wizard links next to "Add a new course", "Add with a wizard" in the
+ * course page's add menus, the first-content suggestions on course pages, and the footer link that
+ * brings them back.
  *
- * Both run on every page, so each bails out early and cheaply.
+ * They run on every page (or for every add button), so each bails out early and cheaply.
+ *
+ * before_activitychooserbutton() follows mod_subsection's before_activitychooserbutton_exported_handler.
  *
  * @package    tool_wizards
+ * @copyright  2024 Mikel Martín <mikel@moodle.com>
  * @copyright  2026 Adam Jenkins <adam@wisecat.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -69,10 +74,10 @@ class hook_callbacks {
     }
 
     /**
-     * "Add with a wizard" beside each section's "Add an activity or resource", in edit mode.
+     * The wizards to choose from for "Add with a wizard" in the course page's add menus, in edit mode.
      *
-     * The list of wizards is rendered here into a hidden template element, so the script that
-     * places the links only needs to know where it is.
+     * The list is rendered here into a hidden template element; the menu entries themselves come
+     * from {@see before_activitychooserbutton()}, and the script only handles clicks on them.
      *
      * @param before_footer_html_generation $hook the hook
      */
@@ -94,10 +99,51 @@ class hook_callbacks {
         $hook->add_html(\html_writer::tag('template', $list, [
             'id' => 'tool_wizards-wizardlist',
             'data-courseid' => (int) $course->id,
-            'data-label' => get_string('addwithwizard', 'tool_wizards'),
             'data-choose' => get_string('choosewizard', 'tool_wizards'),
         ]));
         $page->requires->js_call_amd('tool_wizards/section_link', 'init', ['#tool_wizards-wizardlist']);
+    }
+
+    /**
+     * "Add with a wizard" in the menu of each of core's "Add an activity or resource" buttons: the
+     * section's own, and the ones between activities (which then add before that activity).
+     *
+     * Core dispatches this for every button it renders, so whether the course has wizards for the
+     * user is worked out once per request.
+     *
+     * @param before_activitychooserbutton_exported $hook the hook
+     */
+    public static function before_activitychooserbutton(before_activitychooserbutton_exported $hook): void {
+        global $USER;
+        if (!self::wizards_enabled()) {
+            return;
+        }
+        $section = $hook->get_section();
+        $cache = \cache::make_from_params(\cache_store::MODE_REQUEST, 'tool_wizards', 'chooserbutton');
+        $key = $section->course . '_' . $USER->id;
+        $haswizards = $cache->get($key);
+        if ($haswizards === false) {
+            $haswizards = local\wizard\repository::for_course(get_course($section->course)) ? 1 : 0;
+            $cache->set($key, $haswizards);
+        }
+        if (!$haswizards) {
+            return;
+        }
+        $attributes = [
+            'class' => 'dropdown-item',
+            'data-action' => 'tool_wizards-addwithwizard',
+            'data-sectionnum' => $section->sectionnum,
+        ];
+        if ($hook->get_cm()) {
+            $attributes['data-beforemod'] = $hook->get_cm()->id;
+        }
+        $hook->get_activitychooserbutton()->add_action_link(new \action_link(
+            new \moodle_url('#'),
+            get_string('addwithwizard', 'tool_wizards'),
+            null,
+            $attributes,
+            new \pix_icon('wand', '', 'tool_wizards')
+        ));
     }
 
     /**

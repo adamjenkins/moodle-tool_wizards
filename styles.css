@@ -152,11 +152,6 @@
     height: auto;
 }
 
-/* "Add with a wizard" under core's "Add an activity or resource". */
-.tool_wizards-sectionlink {
-    font-size: 0.875rem;
-}
-
 /* Choosing a course wizard: one card per wizard. */
 .tool_wizards-miniwizard.list-group .tool_wizards-cardpicture {
     width: 4rem;
@@ -170,7 +165,7 @@
 }
 
 /* "Add with a wizard": the wand beside the label, as in Moodle's menus. */
-[data-region="tool_wizards-sectionlink"] .icon,
+[data-action="tool_wizards-addwithwizard"] .icon,
 .tool_wizards-modaltitle .icon {
     margin-right: 0.5rem;
     color: var(--bs-primary);

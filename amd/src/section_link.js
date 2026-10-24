@@ -14,15 +14,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * "Add with a wizard" next to core's "Add an activity or resource" in each course section
- * (edit mode). It lists the wizards the teacher may use and opens the chosen one for that section.
+ * "Add with a wizard" in the menu of each of core's "Add an activity or resource" buttons on the
+ * course page (edit mode), the section's own and the ones between activities. It lists the wizards
+ * the teacher may use and opens the chosen one for that place.
  *
- * Core offers no way to add an entry beside its own button, so this places one next to each
- * button it finds, also after the course page re-renders a section. If core's markup changes,
- * the links simply do not appear; the first-content card still offers the wizards.
- *
- * The list of wizards comes rendered from the server (template tool_wizards/wizard_list) in a
- * hidden template element.
+ * The menu entries are server-rendered through core's before_activitychooserbutton_exported hook
+ * ({@see \tool_wizards\hook_callbacks::before_activitychooserbutton()}), so they are there again
+ * whenever the course editor re-renders a section; this only handles clicks on them. The list of
+ * wizards comes rendered from the server (template tool_wizards/wizard_list) in a hidden template
+ * element.
  *
  * @module     tool_wizards/section_link
  * @copyright  2026 Adam Jenkins <adam@wisecat.net>
@@ -33,11 +33,11 @@ import Modal from 'core/modal';
 import Templates from 'core/templates';
 import {openWizard} from 'tool_wizards/open_wizard';
 
-/** @var {string} Core's section-level add button (not the "insert before an activity" ones). */
-const BUTTON = '[data-action="open-chooser"]:not([data-beforemod])';
+/** @var {string} The menu entry added to core's add buttons. */
+const ENTRY = '[data-action="tool_wizards-addwithwizard"]';
 
 /**
- * Set up the links.
+ * Set up the entries.
  *
  * @param {string} selector the template element holding the list of wizards
  */
@@ -49,54 +49,26 @@ export const init = async(selector) => {
     }
     const options = {
         courseid: Number(source.dataset.courseid),
-        label: source.dataset.label,
         choose: source.dataset.choose,
         list: source.innerHTML,
         // The magic wand, as a Moodle icon (Font Awesome, or the plugin's own picture in other icon systems).
         icon: await Templates.renderPix('wand', 'tool_wizards', ''),
         only: wizards.length === 1 ? {key: wizards[0].dataset.wizard, heading: wizards[0].dataset.heading} : null,
     };
-    const place = () => document.querySelectorAll(BUTTON).forEach(button => addLink(button, options));
-    place();
-    const region = document.getElementById('region-main') || document.body;
-    new MutationObserver(place).observe(region, {childList: true, subtree: true});
-};
-
-/**
- * Add the link beside one of core's buttons, once.
- *
- * @param {HTMLElement} button core's button
- * @param {Object} options courseid, label, choose, list, icon, only
- */
-const addLink = (button, options) => {
-    if (button.dataset.toolWizardsLinked) {
-        return;
-    }
-    button.dataset.toolWizardsLinked = '1';
-    const section = button.dataset.sectionnum;
-    const link = document.createElement('button');
-    link.type = 'button';
-    link.dataset.region = 'tool_wizards-sectionlink';
-    // The icon is Moodle's own markup (core/templates renderPix); the label is plain text.
-    link.innerHTML = options.icon;
-    link.append(document.createTextNode(options.label));
-    if (button.classList.contains('dropdown-item')) {
-        link.className = 'dropdown-item';
-        button.after(link);
-    } else {
-        link.className = 'btn btn-link btn-sm tool_wizards-sectionlink';
-        const wrapper = document.createElement('div');
-        wrapper.className = 'text-center';
-        wrapper.append(link);
-        button.after(wrapper);
-    }
-    link.addEventListener('click', e => {
+    document.addEventListener('click', e => {
+        const entry = e.target.closest(ENTRY);
+        if (!entry) {
+            return;
+        }
         e.preventDefault();
+        const place = {section: entry.dataset.sectionnum, beforemod: entry.dataset.beforemod};
+        // The entry is in a dropdown that closes: focus goes back to its button.
+        const returnFocus = entry.closest('.dropdown')?.querySelector('[data-bs-toggle="dropdown"]') || entry;
         if (options.only) {
-            openWizard({courseid: options.courseid, wizard: options.only.key, title: options.only.heading, section,
-                returnFocus: link});
+            openWizard({courseid: options.courseid, wizard: options.only.key, title: options.only.heading, ...place,
+                returnFocus});
         } else {
-            chooseWizard(options, section, link);
+            chooseWizard(options, place, returnFocus);
         }
     });
 };
@@ -105,10 +77,10 @@ const addLink = (button, options) => {
  * Let the teacher pick a wizard, then open it.
  *
  * @param {Object} options courseid, choose, list, icon
- * @param {string} section the section number
+ * @param {Object} place section (number) and beforemod (the activity to add it before, if any)
  * @param {HTMLElement} returnFocus where focus goes back to
  */
-const chooseWizard = async(options, section, returnFocus) => {
+const chooseWizard = async(options, place, returnFocus) => {
     // The list was rendered by the server from a template; the title's text is escaped here.
     const title = document.createElement('span');
     title.className = 'tool_wizards-modaltitle';
@@ -126,7 +98,7 @@ const chooseWizard = async(options, section, returnFocus) => {
             return;
         }
         modal.destroy();
-        openWizard({courseid: options.courseid, wizard: item.dataset.wizard, title: item.dataset.heading, section,
+        openWizard({courseid: options.courseid, wizard: item.dataset.wizard, title: item.dataset.heading, ...place,
             returnFocus});
     });
 };

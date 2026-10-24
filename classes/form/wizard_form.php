@@ -26,8 +26,9 @@ use tool_wizards\local\wizard\repository;
 /**
  * Any activity wizard, shown in a modal a screen at a time.
  *
- * Arguments: wizard (key), courseid, section (optional), preview (1 for "Try it": nothing
- * is created; the answer is what would be set). Everything from the browser is checked again.
+ * Arguments: wizard (key), courseid, section (optional), beforemod (optional: the activity to add it
+ * before), preview (1 for "Try it": nothing is created; the answer is what would be set). Everything
+ * from the browser is checked again.
  *
  * @package    tool_wizards
  * @copyright  2026 Adam Jenkins <adam@wisecat.net>
@@ -104,6 +105,16 @@ class wizard_form extends dynamic_form {
     }
 
     /**
+     * The course module to add the activity before, or null to add it at the end of the section.
+     *
+     * @return int|null
+     */
+    protected function beforemod(): ?int {
+        $beforemod = $this->optional_param('beforemod', 0, PARAM_INT);
+        return $beforemod > 0 ? $beforemod : null;
+    }
+
+    /**
      * The course context.
      *
      * @return \context
@@ -135,7 +146,8 @@ class wizard_form extends dynamic_form {
      */
     protected function definition() {
         $mform = $this->_form;
-        $hidden = ['courseid' => PARAM_INT, 'wizard' => PARAM_ALPHANUMEXT, 'section' => PARAM_INT, 'preview' => PARAM_INT];
+        $hidden = ['courseid' => PARAM_INT, 'wizard' => PARAM_ALPHANUMEXT, 'section' => PARAM_INT, 'beforemod' => PARAM_INT,
+            'preview' => PARAM_INT];
         foreach ($hidden as $name => $type) {
             $mform->addElement('hidden', $name);
             $mform->setType($name, $type);
@@ -177,6 +189,7 @@ class wizard_form extends dynamic_form {
             'courseid' => $this->get_course()->id,
             'wizard' => $this->get_record()->wizardkey,
             'section' => $this->section() ?? -1,
+            'beforemod' => $this->beforemod() ?? 0,
             'preview' => (int) $this->is_preview(),
         ] + $builder->draft_defaults());
     }
@@ -228,7 +241,13 @@ class wizard_form extends dynamic_form {
             return ['preview' => true, 'lines' => $engine->describe($answers)];
         }
         $course = $this->get_course();
-        $cm = module_creator::create($course, $engine->modname(), $engine->fields($answers), $this->section());
+        $cm = module_creator::create(
+            $course,
+            $engine->modname(),
+            $engine->fields($answers),
+            $this->section(),
+            $this->beforemod()
+        );
         foreach ($engine->actions($answers) as [$class, $config]) {
             $class::run($config, $answers, $cm);
         }
