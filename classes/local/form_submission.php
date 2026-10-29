@@ -363,7 +363,8 @@ class form_submission {
     /**
      * Submit values to a form and read them back through its own get_data().
      *
-     * The request's own $_POST is kept aside and put back afterwards.
+     * moodleform::mock_submit() sets $_POST and $_FILES; the request's own are kept aside and put
+     * back afterwards.
      *
      * @param callable $factory returns a new instance of the form, built as its page builds it
      * @param array $values name => value, nested like $_POST
@@ -371,6 +372,7 @@ class form_submission {
      */
     public static function submit(callable $factory, array $values): array {
         $savedpost = $_POST;
+        $savedfiles = $_FILES;
         try {
             $form = $factory();
             $form::mock_submit($values);
@@ -379,6 +381,7 @@ class form_submission {
             $errors = $data ? [] : self::quickform($form)->_errors;
         } finally {
             $_POST = $savedpost;
+            $_FILES = $savedfiles;
         }
         return [$form, $data ?: null, $errors];
     }

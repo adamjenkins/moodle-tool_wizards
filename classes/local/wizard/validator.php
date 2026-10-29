@@ -111,7 +111,7 @@ class validator {
     public static function check_json(string $json): array {
         $doc = json_decode($json, true);
         if (!is_array($doc)) {
-            return ['(document): not valid JSON: ' . json_last_error_msg()];
+            return ['(document): ' . get_string('problem_notjson', 'tool_wizards', json_last_error_msg())];
         }
         return self::check($doc);
     }
@@ -127,6 +127,17 @@ class validator {
     }
 
     /**
+     * Note a problem, worded by the language string problem_<identifier>.
+     *
+     * @param string $path where, as above
+     * @param string $identifier the string, without its "problem_" prefix
+     * @param mixed $a the string's placeholder values
+     */
+    protected function problem(string $path, string $identifier, $a = null): void {
+        $this->error($path, get_string('problem_' . $identifier, 'tool_wizards', $a));
+    }
+
+    /**
      * Report keys that are not allowed here.
      *
      * @param array $value the object
@@ -136,7 +147,7 @@ class validator {
     protected function known_keys(array $value, array $allowed, string $path): void {
         foreach (array_keys($value) as $key) {
             if (!in_array($key, $allowed, true)) {
-                $this->error($path . '.' . $key, 'unknown property (allowed: ' . implode(', ', $allowed) . ')');
+                $this->problem($path . '.' . $key, 'unknownproperty', implode(', ', $allowed));
             }
         }
     }
@@ -148,18 +159,18 @@ class validator {
      */
     protected function document($doc): void {
         if (!is_array($doc) || array_is_list($doc)) {
-            $this->error('', 'must be a JSON object');
+            $this->problem('', 'jsonobject');
             return;
         }
         $this->known_keys($doc, self::DOC_KEYS, '');
         if (($doc['format'] ?? null) !== self::FORMAT) {
-            $this->error('format', 'must be "' . self::FORMAT . '"');
+            $this->problem('format', 'mustbe', self::FORMAT);
         }
         if (!is_string($doc['key'] ?? null) || !preg_match('/^[a-z][a-z0-9_]{1,59}$/', $doc['key'])) {
-            $this->error('key', 'must be 2-60 characters: lower-case letters, digits and _, starting with a letter');
+            $this->problem('key', 'wizardkey');
         }
         if (isset($doc['defaultversion']) && (!is_int($doc['defaultversion']) || $doc['defaultversion'] < 1)) {
-            $this->error('defaultversion', 'must be a whole number from 1');
+            $this->problem('defaultversion', 'wholenumber');
         }
         $this->target($doc['target'] ?? null);
         $this->text($doc['title'] ?? null, 'title', true);
@@ -172,12 +183,12 @@ class validator {
             $this->picture($doc['picture'], 'picture');
         }
         if (isset($doc['notes']) && !is_string($doc['notes'])) {
-            $this->error('notes', 'must be a string');
+            $this->problem('notes', 'string');
         }
 
         $screens = $doc['screens'] ?? null;
         if (!is_array($screens) || !array_is_list($screens) || !$screens) {
-            $this->error('screens', 'must be a non-empty list');
+            $this->problem('screens', 'nonemptylist');
             return;
         }
         // Questions first, so conditions and presets can refer to questions on later screens.
@@ -185,7 +196,7 @@ class validator {
             foreach ((is_array($screen) && is_array($screen['items'] ?? null)) ? $screen['items'] : [] as $j => $item) {
                 if (is_array($item) && isset($item['key']) && is_string($item['key'])) {
                     if (isset($this->questions[$item['key']])) {
-                        $this->error("screens[$i].items[$j].key", 'duplicate question key "' . $item['key'] . '"');
+                        $this->problem("screens[$i].items[$j].key", 'duplicatequestion', $item['key']);
                     }
                     $this->questions[$item['key']] = $item;
                 }
@@ -197,14 +208,14 @@ class validator {
             $key = $this->screen($screen, "screens[$i]");
             if ($key !== null) {
                 if (in_array($key, $screenkeys, true)) {
-                    $this->error("screens[$i].key", 'duplicate screen key "' . $key . '"');
+                    $this->problem("screens[$i].key", 'duplicatescreen', $key);
                 }
                 $screenkeys[] = $key;
             }
         }
         if (isset($doc['actions'])) {
             if (!is_array($doc['actions']) || !array_is_list($doc['actions'])) {
-                $this->error('actions', 'must be a list');
+                $this->problem('actions', 'list');
             } else {
                 foreach ($doc['actions'] as $i => $action) {
                     $this->action($action, "actions[$i]");
@@ -235,8 +246,7 @@ class validator {
      */
     protected function target($target): void {
         if (!is_array($target)) {
-            $this->error('target', 'must be {"type": "course"}, {"type": "module", "modname": "…"} or '
-                . '{"type": "content", "modname": "…", "content": "…"}');
+            $this->problem('target', 'target');
             return;
         }
         $this->known_keys($target, ['type', 'modname', 'content'], 'target');
@@ -246,27 +256,27 @@ class validator {
             return;
         }
         if (!in_array($target['type'] ?? null, ['module', 'content'], true)) {
-            $this->error('target.type', 'must be "course", "module" or "content"');
+            $this->problem('target.type', 'targettype');
             return;
         }
         $modname = $target['modname'] ?? null;
         if (!is_string($modname) || !preg_match('/^[a-z][a-z0-9_]*$/', $modname)) {
-            $this->error('target.modname', 'must be a module name such as "quiz"');
+            $this->problem('target.modname', 'modname');
         } else if (!\core_component::get_component_directory('mod_' . $modname)) {
-            $this->error('target.modname', 'module "' . $modname . '" is not installed on this site');
+            $this->problem('target.modname', 'modulenotinstalled', $modname);
         }
         $this->target = is_string($modname) ? $modname : '';
         if ($target['type'] === 'content') {
             $class = extensions::contents()[$target['content'] ?? ''] ?? null;
             if (!$class) {
-                $this->error('target.content', 'must be one of: ' . implode(', ', array_keys(extensions::contents())));
+                $this->problem('target.content', 'oneof', implode(', ', array_keys(extensions::contents())));
             } else if ($class::modname() !== $modname) {
-                $this->error('target.content', 'this content belongs to "' . $class::modname() . '"');
+                $this->problem('target.content', 'contentbelongs', $class::modname());
             } else {
                 $this->content = $class;
             }
         } else if (isset($target['content'])) {
-            $this->error('target.content', 'only for {"type": "content"}');
+            $this->problem('target.content', 'contentonly');
         }
     }
 
@@ -280,7 +290,7 @@ class validator {
     protected function text($text, string $path, bool $required): void {
         if ($text === null) {
             if ($required) {
-                $this->error($path, 'is required');
+                $this->problem($path, 'required');
             }
             return;
         }
@@ -288,32 +298,32 @@ class validator {
             return;
         }
         if (!is_array($text) || ($text !== [] && array_is_list($text))) {
-            $this->error($path, 'must be a string, {"string": "key"} or translations like {"en": "…", "ja": "…"}');
+            $this->problem($path, 'text');
             return;
         }
         if (!$text && $required) {
-            $this->error($path, 'is empty');
+            $this->problem($path, 'empty');
         }
         foreach ($text as $key => $value) {
             if ($key === 'string' || $key === 'component') {
                 if (!is_string($value)) {
-                    $this->error("$path.$key", 'must be a string');
+                    $this->problem("$path.$key", 'string');
                 }
                 continue;
             }
             if (!text::is_language_key((string) $key)) {
-                $this->error("$path.$key", 'not a language code (use e.g. "en", "ja", "pt_br")');
+                $this->problem("$path.$key", 'language');
             } else if (!is_string($value)) {
-                $this->error("$path.$key", 'must be a string');
+                $this->problem("$path.$key", 'string');
             }
         }
         if (isset($text['component']) && !isset($text['string'])) {
-            $this->error("$path.component", 'only allowed together with "string"');
+            $this->problem("$path.component", 'componentwithstring');
         }
         if (isset($text['string']) && is_string($text['string'])) {
             $component = is_string($text['component'] ?? null) ? $text['component'] : text::DEFAULT_COMPONENT;
             if (!get_string_manager()->string_exists($text['string'], $component)) {
-                $this->error("$path.string", 'no language string "' . $text['string'] . '" in ' . $component);
+                $this->problem("$path.string", 'nostring', (object) ['string' => $text['string'], 'component' => $component]);
             }
         }
     }
@@ -327,17 +337,17 @@ class validator {
     protected function picture($picture, string $path): void {
         global $CFG;
         if (!is_string($picture)) {
-            $this->error($path, 'must be "pix:<name>" or "file:<name>"');
+            $this->problem($path, 'picture');
             return;
         }
         if (preg_match('/^pix:([a-z0-9_\/]+)$/', $picture, $m)) {
             if (!is_readable($CFG->dirroot . '/admin/tool/wizards/pix/' . $m[1] . '.svg')) {
-                $this->error($path, 'no shipped picture "' . $m[1] . '"');
+                $this->problem($path, 'noshippedpicture', $m[1]);
             }
             return;
         }
         if (!preg_match('/^file:[A-Za-z0-9._-]+\.(png|jpe?g|webp|svg|gif)$/i', $picture)) {
-            $this->error($path, 'must be "pix:<name>" or "file:<name>.png|jpg|jpeg|webp|svg|gif"');
+            $this->problem($path, 'picturefile');
         }
     }
 
@@ -350,24 +360,24 @@ class validator {
      */
     protected function screen($screen, string $path): ?string {
         if (!is_array($screen) || array_is_list($screen)) {
-            $this->error($path, 'must be an object');
+            $this->problem($path, 'object');
             return null;
         }
         $this->known_keys($screen, self::SCREEN_KEYS, $path);
         if (isset($screen['use'])) {
             if (!in_array($screen['use'], self::SHARED, true)) {
-                $this->error("$path.use", 'must be one of ' . implode(', ', self::SHARED));
+                $this->problem("$path.use", 'oneof', implode(', ', self::SHARED));
                 return null;
             }
             if ($this->course || $this->content) {
-                $this->error("$path.use", 'shared screens are for activity wizards only');
+                $this->problem("$path.use", 'sharedactivity');
             }
             if (isset($screen['items'])) {
-                $this->error("$path.items", 'a shared screen has no items of its own');
+                $this->problem("$path.items", 'shareditems');
             }
             if (isset($screen['choices'])) {
                 if ($screen['use'] !== 'shared:completion') {
-                    $this->error("$path.choices", 'only shared:completion takes choices');
+                    $this->problem("$path.choices", 'sharedchoices');
                 } else {
                     $this->choices($screen['choices'], "$path.choices", ['kind' => 'cards']);
                 }
@@ -378,7 +388,7 @@ class validator {
             return substr($screen['use'], 7);
         }
         if (!is_string($screen['key'] ?? null) || !preg_match('/^[a-z][a-z0-9_]{0,59}$/', $screen['key'])) {
-            $this->error("$path.key", 'must be lower-case letters, digits and _, starting with a letter');
+            $this->problem("$path.key", 'itemkey');
         }
         $this->text($screen['title'] ?? null, "$path.title", true);
         if (isset($screen['question'])) {
@@ -389,7 +399,7 @@ class validator {
         }
         $items = $screen['items'] ?? null;
         if (!is_array($items) || !array_is_list($items) || !$items) {
-            $this->error("$path.items", 'must be a non-empty list');
+            $this->problem("$path.items", 'nonemptylist');
         } else {
             foreach ($items as $j => $item) {
                 $this->item($item, "$path.items[$j]");
@@ -406,18 +416,18 @@ class validator {
      */
     protected function item($item, string $path): void {
         if (!is_array($item) || array_is_list($item)) {
-            $this->error($path, 'must be an object');
+            $this->problem($path, 'object');
             return;
         }
         $this->known_keys($item, self::ITEM_KEYS, $path);
         $kind = $item['kind'] ?? null;
         $kinds = array_merge(self::VALUE_KINDS, ['hint', 'review']);
         if (!in_array($kind, $kinds, true)) {
-            $this->error("$path.kind", 'must be one of ' . implode(', ', $kinds));
+            $this->problem("$path.kind", 'oneof', implode(', ', $kinds));
             return;
         }
         if (in_array($kind, self::COURSE_KINDS, true) && !$this->course) {
-            $this->error("$path.kind", '"' . $kind . '" is only for course wizards');
+            $this->problem("$path.kind", 'coursekind', $kind);
         }
         if (isset($item['when'])) {
             $this->condition($item['when'], "$path.when");
@@ -430,12 +440,12 @@ class validator {
             return;
         }
         if (!is_string($item['key'] ?? null) || !preg_match('/^[a-z][a-z0-9_]{0,59}$/', $item['key'])) {
-            $this->error("$path.key", 'must be lower-case letters, digits and _, starting with a letter');
+            $this->problem("$path.key", 'itemkey');
         } else if (
             in_array($item['key'], ['courseid', 'wizard', 'section', 'preview', 'sesskey', 'id', 'startcategory',
                 'fullsettings', 'wizarderrors'], true)
         ) {
-            $this->error("$path.key", '"' . $item['key'] . '" is reserved');
+            $this->problem("$path.key", 'reserved', $item['key']);
         }
         $this->text($item['label'] ?? null, "$path.label", true);
         if (isset($item['help'])) {
@@ -452,42 +462,40 @@ class validator {
         }
         foreach (['min', 'max'] as $bound) {
             if (isset($item[$bound]) && !is_int($item[$bound]) && !is_float($item[$bound])) {
-                $this->error("$path.$bound", 'must be a number');
+                $this->problem("$path.$bound", 'number');
             }
         }
         if (isset($item['maxlength']) && (!is_int($item['maxlength']) || $item['maxlength'] < 1)) {
-            $this->error("$path.maxlength", 'must be a whole number from 1');
+            $this->problem("$path.maxlength", 'wholenumber');
         }
         if (in_array($kind, self::CHOICE_KINDS, true)) {
             if (isset($item['choicesfrom'])) {
                 $for = self::CHOICE_SOURCES[$item['choicesfrom']] ?? [];
                 $content = str_starts_with($item['choicesfrom'], 'cm:');
                 if (!in_array($this->target, $for, true) || $content !== ($this->content !== null)) {
-                    $this->error("$path.choicesfrom", 'must be course:formats (course wizards), course:ltitools '
-                        . '(external tool wizards), or cm:questioncategories / cm:questioncategoryparents '
-                        . '(in-activity wizards of a question bank or quiz)');
+                    $this->problem("$path.choicesfrom", 'choicesfrom');
                 }
                 if (isset($item['choices'])) {
-                    $this->error("$path.choices", 'give either choices or choicesfrom, not both');
+                    $this->problem("$path.choices", 'choicesboth');
                 }
             } else {
                 $this->choices($item['choices'] ?? null, "$path.choices", $item);
             }
         } else if (isset($item['choices']) || isset($item['choicesfrom'])) {
-            $this->error("$path.choices", 'only cards, choice and select take choices');
+            $this->problem("$path.choices", 'choicesonly');
         }
         if (isset($item['accept'])) {
             $ok = $item['accept'] === '*' || (is_array($item['accept']) && array_is_list($item['accept'])
                 && !array_filter($item['accept'], fn($e) => !is_string($e) || !preg_match('/^\.[a-z0-9]+$|^[a-z_]+$/', $e)));
             if ($kind !== 'file' || !$ok) {
-                $this->error("$path.accept", 'file questions only: "*" or a list like [".pdf", ".pptx"] or ["web_image"]');
+                $this->problem("$path.accept", 'accept');
             }
         }
         if (
             isset($item['maxfiles']) && ($kind !== 'file' || !is_int($item['maxfiles'])
                 || ($item['maxfiles'] !== -1 && ($item['maxfiles'] < 1 || $item['maxfiles'] > 100)))
         ) {
-            $this->error("$path.maxfiles", 'file questions only: how many files, 1 to 100, or -1 for no limit');
+            $this->problem("$path.maxfiles", 'maxfiles');
         }
         if (isset($item['extensions'])) {
             $this->extensions($item['extensions'], "$path.extensions", $kind);
@@ -496,13 +504,13 @@ class validator {
             isset($item['units']) && ($kind !== 'duration' || !is_array($item['units'])
                 || array_diff($item['units'], [1, 60, 3600, 86400, 604800]))
         ) {
-            $this->error("$path.units", 'duration questions only: a list of 1, 60, 3600, 86400, 604800');
+            $this->problem("$path.units", 'units');
         }
         if (isset($item['optional']) && (!is_bool($item['optional']) || !in_array($kind, ['date', 'duration'], true))) {
-            $this->error("$path.optional", 'date and duration questions only: true or false');
+            $this->problem("$path.optional", 'optional');
         }
         if (isset($item['suggestfrom']) && ($kind !== 'shortname' || !isset($this->questions[$item['suggestfrom']]))) {
-            $this->error("$path.suggestfrom", 'shortname questions only: the key of an earlier question');
+            $this->problem("$path.suggestfrom", 'suggestfrom');
         }
         if (isset($item['default'])) {
             $this->default_value($item['default'], "$path.default");
@@ -521,18 +529,33 @@ class validator {
      */
     protected function extensions($rule, string $path, string $kind): void {
         if ($kind !== 'file' || !is_array($rule) || array_is_list($rule)) {
-            $this->error($path, 'file questions only: {"in": [".pdf"], "when": {…}, "message": text}');
+            $this->problem($path, 'filecheck');
             return;
         }
         $this->known_keys($rule, ['in', 'when', 'message'], $path);
         if (!is_array($rule['in'] ?? null) || !$rule['in']) {
-            $this->error("$path.in", 'must be a non-empty list like [".pdf"]');
+            $this->problem("$path.in", 'filecheckin');
         }
         if (isset($rule['when'])) {
             $this->condition($rule['when'], "$path.when");
         }
         if (isset($rule['message'])) {
             $this->text($rule['message'], "$path.message", false);
+        }
+    }
+
+    /**
+     * Check a "config:plugin/name" reference: its shape, and that it is a course or activity default
+     * a wizard may show ({@see engine::config_default_allowed()}).
+     *
+     * @param string $reference the reference
+     * @param string $path where
+     */
+    protected function config_reference(string $reference, string $path): void {
+        if (!preg_match(engine::CONFIG_DEFAULT, $reference, $m)) {
+            $this->problem($path, 'configshape');
+        } else if (!engine::config_default_allowed($m[1], $m[2])) {
+            $this->problem($path, 'confignotallowed', $reference);
         }
     }
 
@@ -544,15 +567,12 @@ class validator {
      */
     protected function default_value($default, string $path): void {
         if (is_scalar($default)) {
-            if (
-                is_string($default) && preg_match('/^config:/', $default)
-                    && !preg_match('/^config:[a-z][a-z0-9_]*\/[a-z0-9_]+$/', $default)
-            ) {
-                $this->error($path, '"config:" defaults look like "config:quiz/attempts"');
+            if (is_string($default) && preg_match('/^config:/', $default)) {
+                $this->config_reference($default, $path);
             }
             return;
         }
-        $this->error($path, 'must be a value, or "config:plugin/name", or "course:groupmode"');
+        $this->problem($path, 'default');
     }
 
     /**
@@ -564,22 +584,22 @@ class validator {
      */
     protected function choices($choices, string $path, array $item): void {
         if (!is_array($choices) || !array_is_list($choices) || !$choices) {
-            $this->error($path, 'must be a non-empty list');
+            $this->problem($path, 'nonemptylist');
             return;
         }
         $values = [];
         foreach ($choices as $i => $choice) {
             $cpath = "{$path}[$i]";
             if (!is_array($choice) || array_is_list($choice)) {
-                $this->error($cpath, 'must be an object');
+                $this->problem($cpath, 'object');
                 continue;
             }
             $this->known_keys($choice, self::CHOICE_KEYS, $cpath);
             if (!array_key_exists('value', $choice) || !is_scalar($choice['value'])) {
-                $this->error("$cpath.value", 'is required: a string or number');
+                $this->problem("$cpath.value", 'choicevalue');
             } else {
                 if (in_array((string) $choice['value'], $values, true)) {
-                    $this->error("$cpath.value", 'duplicate value "' . $choice['value'] . '"');
+                    $this->problem("$cpath.value", 'duplicatevalue', $choice['value']);
                 }
                 $values[] = (string) $choice['value'];
             }
@@ -595,7 +615,7 @@ class validator {
             }
             if (isset($choice['sets'])) {
                 if (!is_array($choice['sets']) || array_is_list($choice['sets'])) {
-                    $this->error("$cpath.sets", 'must be an object of form field => value');
+                    $this->problem("$cpath.sets", 'sets');
                 } else {
                     $this->field_values($choice['sets'], "$cpath.sets");
                 }
@@ -614,16 +634,16 @@ class validator {
      */
     protected function preset($preset, string $path): void {
         if (!is_array($preset) || array_is_list($preset)) {
-            $this->error($path, 'must be an object of question key => value');
+            $this->problem($path, 'preset');
             return;
         }
         foreach ($preset as $key => $value) {
             if (!isset($this->questions[$key])) {
-                $this->error("$path.$key", 'no question with this key');
+                $this->problem("$path.$key", 'noquestion');
                 continue;
             }
             if (!is_scalar($value)) {
-                $this->error("$path.$key", 'must be a value');
+                $this->problem("$path.$key", 'value');
                 continue;
             }
             $question = $this->questions[$key];
@@ -633,7 +653,7 @@ class validator {
             ) {
                 $values = array_map(fn($c) => (string) ($c['value'] ?? ''), $question['choices']);
                 if (!in_array((string) $value, $values, true)) {
-                    $this->error("$path.$key", 'not one of that question\'s choice values');
+                    $this->problem("$path.$key", 'notachoice');
                 }
             }
         }
@@ -665,7 +685,7 @@ class validator {
      */
     protected function mapping($map, string $path, array $item): void {
         if (!is_array($map) || array_is_list($map)) {
-            $this->error($path, 'must be an object such as {"field": "name"}');
+            $this->problem($path, 'mapping');
             return;
         }
         $this->known_keys($map, ['field', 'as', 'emptyfrom', 'percentof', 'transform', 'from', 'when'], $path);
@@ -674,42 +694,45 @@ class validator {
         }
         if (isset($map['transform'])) {
             if (!isset(extensions::transforms()[$map['transform']])) {
-                $this->error("$path.transform", 'unknown transform "' . (is_string($map['transform']) ? $map['transform'] : '?')
-                    . '" (available: ' . implode(', ', array_keys(extensions::transforms())) . ')');
+                $this->problem("$path.transform", 'unknowntransform', (object) [
+                    'name' => is_string($map['transform']) ? $map['transform'] : '?',
+                    'available' => implode(', ', array_keys(extensions::transforms())),
+                ]);
             }
             if (isset($map['from']) && (!is_array($map['from']) || array_is_list($map['from']))) {
-                $this->error("$path.from", 'must be an object of name => question key');
+                $this->problem("$path.from", 'from');
             } else {
                 foreach ($map['from'] ?? [] as $name => $key) {
                     if (!isset($this->questions[$key])) {
-                        $this->error("$path.from.$name", 'no question with key "' . $key . '"');
+                        $this->problem("$path.from.$name", 'noquestionkey', $key);
                     }
                 }
             }
             return;
         }
         if (!is_string($map['field'] ?? null) || !self::field_name_ok($map['field'])) {
-            $this->error("$path.field", 'must be a form field name such as "attempts" or "grade_forum[modgrade_point]"');
+            $this->problem("$path.field", 'field');
         } else if ($this->content && !array_key_exists(strtok($map['field'], '['), $this->content::fields())) {
-            $this->error("$path.field", 'must be one of this content\'s fields: '
-                . implode(', ', array_keys($this->content::fields())));
+            $this->problem("$path.field", 'contentfield', implode(', ', array_keys($this->content::fields())));
         }
         if (isset($map['as']) && !in_array($map['as'], ['editor', 'string', 'int', 'float'], true)) {
-            $this->error("$path.as", 'must be editor, string, int or float');
+            $this->problem("$path.as", 'as');
         }
         if (isset($map['emptyfrom'])) {
             $from = $map['emptyfrom'];
             if (!is_array($from) || !isset($from['filename']) || !isset($this->questions[$from['filename']])) {
-                $this->error("$path.emptyfrom", 'must be {"filename": "<key of a file question>"}');
+                $this->problem("$path.emptyfrom", 'emptyfrom');
             }
         }
         if (isset($map['percentof'])) {
             $of = $map['percentof'];
-            if (!(is_int($of) || is_float($of) || (is_string($of) && preg_match('/^config:[a-z][a-z0-9_]*\/[a-z0-9_]+$/', $of)))) {
-                $this->error("$path.percentof", 'must be a number or "config:plugin/name"');
+            if (is_string($of) && preg_match('/^config:/', $of)) {
+                $this->config_reference($of, "$path.percentof");
+            } else if (!is_int($of) && !is_float($of)) {
+                $this->problem("$path.percentof", 'percentof');
             }
             if (($item['kind'] ?? '') !== 'percent') {
-                $this->error("$path.percentof", 'only for percent questions');
+                $this->problem("$path.percentof", 'percentonly');
             }
         }
     }
@@ -733,7 +756,7 @@ class validator {
     protected function field_values(array $fields, string $path): void {
         foreach ($fields as $name => $value) {
             if (!self::field_name_ok((string) $name)) {
-                $this->error("$path.$name", 'not a form field name');
+                $this->problem("$path.$name", 'notfield');
             }
             $this->field_value($value, "$path.$name");
         }
@@ -753,9 +776,9 @@ class validator {
             return;
         }
         if (is_string($value) && preg_match('/^\{answer:([a-z0-9_]+)\}$/', $value, $m) && !isset($this->questions[$m[1]])) {
-            $this->error($path, 'no question with key "' . $m[1] . '"');
+            $this->problem($path, 'noquestionkey', $m[1]);
         } else if (!is_scalar($value) && $value !== null) {
-            $this->error($path, 'must be a value');
+            $this->problem($path, 'value');
         }
     }
 
@@ -767,14 +790,14 @@ class validator {
      */
     protected function condition($cond, string $path): void {
         if (!is_array($cond) || array_is_list($cond) || !$cond) {
-            $this->error($path, 'must be a condition object such as {"answer": "purpose", "is": "exam"}');
+            $this->problem($path, 'condition');
             return;
         }
         if (isset($cond['all']) || isset($cond['any'])) {
             $name = isset($cond['all']) ? 'all' : 'any';
             $this->known_keys($cond, [$name], $path);
             if (!is_array($cond[$name]) || !array_is_list($cond[$name]) || !$cond[$name]) {
-                $this->error("$path.$name", 'must be a non-empty list of conditions');
+                $this->problem("$path.$name", 'conditions');
                 return;
             }
             foreach ($cond[$name] as $i => $c) {
@@ -790,31 +813,31 @@ class validator {
         if (isset($cond['answer'])) {
             $this->known_keys($cond, ['answer', 'is', 'not', 'in', 'has', 'empty'], $path);
             if (!isset($this->questions[$cond['answer']])) {
-                $this->error("$path.answer", 'no question with key "' . $cond['answer'] . '"');
+                $this->problem("$path.answer", 'noquestionkey', $cond['answer']);
             }
             $tests = array_intersect(array_keys($cond), ['is', 'not', 'in', 'has', 'empty']);
             if (count($tests) !== 1) {
-                $this->error($path, 'give exactly one of is, not, in, has, empty');
+                $this->problem($path, 'oneoperator');
             }
             if (isset($cond['in']) && (!is_array($cond['in']) || !array_is_list($cond['in']))) {
-                $this->error("$path.in", 'must be a list');
+                $this->problem("$path.in", 'list');
             }
             return;
         }
         if (isset($cond['course'])) {
             $this->known_keys($cond, ['course', 'is'], $path);
             if (!in_array($cond['course'], self::COURSE_FACTS, true)) {
-                $this->error("$path.course", 'must be one of ' . implode(', ', self::COURSE_FACTS));
+                $this->problem("$path.course", 'oneof', implode(', ', self::COURSE_FACTS));
             }
             return;
         }
         if (isset($cond['site'])) {
             $this->known_keys($cond, ['site', 'name'], $path);
             if (!in_array($cond['site'], self::SITE_FACTS, true)) {
-                $this->error("$path.site", 'must be one of ' . implode(', ', self::SITE_FACTS));
+                $this->problem("$path.site", 'oneof', implode(', ', self::SITE_FACTS));
             }
             if (in_array($cond['site'], ['filter', 'qtype'], true) && !is_string($cond['name'] ?? null)) {
-                $this->error("$path.name", 'required for site:' . $cond['site']);
+                $this->problem("$path.name", 'sitename', $cond['site']);
             }
             return;
         }
@@ -823,7 +846,7 @@ class validator {
             $caps = (array) $cond['capability'];
             foreach ($caps as $cap) {
                 if (!is_string($cap) || !get_capability_info($cap)) {
-                    $this->error("$path.capability", 'unknown capability "' . (is_string($cap) ? $cap : '?') . '"');
+                    $this->problem("$path.capability", 'unknowncapability', is_string($cap) ? $cap : '?');
                 }
             }
             return;
@@ -832,11 +855,11 @@ class validator {
             $this->known_keys($cond, ['offered'], $path);
             $o = $cond['offered'];
             if (!is_array($o) || !is_string($o['field'] ?? null) || !array_key_exists('value', $o)) {
-                $this->error("$path.offered", 'must be {"field": "…", "value": …}');
+                $this->problem("$path.offered", 'offered');
             }
             return;
         }
-        $this->error($path, 'unknown condition (use answer, course, site, capability, offered, all, any or not)');
+        $this->problem($path, 'unknowncondition');
     }
 
     /**
@@ -847,13 +870,15 @@ class validator {
      */
     protected function action($action, string $path): void {
         if (!is_array($action) || !is_string($action['action'] ?? null)) {
-            $this->error($path, 'must be an object with "action"');
+            $this->problem($path, 'action');
             return;
         }
         $actions = extensions::actions();
         if (!isset($actions[$action['action']])) {
-            $this->error("$path.action", 'unknown action "' . $action['action'] . '" (available: '
-                . implode(', ', array_keys($actions)) . ')');
+            $this->problem("$path.action", 'unknownaction', (object) [
+                'name' => $action['action'],
+                'available' => implode(', ', array_keys($actions)),
+            ]);
             return;
         }
         if (isset($action['when'])) {

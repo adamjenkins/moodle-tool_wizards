@@ -25,9 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-    // Create, edit, import, export, enable and delete wizards (site admins by default).
+    // Create, edit, import, export, enable and delete wizards (site admins by default). Wizards
+    // are shown to teachers, so writing one carries the XSS risk as well.
     'tool/wizards:managewizards' => [
-        'riskbitmask' => RISK_CONFIG,
+        'riskbitmask' => RISK_CONFIG | RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [],

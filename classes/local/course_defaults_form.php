@@ -57,7 +57,26 @@ class course_defaults_form extends \course_edit_form {
             }
             $data[$name] = $value;
         }
+        // What core pins for this user (a frozen "visible" or "downloadcontent", say) is what it would submit.
+        foreach ($mform->_constantValues as $name => $value) {
+            if ($this->is_frozen($name)) {
+                $data[$name] = $value;
+            }
+        }
         return $data;
+    }
+
+    /**
+     * Whether core froze an element for this user, so a wizard's answer must not replace its value.
+     *
+     * course_edit_form freezes "visible" without moodle/course:visibility and "downloadcontent"
+     * without moodle/course:configuredownloadcontent, among others.
+     *
+     * @param string $name the element name
+     * @return bool
+     */
+    public function is_frozen(string $name): bool {
+        return $this->_form->elementExists($name) && $this->_form->getElement($name)->isFrozen();
     }
 
     /**

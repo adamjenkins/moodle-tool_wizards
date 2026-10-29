@@ -174,6 +174,12 @@ final class validator_test extends advanced_testcase {
             'unknown capability' => [function (&$d) {
                 $d['screens'][1]['when'] = ['capability' => 'moodle/no:suchthing'];
             }, 'screens[1].when.capability:'],
+            'config.php secret as a default' => [function (&$d) {
+                $d['screens'][0]['items'][0]['default'] = 'config:core/dbpass';
+            }, 'screens[0].items[0].default:'],
+            'setting outside courses and activities as a default' => [function (&$d) {
+                $d['screens'][0]['items'][0]['default'] = 'config:auth_ldap/host_url';
+            }, 'screens[0].items[0].default:'],
         ];
     }
 

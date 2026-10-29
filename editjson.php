@@ -47,7 +47,8 @@ if ($form->is_cancelled()) {
 $problems = [];
 if ($data = $form->get_data()) {
     $doc = json_decode($data->json, true);
-    $problems = is_array($doc) ? validator::check($doc) : ['(document): not valid JSON: ' . json_last_error_msg()];
+    $problems = is_array($doc) ? validator::check($doc)
+        : ['(document): ' . get_string('problem_notjson', 'tool_wizards', json_last_error_msg())];
     if (!$problems) {
         try {
             repository::save($doc, [], $id);

@@ -173,7 +173,11 @@ field `typeid`). In-activity wizards of a question bank or a quiz can use `"cm:q
 the bank's top level first, for where new categories go).
 
 Defaults may be a value, `"config:plugin/setting"` (the site's own default, e.g.
-`"config:quiz/attempts"`), or `"course:groupmode"`.
+`"config:quiz/attempts"`), or `"course:groupmode"`. A `config:` reference may only name a course or
+activity default: a `moodlecourse` setting, an activity module's or its subplugins' setting, or an
+older module's setting kept in core as `"config:core/<module>_<name>"` (and `"config:core/gradepointdefault"`).
+Settings forced in config.php and anything named like a password, secret, key, token or salt are
+refused, because the value is shown to teachers.
 
 ### 3.4 Choices
 

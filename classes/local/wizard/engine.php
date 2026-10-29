@@ -36,6 +36,12 @@ use tool_wizards\local\module_creator;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class engine {
+    /** @var string a "config:plugin/name" reference to a site setting, as a default or a percentof */
+    const CONFIG_DEFAULT = '/^config:([a-z][a-z0-9_]*)\/([a-z0-9_]+)$/';
+
+    /** @var string[] core settings outside any activity that wizards may still read as defaults */
+    const CORE_CONFIG_DEFAULTS = ['gradepointdefault'];
+
     /** @var array the definition */
     protected array $doc;
 
@@ -489,6 +495,43 @@ class engine {
     }
 
     /**
+     * Whether a wizard may read this site setting ("config:plugin/name") as a default.
+     *
+     * Only course and activity defaults: "moodlecourse" settings, an activity module's or its
+     * subplugins' settings, and the activity settings older modules keep in core as
+     * "<module>_<name>". Never a value forced in config.php, and never anything named like a
+     * credential, because the value is shown to the teacher in the wizard's form.
+     *
+     * @param string $plugin the plugin, or "core"
+     * @param string $name the setting
+     * @return bool
+     */
+    public static function config_default_allowed(string $plugin, string $name): bool {
+        global $CFG;
+        if (preg_match('/pass|secret|key|token|salt|cookie/', $name)) {
+            return false;
+        }
+        if ($plugin === 'core') {
+            if (array_key_exists($name, $CFG->config_php_settings ?? [])) {
+                return false;
+            }
+            if (in_array($name, self::CORE_CONFIG_DEFAULTS, true)) {
+                return true;
+            }
+            $prefix = strstr($name, '_', true);
+            return $prefix !== false && $prefix !== '' && \core_component::get_component_directory('mod_' . $prefix) !== null;
+        }
+        if (isset($CFG->forced_plugin_settings[$plugin][$name])) {
+            return false;
+        }
+        if ($plugin === 'moodlecourse') {
+            return true;
+        }
+        [$type] = \core_component::normalize_component($plugin);
+        return $type === 'mod' || str_starts_with((string) \core_component::get_subtype_parent($type), 'mod_');
+    }
+
+    /**
      * A question's default value here.
      *
      * @param array $item the question
@@ -496,9 +539,11 @@ class engine {
      */
     public function default_for(array $item) {
         $default = $item['default'] ?? null;
-        if (is_string($default) && preg_match('/^config:([a-z][a-z0-9_]*)\/([a-z0-9_]+)$/', $default, $m)) {
-            $plugin = $m[1] === 'core' ? 'core' : $m[1];
-            return get_config($plugin, $m[2]);
+        if (is_string($default) && preg_match(self::CONFIG_DEFAULT, $default, $m)) {
+            if (!self::config_default_allowed($m[1], $m[2])) {
+                return null;
+            }
+            return get_config($m[1], $m[2]);
         }
         if ($default === 'course:groupmode') {
             return $this->course ? (int) $this->course->groupmode : 0;
@@ -755,8 +800,8 @@ class engine {
     protected function field_value(array $item, array $map, $value, array $answers) {
         if (isset($map['percentof'])) {
             $of = $map['percentof'];
-            if (is_string($of) && preg_match('/^config:([a-z][a-z0-9_]*)\/([a-z0-9_]+)$/', $of, $m)) {
-                $of = (float) get_config($m[1], $m[2]);
+            if (is_string($of) && preg_match(self::CONFIG_DEFAULT, $of, $m)) {
+                $of = self::config_default_allowed($m[1], $m[2]) ? (float) get_config($m[1], $m[2]) : 0;
             }
             return self::is_empty($value) ? '' : format_float((float) $of * (float) $value / 100, 2, false, true);
         }

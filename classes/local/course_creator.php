@@ -439,8 +439,9 @@ class course_creator {
         // Values the form would not carry as element defaults.
         $data['category'] = $category->id;
         foreach (get_object_vars($answers) as $field => $value) {
-            // Only fields the form has: a format without a number of sections gets none.
-            if ($field !== 'category' && $field !== 'id' && $form->has_element($field)) {
+            // Only fields the form has (a format without a number of sections gets none), and not
+            // ones core froze for this user.
+            if ($field !== 'category' && $field !== 'id' && $form->has_element($field) && !$form->is_frozen($field)) {
                 $data[$field] = $value;
             }
         }

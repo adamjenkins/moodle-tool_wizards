@@ -41,15 +41,15 @@ class quiz_first_question extends \tool_wizards\local\wizard\action {
         $problems = [];
         foreach (['kind', 'text', 'correct', 'truefalse'] as $name) {
             if (!in_array($config[$name] ?? null, $questionkeys, true)) {
-                $problems[] = "\"$name\" must be the key of a question";
+                $problems[] = get_string('problem_actionquestionkey', 'tool_wizards', $name);
             }
         }
         if (!is_array($config['choices'] ?? null) || array_diff($config['choices'], $questionkeys)) {
-            $problems[] = '"choices" must be a list of question keys';
+            $problems[] = get_string('problem_actionchoices', 'tool_wizards');
         }
         $unknown = array_diff(array_keys($config), ['action', 'when', 'kind', 'text', 'choices', 'correct', 'truefalse']);
         if ($unknown) {
-            $problems[] = 'unknown property ' . implode(', ', $unknown);
+            $problems[] = get_string('problem_actionunknown', 'tool_wizards', implode(', ', $unknown));
         }
         return $problems;
     }

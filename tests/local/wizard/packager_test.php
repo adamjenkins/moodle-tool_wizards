@@ -72,6 +72,11 @@ final class packager_test extends advanced_testcase {
             'result'
         ));
         $this->assertSame(repository::ORIGIN_DEFAULT, repository::get_by_key('forum')->origin, 'A replaced default stays one.');
+        $this->assertEquals(
+            repository::STATUS_DRAFT,
+            repository::get_by_key('forum')->status,
+            'A replaced wizard waits as a draft, even when it was enabled.'
+        );
     }
 
     /**

@@ -396,6 +396,30 @@ final class course_creator_test extends advanced_testcase {
     }
 
     /**
+     * A field core freezes for this creator keeps core's value, whatever the wizard asks: here
+     * "downloadcontent" without moodle/course:configuredownloadcontent.
+     */
+    public function test_frozen_field_keeps_core_value(): void {
+        global $DB;
+        $this->resetAfterTest();
+        set_config('downloadcoursecontentallowed', 1);
+        $category = $this->getDataGenerator()->create_category();
+        $this->setUser($this->make_category_creator($category));
+        $fields = ['fullname' => 'Downloads', 'shortname' => 'DL1', 'format' => 'topics',
+            'downloadcontent' => DOWNLOAD_COURSE_CONTENT_ENABLED];
+
+        $result = course_creator::create(course_creator::prepare_fields($fields, $category->id));
+        $this->assertEquals(DOWNLOAD_COURSE_CONTENT_ENABLED, $result['course']->downloadcontent, 'Allowed: the answer is used.');
+
+        $teacherrole = $DB->get_field('role', 'id', ['shortname' => 'editingteacher']);
+        $syscontextid = \context_system::instance()->id;
+        assign_capability('moodle/course:configuredownloadcontent', CAP_PROHIBIT, $teacherrole, $syscontextid, true);
+        accesslib_clear_all_caches_for_unit_testing();
+        $result = course_creator::create(course_creator::prepare_fields(['shortname' => 'DL2'] + $fields, $category->id));
+        $this->assertEquals(DOWNLOAD_COURSE_CONTENT_SITE_DEFAULT, $result['course']->downloadcontent);
+    }
+
+    /**
      * Short name suggestions: initials (no year) for Latin names, the name itself otherwise, and never a taken one.
      */
     public function test_suggest_shortname(): void {

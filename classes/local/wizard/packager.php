@@ -210,7 +210,8 @@ class packager {
     protected static function import_one(string $json, array $pictures, string $mode, string $label): array {
         $doc = json_decode($json, true);
         if (!is_array($doc)) {
-            return ['key' => $label, 'result' => 'invalid', 'problems' => ['not valid JSON: ' . json_last_error_msg()]];
+            $problem = get_string('problem_notjson', 'tool_wizards', json_last_error_msg());
+            return ['key' => $label, 'result' => 'invalid', 'problems' => [$problem]];
         }
         $problems = validator::check($doc);
         $problems = array_merge($problems, self::picture_problems($doc, $pictures));
@@ -236,10 +237,8 @@ class packager {
                 $result = 'copied';
             }
         }
-        unset($extra['status']);
-        if (!$id) {
-            $extra['status'] = repository::STATUS_DRAFT;
-        }
+        // New, copied or replacing an enabled wizard: it waits as a draft until someone tries it and enables it.
+        $extra['status'] = repository::STATUS_DRAFT;
         $id = repository::save($doc, $extra, $id);
         self::store_pictures($id, $pictures, $result === 'replaced');
         return ['key' => $doc['key'], 'result' => $result, 'problems' => []];
@@ -257,9 +256,9 @@ class packager {
         foreach ($pictures as $name => $path) {
             $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
             if (!in_array($ext, self::PICTURE_EXTENSIONS, true) || clean_param($name, PARAM_FILE) !== $name) {
-                $problems[] = "pictures/$name: not an accepted picture (png, jpg, webp, svg, gif)";
+                $problems[] = "pictures/$name: " . get_string('problem_picturetype', 'tool_wizards');
             } else if (filesize($path) > self::MAX_PICTURE_BYTES) {
-                $problems[] = "pictures/$name: larger than 2 MB";
+                $problems[] = "pictures/$name: " . get_string('problem_picturesize', 'tool_wizards');
             }
         }
         array_walk_recursive($doc, function ($value, $key) use (&$problems, $pictures) {
@@ -267,7 +266,7 @@ class packager {
                 $key === 'picture' && is_string($value) && str_starts_with($value, 'file:')
                     && !isset($pictures[substr($value, 5)])
             ) {
-                $problems[] = 'picture ' . $value . ': not in the pictures folder';
+                $problems[] = 'picture ' . $value . ': ' . get_string('problem_picturemissing', 'tool_wizards');
             }
         });
         return $problems;

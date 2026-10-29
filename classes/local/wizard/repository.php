@@ -256,7 +256,7 @@ class repository {
         }
         $existing = $DB->get_record(self::TABLE, ['wizardkey' => $doc['key']]);
         if ($existing && (int) $existing->id !== (int) $id) {
-            throw new invalid_definition(['key: another wizard already uses "' . $doc['key'] . '"']);
+            throw new invalid_definition(['key: ' . get_string('problem_keytaken', 'tool_wizards', $doc['key'])]);
         }
         $record = (object) $extra;
         $record->wizardkey = $doc['key'];

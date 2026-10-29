@@ -125,7 +125,9 @@ class form_builder {
     protected function add_item(array $item): void {
         $mform = $this->mform;
         $key = $item['key'];
-        $label = isset($item['label']) ? text::get($item['label']) : '';
+        // Core's form templates print labels, checkbox texts and select options as HTML; definition
+        // text is plain text, from whoever wrote or imported the wizard.
+        $label = isset($item['label']) ? s(text::get($item['label'])) : '';
         $attributes = ['data-wizard-question' => $key];
         switch ($item['kind']) {
             case 'hint':
@@ -161,7 +163,7 @@ class form_builder {
             case 'select':
                 $options = [];
                 foreach ($item['choices'] as $choice) {
-                    $options[(string) $choice['value']] = text::get($choice['title']);
+                    $options[(string) $choice['value']] = s(text::get($choice['title']));
                 }
                 $mform->addElement('select', $key, $label, $options, $attributes);
                 $mform->setType($key, PARAM_RAW);
@@ -172,7 +174,7 @@ class form_builder {
                 break;
             case 'yesno':
                 // Without a separate checkbox text, the label is the checkbox text.
-                $text = isset($item['text']) ? text::get($item['text']) : $label;
+                $text = isset($item['text']) ? s(text::get($item['text'])) : $label;
                 $mform->addElement('advcheckbox', $key, isset($item['text']) ? $label : '', $text, $attributes);
                 break;
             case 'date':

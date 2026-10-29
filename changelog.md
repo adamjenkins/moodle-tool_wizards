@@ -3,6 +3,36 @@
 All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [Unreleased]
+
+Fixes for the MDL Shield review of 0.3.2 (grade B+, 2026-10-29).
+
+### Security
+
+- `"config:plugin/name"` defaults and `percentof` values only read course and activity defaults:
+  `moodlecourse`, activity modules and their subplugins, and the `<module>_<name>` settings older
+  modules keep in core. Values forced in config.php (such as `dbpass`) and settings named like a
+  password, secret, key, token or salt are never read, and the validator refuses definitions that
+  use them (medium).
+- Question labels, yes/no texts and select options from a definition are escaped before they reach
+  core's form templates, like the rest of a definition's text (low).
+- `tool/wizards:managewizards` now carries `RISK_XSS` as well as `RISK_CONFIG`, because wizards are
+  shown to teachers.
+
+### Fixed
+
+- The course wizard no longer sets a course form field that core freezes for the creator, such as
+  "Enable download course content" without `moodle/course:configuredownloadcontent`; core's value
+  is used, as on the standard form (low).
+- `$_FILES` is restored after a wizard submits a core form, along with `$_POST` (low).
+
+### Changed
+
+- An import in Replace mode leaves the replaced wizard as a draft, like every other import, so an
+  imported definition is tried before teachers see it (info).
+- The validator's, import's and JSON editor's messages are language strings (`problem_*`), so they
+  can be translated (low).
+
 ## [0.3.2] - 2026-10-24
 
 ### Added
