@@ -151,7 +151,7 @@ administrators (capability `tool/wizards:managewizards`) manage them in
   New wizards start as drafts.
 - **Duplicate, export and import** wizards, one at a time or in bulk, as a zip with their
   pictures. Imports are checked first; a wizard that already exists can be imported as a copy,
-  replaced, or skipped.
+  replaced, or skipped. Every imported wizard, a replaced one included, arrives as a draft.
 - **Improve with AI**: if the site has a text-generation provider in Moodle's AI subsystem,
   describe a change in your own words and review the proposed differences before applying them.
 
