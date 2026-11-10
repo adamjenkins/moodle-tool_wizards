@@ -17,6 +17,7 @@
 namespace tool_wizards\local\wizard\content;
 
 use tool_wizards\local\question_categories;
+use tool_wizards\local\question_creator;
 
 /**
  * Sets up a question bank's categories in one go: one category for each chapter, unit, week or
@@ -94,6 +95,16 @@ class qbank_category extends \tool_wizards\local\wizard\content {
      */
     public static function repeatable(): bool {
         return false;
+    }
+
+    /**
+     * Any question bank activity except the course's System shared question bank.
+     *
+     * @param \cm_info $cm the bank
+     * @return bool
+     */
+    public static function is_available(\cm_info $cm): bool {
+        return !question_creator::is_system_bank($cm);
     }
 
     /**
@@ -203,6 +214,9 @@ class qbank_category extends \tool_wizards\local\wizard\content {
     public static function save(\cm_info $cm, array $fields): string {
         global $CFG, $DB;
         require_once($CFG->libdir . '/questionlib.php');
+        if (question_creator::is_system_bank($cm)) {
+            throw new \moodle_exception('error_systembank', 'tool_wizards');
+        }
         $context = $cm->context;
         $parent = (int) ($fields['parent'] ?? 0) ?: (int) question_get_top_category($context->id, true)->id;
         $manager = new \core_question\category_manager();

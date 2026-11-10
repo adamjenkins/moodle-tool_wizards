@@ -495,6 +495,7 @@ $string['error_singledescription'] = 'For a single discussion, please write the 
 $string['error_slidesnotpdf'] = 'Browsers cannot show this kind of file. Save your slides as a PDF, or choose "Download the original".';
 $string['error_startdate'] = 'Please choose the day the course starts.';
 $string['error_stepincomplete'] = 'Please answer the questions marked on this screen before going on.';
+$string['error_systembank'] = 'The wizards do not add questions or categories to the course\'s system question bank. Please use a question bank of your own.';
 $string['error_twochoices'] = 'Please fill in at least two answers to choose from.';
 $string['event_wizard_created'] = 'Wizard created';
 $string['event_wizard_deleted'] = 'Wizard deleted';

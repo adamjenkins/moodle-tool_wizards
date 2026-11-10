@@ -19,6 +19,7 @@ namespace tool_wizards\local\wizard\content;
 use advanced_testcase;
 use tool_wizards\local\content_creator;
 use tool_wizards\local\question_categories;
+use tool_wizards\local\question_creator;
 use tool_wizards\local\wizard\defaults;
 use tool_wizards\local\wizard\engine;
 
@@ -32,6 +33,7 @@ use tool_wizards\local\wizard\engine;
  */
 #[\PHPUnit\Framework\Attributes\CoversClass(qbank_category::class)]
 #[\PHPUnit\Framework\Attributes\CoversClass(question_categories::class)]
+#[\PHPUnit\Framework\Attributes\CoversClass(question_creator::class)]
 final class qbank_category_test extends advanced_testcase {
     /** @var \cm_info the question bank */
     protected \cm_info $cm;
@@ -112,5 +114,41 @@ final class qbank_category_test extends advanced_testcase {
         $foreign = question_categories::tree(\core\context\module::instance($other->cmid))[0]['id'];
         $this->assertArrayHasKey('parent', qbank_category::check($this->cm, ['scheme' => 'unit', 'from' => 1, 'to' => 2,
             'parent' => $foreign]));
+    }
+
+    /**
+     * The course's System shared question bank is never offered, and a crafted submission for it is refused.
+     */
+    public function test_system_bank_refused(): void {
+        global $DB;
+        $this->setAdminUser();
+        $course = get_course($this->cm->course);
+        $system = \core_question\local\bank\question_bank_helper::get_default_open_instance_system_type($course, true);
+        $this->assertNotNull($system);
+        $system = get_fast_modinfo($course)->get_cm($system->id);
+
+        $this->assertTrue(question_creator::is_system_bank($system));
+        $this->assertFalse(question_creator::is_system_bank($this->cm));
+        $this->assertFalse(qbank_category::is_available($system));
+        $this->assertFalse(qbank_question::is_available($system));
+        $this->assertTrue(qbank_category::is_available($this->cm));
+
+        $before = $DB->count_records('question_categories', ['contextid' => $system->context->id]);
+        try {
+            qbank_category::save($system, ['scheme' => 'topics', 'topics' => 'Food']);
+            $this->fail('Categories were added to the System bank.');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error_systembank', $e->errorcode);
+        }
+        $this->assertEquals($before, $DB->count_records('question_categories', ['contextid' => $system->context->id]));
+
+        $questions = $DB->count_records('question');
+        try {
+            question_creator::add_to_bank($system, 'truefalse', ['questiontext' => 'X', 'correctanswer' => 1]);
+            $this->fail('A question was added to the System bank.');
+        } catch (\moodle_exception $e) {
+            $this->assertSame('error_systembank', $e->errorcode);
+        }
+        $this->assertEquals($questions, $DB->count_records('question'));
     }
 }

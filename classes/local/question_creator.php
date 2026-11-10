@@ -123,6 +123,23 @@ class question_creator {
     }
 
     /**
+     * Whether an activity is a course's System shared question bank (a mod_qbank of type
+     * {@see \core_question\local\bank\question_bank_helper::TYPE_SYSTEM}). The wizards never add
+     * questions or categories there: they go in a question bank activity of the teacher's own.
+     *
+     * @param \cm_info $cm the activity
+     * @return bool
+     */
+    public static function is_system_bank(\cm_info $cm): bool {
+        global $DB;
+        if ($cm->modname !== 'qbank') {
+            return false;
+        }
+        $type = $DB->get_field('qbank', 'type', ['id' => $cm->instance]);
+        return $type === \core_question\local\bank\question_bank_helper::TYPE_SYSTEM;
+    }
+
+    /**
      * Create the question and add it to the quiz.
      *
      * @param \cm_info $cm the quiz
@@ -169,11 +186,15 @@ class question_creator {
      * @param array $answers submitted field => value for the question type's own form
      * @param int $categoryid a category of this bank, or 0 for its default category
      * @return \stdClass the saved question
-     * @throws \moodle_exception when the user may not, or the question form refuses the answers
+     * @throws \moodle_exception when the user may not, the bank is the course's System shared bank,
+     *     or the question form refuses the answers
      */
     public static function add_to_bank(\cm_info $cm, string $qtype, array $answers, int $categoryid = 0): \stdClass {
         global $CFG;
         require_once($CFG->libdir . '/questionlib.php');
+        if (self::is_system_bank($cm)) {
+            throw new \moodle_exception('error_systembank', 'tool_wizards');
+        }
         $context = \core\context\module::instance($cm->id);
         if (
             !in_array($qtype, self::WIZARD_QTYPES, true) || !\question_bank::qtype_enabled($qtype)
@@ -211,6 +232,9 @@ class question_creator {
 
         if (!self::banks_ready()) {
             throw new \moodle_exception('error_noquestion', 'tool_wizards');
+        }
+        if (self::is_system_bank($cm)) {
+            throw new \moodle_exception('error_systembank', 'tool_wizards');
         }
         $context = \core\context\module::instance($cm->id);
         $PAGE->set_context($context);

@@ -135,7 +135,9 @@ function tool_wizards_user_preferences(): array {
 /**
  * Serve wizard pictures (the "picture" area, item = wizard id, system context).
  *
- * Pictures are shown to anyone who can use the wizards, so any logged-in user may load them.
+ * Pictures are shown to anyone who can use the wizards, so any logged-in user may load the
+ * pictures of an enabled wizard. Pictures of draft or disabled wizards are served only to people
+ * who manage wizards ({@see \tool_wizards\local\wizard\repository::may_run()}).
  * They are always sent as downloads: an <img> still shows them, but an uploaded SVG opened
  * directly cannot run script on the site.
  *
@@ -154,6 +156,10 @@ function tool_wizards_pluginfile($course, $cm, $context, $filearea, $args, $forc
     }
     require_login(null, false);
     $itemid = (int) array_shift($args);
+    $wizard = \tool_wizards\local\wizard\repository::get($itemid);
+    if (!$wizard || !\tool_wizards\local\wizard\repository::may_run($wizard)) {
+        return false;
+    }
     $filename = array_pop($args);
     $filepath = $args ? '/' . implode('/', $args) . '/' : '/';
     $file = get_file_storage()->get_file($context->id, 'tool_wizards', 'picture', $itemid, $filepath, $filename);

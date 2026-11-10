@@ -70,13 +70,15 @@ class qbank_question extends content {
     }
 
     /**
-     * Once the question banks can be used, when the site offers a question type the wizard knows.
+     * Once the question banks can be used, when the site offers a question type the wizard knows,
+     * and never in the course's System shared question bank.
      *
      * @param \cm_info $cm the question bank
      * @return bool
      */
     public static function is_available(\cm_info $cm): bool {
-        return question_creator::banks_ready() && question_creator::enabled_qtypes();
+        return question_creator::banks_ready() && question_creator::enabled_qtypes()
+            && !question_creator::is_system_bank($cm);
     }
 
     /**
