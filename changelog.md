@@ -3,6 +3,29 @@
 All notable changes to this plugin are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.3.4] - 2026-11-10
+
+### Changed
+
+- New `question_creator::is_system_bank()` tells whether an activity is a course's System shared
+  question bank (`mod_qbank` whose `type` is `question_bank_helper::TYPE_SYSTEM`).
+- The `qbank_question` and `qbank_category` content wizards are not available there
+  (`is_available()`), and `question_creator::add_to_bank()`, the bank question form path and
+  `qbank_category::save()` throw `error_systembank` when aimed at it, so a crafted submission is
+  refused too.
+- New language string `error_systembank`.
+
+### Security
+
+- `tool_wizards_pluginfile()` serves a wizard's pictures only when the wizard exists and
+  `repository::may_run()` allows it: enabled wizards to any logged-in user, draft and disabled ones
+  only to holders of `tool/wizards:managewizards`.
+
+### Added
+
+- New tests in `tests/lib_test.php` (picture serving) and
+  `tests/local/wizard/content/qbank_category_test.php` (System bank refusal).
+
 ## [0.3.3] - 2026-10-29
 
 Fixes for the MDL Shield review of 0.3.2 (grade B+, 2026-10-29).
